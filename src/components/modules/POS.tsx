@@ -426,7 +426,7 @@ function PosInvoice({ order }: { order: any }) {
       {/* Header */}
       <div className="flex items-start justify-between border-b-2 border-black pb-4 mb-4">
         <div className="flex items-center gap-3">
-          <div className="grid place-items-center h-12 w-12 rounded-xl text-white font-extrabold text-lg" style={{ background: "linear-gradient(135deg, oklch(0.62 0.2 28), oklch(0.66 0.15 145))" }}>FF</div>
+          <div className="grid place-items-center h-12 w-12 rounded-xl text-white font-extrabold text-lg shrink-0" style={{ background: "linear-gradient(135deg, oklch(0.55 0.2 28), oklch(0.58 0.18 45), oklch(0.62 0.15 145))", letterSpacing: "-0.02em" }}>FF</div>
           <div>
             <div className="text-xl font-extrabold">FusionFlow Restaurant</div>
             <div className="text-[11px] text-gray-500">{order.branchName ?? "Gulberg III Flagship"}, Lahore</div>

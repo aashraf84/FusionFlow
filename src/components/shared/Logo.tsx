@@ -9,7 +9,7 @@ interface LogoProps {
   variant?: "full" | "icon"
 }
 
-// FusionFlow ERP logo — "FF" monogram on a gradient tile.
+// FusionFlow ERP logo — clean "FF" text badge on a gradient tile.
 export function Logo({ className, size = 40, showWordmark = false, variant = "icon" }: LogoProps) {
   if (variant === "full" || showWordmark) {
     return (
@@ -30,55 +30,19 @@ export function Logo({ className, size = 40, showWordmark = false, variant = "ic
 
 function LogoIcon({ size = 40, className }: { size?: number; className?: string }) {
   return (
-    <svg
-      width={size}
-      height={size}
-      viewBox="0 0 48 48"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-      className={cn("shrink-0", className)}
+    <div
+      className={cn("grid place-items-center rounded-xl text-white font-extrabold shrink-0 shadow-sm", className)}
+      style={{
+        width: size,
+        height: size,
+        fontSize: size * 0.36,
+        background: "linear-gradient(135deg, oklch(0.55 0.2 28) 0%, oklch(0.58 0.18 45) 50%, oklch(0.62 0.15 145) 100%)",
+        letterSpacing: "-0.02em",
+      }}
       role="img"
       aria-label="FusionFlow ERP"
     >
-      <defs>
-        <linearGradient id="ffGrad" x1="4" y1="6" x2="44" y2="42" gradientUnits="userSpaceOnUse">
-          <stop stopColor="oklch(0.62 0.2 28)" />
-          <stop offset="0.5" stopColor="oklch(0.6 0.18 50)" />
-          <stop offset="1" stopColor="oklch(0.66 0.15 145)" />
-        </linearGradient>
-        <linearGradient id="ffShine" x1="8" y1="4" x2="28" y2="28" gradientUnits="userSpaceOnUse">
-          <stop stopColor="#ffffff" stopOpacity={0.3} />
-          <stop offset="1" stopColor="#ffffff" stopOpacity={0} />
-        </linearGradient>
-      </defs>
-      {/* Rounded tile background */}
-      <rect x="2" y="2" width="44" height="44" rx="12" fill="url(#ffGrad)" />
-      <rect x="2" y="2" width="44" height="44" rx="12" fill="url(#ffShine)" />
-
-      {/* FF monogram — two interlocking F shapes */}
-      {/* Left F */}
-      <path
-        d="M11 13 L20 13 M11 13 L11 35 M11 23 L18 23"
-        stroke="#fff"
-        strokeWidth="3"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        fill="none"
-      />
-      {/* Right F (slightly offset/interlocking) */}
-      <path
-        d="M26 13 L37 13 M26 13 L26 35 M26 23 L35 23"
-        stroke="#fff"
-        strokeWidth="3"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        fill="none"
-        opacity="0.85"
-      />
-
-      {/* Flow accent — small dots representing the fusion flow */}
-      <circle cx="22.5" cy="18" r="1.2" fill="#fff" opacity="0.9" />
-      <circle cx="22.5" cy="24" r="1" fill="#fff" opacity="0.6" />
-    </svg>
+      FF
+    </div>
   )
 }
