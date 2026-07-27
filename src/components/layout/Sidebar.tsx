@@ -5,6 +5,7 @@ import {
   LayoutDashboard, MonitorSmartphone, Pizza, ChefHat, Bike, Boxes, UtensilsCrossed,
   Users, BarChart3, Store, Sparkles, X, ShieldCheck, ChevronDown, Table2, Car,
   ClipboardList, Megaphone, Wallet, Crown, Cog, ShoppingBag, Lock, UserCog,
+  ShoppingCart, ShieldCheck as ShieldCheckIcon,
 } from "lucide-react"
 import { useAppStore } from "@/lib/store"
 import { useAuthStore } from "@/lib/auth-store"
@@ -44,6 +45,8 @@ const NAV_GROUPS: NavGroup[] = [
     items: [
       { id: "delivery", label: "Delivery", icon: Bike, desc: "Riders & routes", hot: true },
       { id: "inventory", label: "Inventory", icon: Boxes, desc: "Stock & batches" },
+      { id: "purchasing", label: "Purchasing", icon: ShoppingCart, desc: "POs & vendors" },
+      { id: "compliance", label: "Quality & Compliance", icon: ShieldCheckIcon, desc: "HACCP & food safety" },
     ],
   },
   {
@@ -60,8 +63,8 @@ const NAV_GROUPS: NavGroup[] = [
     items: [
       { id: "analytics", label: "Analytics", icon: BarChart3, desc: "Reports" },
       { id: "franchise", label: "Franchise", icon: Store, desc: "Multi-branch" },
-      { id: "hr", label: "Human Resources", icon: ClipboardList, desc: "Staff & payroll" },
-      { id: "finance", label: "Finance", icon: Wallet, desc: "Accounting & P&L" },
+      { id: "hr", label: "Human Resources", icon: ClipboardList, desc: "Staff & payroll", hot: true },
+      { id: "finance", label: "Finance", icon: Wallet, desc: "Accounting & P&L", hot: true },
       { id: "ai", label: "AI Insights", icon: Sparkles, desc: "Predictions", hot: true },
       { id: "users", label: "User Management", icon: UserCog, desc: "Roles & permissions" },
       { id: "owner", label: "Owner Portal", icon: Crown, desc: "SaaS & tenants" },

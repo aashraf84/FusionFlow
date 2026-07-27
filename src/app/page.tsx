@@ -24,6 +24,8 @@ import { OnlineOrdering } from "@/components/modules/OnlineOrdering"
 import { OwnerPortal } from "@/components/modules/OwnerPortal"
 import { AIInsights } from "@/components/modules/AIInsights"
 import { UserManagement } from "@/components/modules/UserManagement"
+import { Purchasing } from "@/components/modules/Purchasing"
+import { Compliance } from "@/components/modules/Compliance"
 import { LoginScreen } from "@/components/auth/LoginScreen"
 import { AccessDenied } from "@/components/shared/AccessDenied"
 import { useAppStore } from "@/lib/store"
@@ -108,11 +110,13 @@ export default function Home() {
               {activeModule === "tables" && <Tables />}
               {activeModule === "drive-thru" && <DriveThru />}
               {activeModule === "inventory" && <Inventory />}
+              {activeModule === "purchasing" && <Purchasing />}
               {activeModule === "menu" && <MenuModule />}
               {activeModule === "online" && <OnlineOrdering />}
               {activeModule === "crm" && <CRM />}
               {activeModule === "marketing" && <Marketing />}
               {activeModule === "analytics" && <Analytics />}
+              {activeModule === "compliance" && <Compliance />}
               {activeModule === "franchise" && <Franchise />}
               {activeModule === "hr" && <HR />}
               {activeModule === "finance" && <Finance />}
