@@ -2,41 +2,23 @@
 
 import { useState } from "react"
 import {
-  LayoutDashboard,
-  MonitorSmartphone,
-  Pizza,
-  ChefHat,
-  Bike,
-  Boxes,
-  UtensilsCrossed,
-  Users,
-  BarChart3,
-  Store,
-  Sparkles,
-  X,
-  ShieldCheck,
-  ChevronDown,
-  Table2,
-  Car,
-  ClipboardList,
-  Megaphone,
-  Wallet,
-  Cpu,
-  Cog,
-  ShoppingBag,
-  Crown,
+  LayoutDashboard, MonitorSmartphone, Pizza, ChefHat, Bike, Boxes, UtensilsCrossed,
+  Users, BarChart3, Store, Sparkles, X, ShieldCheck, ChevronDown, Table2, Car,
+  ClipboardList, Megaphone, Wallet, Crown, Cog, ShoppingBag, Lock, UserCog,
 } from "lucide-react"
 import { useAppStore } from "@/lib/store"
+import { useAuthStore } from "@/lib/auth-store"
+import { canAccess, getRoleDef } from "@/lib/auth"
 import type { ModuleId } from "@/lib/data"
 import { cn } from "@/lib/utils"
 import { Badge } from "@/components/ui/badge"
+import { Logo } from "@/components/shared/Logo"
 
 interface NavItem {
   id: ModuleId
   label: string
   icon: typeof LayoutDashboard
   desc: string
-  badge?: string
   hot?: boolean
 }
 interface NavGroup {
@@ -80,7 +62,8 @@ const NAV_GROUPS: NavGroup[] = [
       { id: "franchise", label: "Franchise", icon: Store, desc: "Multi-branch" },
       { id: "hr", label: "Human Resources", icon: ClipboardList, desc: "Staff & payroll" },
       { id: "finance", label: "Finance", icon: Wallet, desc: "Accounting & P&L" },
-      { id: "ai", label: "AI Insights", icon: Sparkles, desc: "Predictions", badge: "AI", hot: true },
+      { id: "ai", label: "AI Insights", icon: Sparkles, desc: "Predictions", hot: true },
+      { id: "users", label: "User Management", icon: UserCog, desc: "Roles & permissions" },
       { id: "owner", label: "Owner Portal", icon: Crown, desc: "SaaS & tenants" },
     ],
   },
@@ -91,43 +74,46 @@ export function Sidebar() {
   const setActiveModule = useAppStore((s) => s.setActiveModule)
   const sidebarOpen = useAppStore((s) => s.sidebarOpen)
   const setSidebarOpen = useAppStore((s) => s.setSidebarOpen)
+  const user = useAuthStore((s) => s.user)
+  const logout = useAuthStore((s) => s.logout)
   const [collapsed, setCollapsed] = useState<Record<string, boolean>>({})
 
-  const toggleGroup = (label: string) =>
-    setCollapsed((c) => ({ ...c, [label]: !c[label] }))
+  const toggleGroup = (label: string) => setCollapsed((c) => ({ ...c, [label]: !c[label] }))
+
+  const roleDef = user ? getRoleDef(user.role as any) : null
+  const initials = user?.name.split(" ").map((n) => n[0]).join("").slice(0, 2).toUpperCase() ?? "U"
 
   return (
     <>
       {sidebarOpen && (
-        <div
-          className="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm lg:hidden"
-          onClick={() => setSidebarOpen(false)}
-          aria-hidden
-        />
+        <div className="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm lg:hidden" onClick={() => setSidebarOpen(false)} aria-hidden />
       )}
       <aside
         className={cn(
-          "fixed lg:sticky top-0 z-50 lg:z-auto h-screen w-[264px] shrink-0 bg-sidebar text-sidebar-foreground flex flex-col transition-transform duration-300 border-r border-sidebar-border",
-          sidebarOpen ? "translate-x-0 shadow-2xl" : "-translate-x-full lg:translate-x-0"
+          "fixed lg:sticky top-0 z-50 lg:z-auto h-screen w-[268px] shrink-0 flex flex-col transition-transform duration-300 border-r",
+          sidebarOpen ? "translate-x-0 shadow-2xl" : "-translate-x-full lg:translate-x-0",
         )}
+        style={{
+          background: "linear-gradient(180deg, oklch(0.2 0.03 40) 0%, oklch(0.17 0.025 42) 50%, oklch(0.15 0.02 44) 100%)",
+          borderColor: "oklch(0.28 0.03 40)",
+        }}
       >
         {/* Brand header */}
-        <div className="flex items-center gap-3 px-4 h-16 border-b border-sidebar-border shrink-0 relative overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-r from-primary/20 to-transparent opacity-50 pointer-events-none" />
-          <div className="relative grid place-items-center h-10 w-10 rounded-xl bg-primary text-primary-foreground shadow-lg shadow-primary/30">
-            <Pizza className="h-5 w-5" />
-          </div>
-          <div className="relative leading-tight">
-            <div className="font-extrabold tracking-tight text-[15px] flex items-center gap-1.5">
-              PizzaFlow
-              <span className="text-[8px] font-bold px-1 py-0.5 rounded bg-primary/30 text-primary-foreground/90">ERP</span>
+        <div className="relative h-16 border-b shrink-0 flex items-center px-4 overflow-hidden" style={{ borderColor: "oklch(0.28 0.03 40)" }}>
+          <div className="absolute inset-0 opacity-40 pointer-events-none" style={{ background: "radial-gradient(ellipse at top left, oklch(0.55 0.2 28 / 0.25), transparent 70%)" }} />
+          <Logo size={40} variant="icon" className="relative drop-shadow-md" />
+          <div className="relative leading-tight ml-2.5">
+            <div className="font-extrabold tracking-tight text-[15px] text-white flex items-center gap-1.5">
+              Crave
+              <span className="text-[8px] font-bold px-1 py-0.5 rounded text-white" style={{ background: "oklch(0.55 0.2 28)" }}>ERP</span>
             </div>
-            <div className="text-[10px] text-sidebar-foreground/55 font-medium">Enterprise Restaurant OS</div>
+            <div className="text-[10px] font-medium" style={{ color: "oklch(0.96 0.01 70 / 0.55)" }}>Restaurant Operating System</div>
           </div>
           <button
-            className="relative ml-auto lg:hidden text-sidebar-foreground/70 hover:text-sidebar-foreground p-1.5 rounded-md hover:bg-sidebar-accent"
+            className="relative ml-auto lg:hidden p-1.5 rounded-md hover:bg-white/10"
             onClick={() => setSidebarOpen(false)}
             aria-label="Close sidebar"
+            style={{ color: "oklch(0.96 0.01 70 / 0.7)" }}
           >
             <X className="h-5 w-5" />
           </button>
@@ -136,12 +122,15 @@ export function Sidebar() {
         {/* Nav */}
         <nav className="flex-1 overflow-y-auto pf-scroll px-2.5 py-3 space-y-1">
           {NAV_GROUPS.map((group) => {
+            const visible = group.items.filter((item) => user ? canAccess(user.role as any, item.id) : false)
+            if (visible.length === 0) return null
             const isCollapsed = collapsed[group.label]
             return (
               <div key={group.label} className="mb-1">
                 <button
                   onClick={() => toggleGroup(group.label)}
-                  className="w-full flex items-center gap-1 px-2.5 py-1.5 text-[10px] font-bold uppercase tracking-wider text-sidebar-foreground/40 hover:text-sidebar-foreground/70 transition-colors"
+                  className="w-full flex items-center gap-1 px-2.5 py-1.5 text-[10px] font-bold uppercase tracking-wider transition-colors"
+                  style={{ color: "oklch(0.96 0.01 70 / 0.4)" }}
                 >
                   <span className="flex-1 text-left">{group.label}</span>
                   <ChevronDown className={cn("h-3 w-3 transition-transform", isCollapsed && "-rotate-90")} />
@@ -151,36 +140,30 @@ export function Sidebar() {
                     {group.items.map((item) => {
                       const Icon = item.icon
                       const active = activeModule === item.id
+                      const allowed = user ? canAccess(user.role as any, item.id) : false
+                      if (!allowed) return null
                       return (
                         <button
                           key={item.id}
-                          onClick={() => {
-                            setActiveModule(item.id)
-                            setSidebarOpen(false)
-                          }}
+                          onClick={() => { setActiveModule(item.id); setSidebarOpen(false) }}
                           className={cn(
                             "group relative w-full flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-[13px] font-medium transition-all",
-                            active
-                              ? "bg-primary text-primary-foreground shadow-sm shadow-primary/30"
-                              : "text-sidebar-foreground/75 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+                            active ? "text-white shadow-md" : "hover:bg-white/8",
                           )}
+                          style={active ? {
+                            background: "linear-gradient(90deg, oklch(0.55 0.2 28) 0%, oklch(0.6 0.18 38) 100%)",
+                            boxShadow: "0 4px 12px oklch(0.55 0.2 28 / 0.4)",
+                          } : { color: "oklch(0.96 0.01 70 / 0.78)" }}
                           title={item.desc}
                         >
-                          {active && (
-                            <span className="absolute -left-2.5 top-1/2 -translate-y-1/2 h-6 w-1 rounded-r-full bg-primary-foreground" />
-                          )}
-                          <Icon className={cn("h-[17px] w-[17px] shrink-0 transition-colors", active ? "text-primary-foreground" : "text-sidebar-foreground/55 group-hover:text-sidebar-accent-foreground")} />
+                          {active && <span className="absolute -left-2.5 top-1/2 -translate-y-1/2 h-6 w-1 rounded-r-full bg-white" />}
+                          <Icon className={cn("h-[17px] w-[17px] shrink-0 transition-colors", active ? "text-white" : "")} style={!active ? { color: "oklch(0.96 0.01 70 / 0.55)" } : undefined} />
                           <span className="flex-1 text-left truncate">{item.label}</span>
                           {item.hot && !active && (
                             <span className="relative flex h-1.5 w-1.5">
-                              <span className="absolute inline-flex h-full w-full rounded-full bg-chart-3 opacity-75 animate-ping" />
-                              <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-chart-3" />
+                              <span className="absolute inline-flex h-full w-full rounded-full opacity-75 animate-ping" style={{ background: "oklch(0.7 0.16 75)" }} />
+                              <span className="relative inline-flex rounded-full h-1.5 w-1.5" style={{ background: "oklch(0.7 0.16 75)" }} />
                             </span>
-                          )}
-                          {item.badge && (
-                            <Badge variant="secondary" className="h-4 px-1 text-[8px] font-bold bg-sidebar-accent text-sidebar-accent-foreground border-0">
-                              {item.badge}
-                            </Badge>
                           )}
                         </button>
                       )
@@ -192,26 +175,29 @@ export function Sidebar() {
           })}
         </nav>
 
-        {/* Footer of sidebar */}
-        <div className="border-t border-sidebar-border p-2.5 space-y-2">
-          <div className="flex items-center gap-2.5 rounded-lg bg-gradient-to-br from-sidebar-accent to-sidebar-accent/50 px-2.5 py-2">
-            <div className="grid place-items-center h-8 w-8 rounded-lg bg-chart-3/20 text-chart-3 shrink-0">
-              <ShieldCheck className="h-4 w-4" />
+        {/* Footer */}
+        <div className="border-t p-2.5 space-y-2" style={{ borderColor: "oklch(0.28 0.03 40)" }}>
+          <div className="flex items-center gap-2.5 rounded-lg px-2.5 py-2" style={{ background: "oklch(0.24 0.03 42 / 0.6)" }}>
+            <div className="grid place-items-center h-8 w-8 rounded-lg shrink-0 font-bold text-[10px] text-white" style={{ background: roleDef?.color ?? "var(--primary)" }}>
+              {initials}
             </div>
             <div className="leading-tight min-w-0 flex-1">
-              <div className="text-[11px] font-semibold text-sidebar-accent-foreground flex items-center gap-1">
-                Enterprise Tier <Cpu className="h-2.5 w-2.5" />
+              <div className="text-[11px] font-semibold truncate text-white">{user?.name ?? "Guest"}</div>
+              <div className="text-[9px] flex items-center gap-1" style={{ color: "oklch(0.96 0.01 70 / 0.5)" }}>
+                <ShieldCheck className="h-2.5 w-2.5" /> {roleDef?.label ?? "—"}
               </div>
-              <div className="text-[9px] text-sidebar-foreground/50">Multi-tenant · RBAC · 2FA active</div>
             </div>
+            <button
+              onClick={logout}
+              className="text-[9px] font-semibold px-2 py-1 rounded hover:bg-white/10 transition-colors"
+              style={{ color: "oklch(0.96 0.01 70 / 0.7)" }}
+              title="Sign out"
+            >
+              Logout
+            </button>
           </div>
-          <div className="flex items-center gap-2 px-1">
-            <div className="grid place-items-center h-7 w-7 rounded-full bg-primary/20 text-primary text-[10px] font-bold">AK</div>
-            <div className="leading-tight min-w-0 flex-1">
-              <div className="text-[11px] font-semibold truncate">Ahsan Khan</div>
-              <div className="text-[9px] text-sidebar-foreground/50">Regional Manager</div>
-            </div>
-            <div className="text-[9px] text-sidebar-foreground/40">v2.4</div>
+          <div className="flex items-center gap-1.5 px-1 text-[9px]" style={{ color: "oklch(0.96 0.01 70 / 0.4)" }}>
+            <Lock className="h-2.5 w-2.5" /> Crave ERP v3.0 · RBAC secured
           </div>
         </div>
       </aside>

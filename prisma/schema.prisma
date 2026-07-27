@@ -1,4 +1,4 @@
-// PizzaFlow ERP — Prisma schema
+// Savora ERP — Prisma schema
 // Enterprise restaurant operating system data model
 
 generator client {
@@ -143,4 +143,19 @@ model Employee {
   attendance String  @default("present") // present, absent, leave, late
   shift     String   @default("morning")
   createdAt DateTime @default(now())
+}
+
+model User {
+  id          String   @id
+  name        String
+  email       String   @unique
+  password    String   // plaintext for demo only; hash in production
+  role        String   @default("viewer") // owner, admin, manager, cashier, chef, rider, viewer
+  branchId    String?  // assigned branch (null = all branches)
+  active      Boolean  @default(true)
+  avatarColor String   @default("var(--primary)")
+  phone       String?
+  lastLoginAt DateTime?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }

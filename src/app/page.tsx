@@ -23,16 +23,24 @@ import { Marketing } from "@/components/modules/Marketing"
 import { OnlineOrdering } from "@/components/modules/OnlineOrdering"
 import { OwnerPortal } from "@/components/modules/OwnerPortal"
 import { AIInsights } from "@/components/modules/AIInsights"
+import { UserManagement } from "@/components/modules/UserManagement"
+import { LoginScreen } from "@/components/auth/LoginScreen"
+import { AccessDenied } from "@/components/shared/AccessDenied"
 import { useAppStore } from "@/lib/store"
+import { useAuthStore } from "@/lib/auth-store"
+import { canAccess } from "@/lib/auth"
 import { useFetch } from "@/hooks/use-fetch"
 import { Loader2 } from "lucide-react"
+import type { ModuleId } from "@/lib/data"
 
 export default function Home() {
   const activeModule = useAppStore((s) => s.activeModule)
+  const setActiveModule = useAppStore((s) => s.setActiveModule)
   const [seeded, setSeeded] = useState(false)
+  const user = useAuthStore((s) => s.user)
 
   // Check DB count; auto-seed if empty (first run)
-  const { data: counts, refresh } = useFetch<{ orders: number }>("/api/seed", {})
+  const { data: counts, refresh } = useFetch<{ orders: number; users: number }>("/api/seed", {})
   const startedRef = useRef(false)
   const needsSeed = !!counts && counts.orders === 0 && !seeded
   const seeding = needsSeed
@@ -48,10 +56,38 @@ export default function Home() {
       })
       .catch(() => {
         startedRef.current = false
-        // re-poll counts so the effect can retry on next tick
         setTimeout(() => refresh(), 1500)
       })
   }, [needsSeed, refresh])
+
+  // If user's active module is not permitted (e.g. after role switch), bounce to dashboard
+  useEffect(() => {
+    if (user && activeModule !== "dashboard" && !canAccess(user.role as any, activeModule as ModuleId)) {
+      setActiveModule("dashboard")
+    }
+  }, [user, activeModule, setActiveModule])
+
+  // Not logged in → show login screen (after seeding check completes)
+  if (!user && !seeding) {
+    return <LoginScreen />
+  }
+
+  // While seeding and not logged in, show splash
+  if (!user && seeding) {
+    return (
+      <div className="min-h-screen grid place-items-center bg-background">
+        <div className="text-center space-y-3">
+          <Loader2 className="h-8 w-8 animate-spin text-primary mx-auto" />
+          <div className="font-semibold text-sm">Initializing Crave ERP database…</div>
+          <div className="text-[11px] text-muted-foreground max-w-xs">
+            Seeding branches, menu, inventory, riders, customers, users & sample orders
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  const hasAccess = user ? canAccess(user.role as any, activeModule as ModuleId) : false
 
   return (
     <div className="min-h-screen flex bg-background">
@@ -59,35 +95,32 @@ export default function Home() {
       <div className="flex-1 flex flex-col min-w-0">
         <TopBar />
         <main className="flex-1 p-4 lg:p-6">
-          {/* First-run seeding overlay */}
-          {seeding && (
-            <div className="rounded-xl border-2 border-dashed p-6 mb-4 flex items-center gap-3 bg-muted/20">
-              <Loader2 className="h-5 w-5 animate-spin text-primary" />
-              <div>
-                <div className="font-semibold text-sm">Initializing PizzaFlow ERP database…</div>
-                <div className="text-[11px] text-muted-foreground">Seeding branches, menu, inventory, riders, customers & sample orders</div>
-              </div>
-            </div>
+          {!hasAccess ? (
+            <AccessDenied module={activeModule} />
+          ) : (
+            <>
+              {activeModule === "dashboard" && <Dashboard />}
+              {activeModule === "pos" && <POS />}
+              {activeModule === "pizza-builder" && <PizzaBuilder />}
+              {activeModule === "kds" && <KDS />}
+              {activeModule === "production" && <Production />}
+              {activeModule === "delivery" && <Delivery />}
+              {activeModule === "tables" && <Tables />}
+              {activeModule === "drive-thru" && <DriveThru />}
+              {activeModule === "inventory" && <Inventory />}
+              {activeModule === "menu" && <MenuModule />}
+              {activeModule === "online" && <OnlineOrdering />}
+              {activeModule === "crm" && <CRM />}
+              {activeModule === "marketing" && <Marketing />}
+              {activeModule === "analytics" && <Analytics />}
+              {activeModule === "franchise" && <Franchise />}
+              {activeModule === "hr" && <HR />}
+              {activeModule === "finance" && <Finance />}
+              {activeModule === "ai" && <AIInsights />}
+              {activeModule === "users" && <UserManagement />}
+              {activeModule === "owner" && <OwnerPortal />}
+            </>
           )}
-          {activeModule === "dashboard" && <Dashboard />}
-          {activeModule === "pos" && <POS />}
-          {activeModule === "pizza-builder" && <PizzaBuilder />}
-          {activeModule === "kds" && <KDS />}
-          {activeModule === "production" && <Production />}
-          {activeModule === "delivery" && <Delivery />}
-          {activeModule === "tables" && <Tables />}
-          {activeModule === "drive-thru" && <DriveThru />}
-          {activeModule === "inventory" && <Inventory />}
-          {activeModule === "menu" && <MenuModule />}
-          {activeModule === "online" && <OnlineOrdering />}
-          {activeModule === "crm" && <CRM />}
-          {activeModule === "marketing" && <Marketing />}
-          {activeModule === "analytics" && <Analytics />}
-          {activeModule === "franchise" && <Franchise />}
-          {activeModule === "hr" && <HR />}
-          {activeModule === "finance" && <Finance />}
-          {activeModule === "ai" && <AIInsights />}
-          {activeModule === "owner" && <OwnerPortal />}
         </main>
         <Footer />
       </div>

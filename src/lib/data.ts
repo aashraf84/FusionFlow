@@ -1,4 +1,4 @@
-// PizzaFlow ERP — shared domain types & seed catalog
+// Crave ERP — shared domain types & seed catalog
 
 export type ModuleId =
   | "dashboard"
@@ -19,6 +19,7 @@ export type ModuleId =
   | "hr"
   | "finance"
   | "ai"
+  | "users"
   | "owner"
 
 export interface MenuProduct {

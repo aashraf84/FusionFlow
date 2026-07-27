@@ -59,7 +59,7 @@ export async function GET(req: Request) {
     hourlyDistribution: Object.entries(hourlyOrders).map(([h, c]) => `${h}h:${c} orders`).join(", "),
   }
 
-  const systemPrompt = `You are PizzaFlow AI, the predictive intelligence engine of an enterprise restaurant ERP (pizza, burger, fried chicken, cloud kitchen & franchise chains in Pakistan, prices in PKR).
+  const systemPrompt = `You are Crave AI, the predictive intelligence engine of an enterprise restaurant ERP (pizza, burger, fried chicken, cloud kitchen & franchise chains in Pakistan, prices in PKR).
 Analyze the live operational data and produce actionable predictions & recommendations.
 Respond with STRICT valid JSON only (no markdown, no prose) matching this TypeScript type:
 {

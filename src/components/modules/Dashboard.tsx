@@ -260,7 +260,7 @@ export function Dashboard() {
               <Sparkles className="h-4 w-4" />
             </div>
             <div>
-              <div className="font-bold text-sm">PizzaFlow AI</div>
+              <div className="font-bold text-sm">Crave AI</div>
               <div className="text-[11px] text-muted-foreground">Predictive intelligence</div>
             </div>
           </div>

@@ -1,9 +1,11 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { Bell, Menu, Moon, Search, Sun, ChevronDown, Store, Wifi, Command, Plus, Zap } from "lucide-react"
+import { Bell, Menu, Moon, Search, Sun, ChevronDown, Store, Wifi, Command, Plus, Zap, Users, LogOut, CheckCircle2 } from "lucide-react"
 import { useTheme } from "next-themes"
 import { useAppStore } from "@/lib/store"
+import { useAuthStore } from "@/lib/auth-store"
+import { ROLES, getRoleDef, type Role } from "@/lib/auth"
 import { useFetch } from "@/hooks/use-fetch"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -55,6 +57,7 @@ const MODULE_TITLES: Record<string, { title: string; subtitle: string }> = {
   hr: { title: "Human Resources", subtitle: "Staff, attendance, payroll & shifts" },
   finance: { title: "Finance & Accounting", subtitle: "P&L, cash flow, AR/AP & expenses" },
   ai: { title: "AI Intelligence", subtitle: "Predictions, forecasting & recommendations" },
+  users: { title: "User Management", subtitle: "Accounts, roles & permissions (RBAC)" },
   owner: { title: "Owner Portal", subtitle: "SaaS tenants, subscriptions & licensing" },
 }
 
@@ -83,6 +86,20 @@ export function TopBar() {
   const current = branches.find((b) => b.id === activeBranchId)
   const allBranchesActive = activeBranchId === "__ALL__"
 
+  // Auth / current user
+  const user = useAuthStore((s) => s.user)
+  const switchRole = useAuthStore((s) => s.switchRole)
+  const logout = useAuthStore((s) => s.logout)
+  const currentRole = (user?.role ?? "viewer") as Role
+  const roleDef = getRoleDef(currentRole)
+  const userName = user?.name ?? "Guest"
+  const userEmail = user?.email ?? ""
+  const userInitials = userName.split(" ").map((n) => n[0]).join("").slice(0, 2).toUpperCase()
+  const userAvatarColor = user?.avatarColor ?? "var(--primary)"
+  const userRoleColor = roleDef.color
+  const userRoleLabel = roleDef.label
+  const ROLE_SWITCH = ROLES
+
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect -- mount flag + clock init for client-only rendering
     setMounted(true)
@@ -103,7 +120,7 @@ export function TopBar() {
     return () => window.removeEventListener("keydown", handler)
   }, [])
 
-  const meta = MODULE_TITLES[activeModule] ?? { title: "PizzaFlow", subtitle: "" }
+  const meta = MODULE_TITLES[activeModule] ?? { title: "Crave ERP", subtitle: "" }
   const timeStr = now?.toLocaleTimeString("en-PK", { hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: true }) ?? ""
 
   return (
@@ -210,18 +227,56 @@ export function TopBar() {
         {mounted && theme === "dark" ? <Sun className="h-[18px] w-[18px]" /> : <Moon className="h-[18px] w-[18px]" />}
       </Button>
 
-      {/* User chip */}
-      <div className="hidden sm:flex items-center gap-2 pl-2 ml-1 border-l shrink-0">
-        <div className="grid place-items-center h-8 w-8 rounded-full bg-primary text-primary-foreground text-[11px] font-bold">
-          AK
-        </div>
-        <div className="hidden md:block leading-tight">
-          <div className="text-xs font-semibold">Ahsan Khan</div>
-          <div className="text-[10px] text-muted-foreground flex items-center gap-0.5">
-            <Wifi className="h-2.5 w-2.5 text-chart-3" /> Online
-          </div>
-        </div>
-      </div>
+      {/* User chip with role switcher */}
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <button className="hidden sm:flex items-center gap-2 pl-2 ml-1 border-l shrink-0 h-10 px-1 rounded-lg hover:bg-accent">
+            <div className="grid place-items-center h-8 w-8 rounded-full text-white text-[11px] font-bold shrink-0" style={{ background: userAvatarColor }}>
+              {userInitials}
+            </div>
+            <div className="hidden md:block leading-tight text-left">
+              <div className="text-xs font-semibold">{userName}</div>
+              <div className="text-[10px] text-muted-foreground flex items-center gap-0.5">
+                <span className="h-1.5 w-1.5 rounded-full" style={{ background: userRoleColor }} />
+                {userRoleLabel}
+              </div>
+            </div>
+            <ChevronDown className="h-3 w-3 opacity-50 hidden md:block" />
+          </button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end" className="w-64">
+          <DropdownMenuLabel className="flex items-center gap-2">
+            <div className="grid place-items-center h-8 w-8 rounded-full text-white text-[11px] font-bold" style={{ background: userAvatarColor }}>{userInitials}</div>
+            <div className="min-w-0">
+              <div className="text-sm font-semibold truncate">{userName}</div>
+              <div className="text-[11px] text-muted-foreground truncate">{userEmail}</div>
+            </div>
+          </DropdownMenuLabel>
+          <DropdownMenuSeparator />
+          <DropdownMenuLabel className="text-[10px] uppercase text-muted-foreground">Switch role (demo)</DropdownMenuLabel>
+          {ROLE_SWITCH.map((r) => (
+            <DropdownMenuItem
+              key={r.id}
+              onClick={() => switchRole(r.id)}
+              className="gap-2"
+            >
+              <span className="h-2 w-2 rounded-full" style={{ background: r.color }} />
+              <span className="font-semibold flex-1">{r.label}</span>
+              {currentRole === r.id && <CheckCircle2 className="h-3.5 w-3.5 text-chart-3" />}
+            </DropdownMenuItem>
+          ))}
+          <DropdownMenuSeparator />
+          <DropdownMenuItem
+            onClick={() => { setActiveModule("users"); }}
+            className="gap-2"
+          >
+            <Users className="h-4 w-4" /> User Management
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={logout} className="gap-2 text-destructive focus:text-destructive">
+            <LogOut className="h-4 w-4" /> Sign out
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
 
       {/* Command palette */}
       <Dialog open={cmdOpen} onOpenChange={setCmdOpen}>
