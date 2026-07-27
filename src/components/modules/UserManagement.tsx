@@ -44,6 +44,7 @@ const MODULE_LIST: { id: ModuleId; label: string }[] = [
   { id: "hr", label: "HR" },
   { id: "finance", label: "Finance" },
   { id: "ai", label: "AI Insights" },
+  { id: "reports", label: "Reports" },
   { id: "users", label: "User Mgmt" },
   { id: "owner", label: "Owner Portal" },
 ]

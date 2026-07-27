@@ -21,6 +21,7 @@ export type ModuleId =
   | "hr"
   | "finance"
   | "ai"
+  | "reports"
   | "users"
   | "owner"
 

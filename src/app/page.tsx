@@ -26,6 +26,7 @@ import { AIInsights } from "@/components/modules/AIInsights"
 import { UserManagement } from "@/components/modules/UserManagement"
 import { Purchasing } from "@/components/modules/Purchasing"
 import { Compliance } from "@/components/modules/Compliance"
+import { Reports } from "@/components/modules/Reports"
 import { LoginScreen } from "@/components/auth/LoginScreen"
 import { AccessDenied } from "@/components/shared/AccessDenied"
 import { useAppStore } from "@/lib/store"
@@ -121,6 +122,7 @@ export default function Home() {
               {activeModule === "hr" && <HR />}
               {activeModule === "finance" && <Finance />}
               {activeModule === "ai" && <AIInsights />}
+              {activeModule === "reports" && <Reports />}
               {activeModule === "users" && <UserManagement />}
               {activeModule === "owner" && <OwnerPortal />}
             </>

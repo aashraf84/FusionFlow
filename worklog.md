@@ -59,3 +59,25 @@ Stage Summary:
 - 2 new enterprise modules added (Purchasing, Compliance) — total now 22 modules
 - All 22 modules verified with Agent Browser: 0 errors
 - Lint clean
+
+---
+Task ID: 5
+Agent: FusionFlow Reports & Invoice Builder
+Task: Change logo to FF monogram, build Reports Center module with A4 format, add POS invoice printing
+
+Work Log:
+- Redesigned Logo.tsx: FF monogram (two interlocking F shapes) on gradient tile with flow accent dots
+- Added 'reports' module ID to data.ts, permissions matrix (all roles get access, viewer=ro), sidebar nav, topbar title
+- Built Reports module (src/components/modules/Reports.tsx): 18 report cards across 10 categories
+- Reports Center: category filter + search, A4 page format (210mm width), professional header (logo+date+report ID), footer (confidential+page number), Print + Export PDF buttons
+- 18 reports implemented: Sales Summary, Sales by Channel, Top Products, POS Invoice, KDS Performance, Production Batch, Delivery Performance, Inventory Valuation, Low Stock, P&L, Balance Sheet, Tax/GST, Payroll Register, Attendance, Customer Loyalty, Marketing ROI, Franchise Ranking, Compliance Audit
+- Added invoice printing to POS: after order placement, invoice dialog auto-opens with professional A4 tax invoice layout (FF logo, NTN/STRN, items table, GST breakdown, totals, footer)
+- Wired Reports module into page.tsx, updated UserManagement MODULE_LIST
+- Added print CSS for A4 @page size with margins
+
+Stage Summary:
+- Logo changed to FF monogram
+- Reports Center module added (23 total modules)
+- 18 professional A4 printable reports linking all modules
+- POS invoice printing with professional layout
+- Lint clean, 0 errors verified with Agent Browser

@@ -31,6 +31,8 @@ import {
   Store,
   X,
   CheckCircle2,
+  Receipt,
+  Printer,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import {
@@ -98,6 +100,7 @@ export function POS() {
   const [placing, setPlacing] = useState(false)
   const [customerName, setCustomerName] = useState("")
   const [customerPhone, setCustomerPhone] = useState("")
+  const [invoiceOrder, setInvoiceOrder] = useState<any | null>(null)
 
   const effectiveCat = activeCat || categories[0] || "pizza"
 
@@ -141,7 +144,9 @@ export function POS() {
       if (!res.ok) throw new Error(json.error || "Failed")
       toast.success(`Order #${json.order.number} placed!`, {
         description: `${cart.length} items · ${formatPKR(total)} · sent to kitchen`,
+        action: { label: "Print Invoice", onClick: () => setInvoiceOrder({ ...json.order, items: cart, branchName: "Gulberg III Flagship" }) },
       })
+      setInvoiceOrder({ ...json.order, items: cart.map(l => ({ name: l.name, quantity: l.quantity, price: l.price, customizations: l.customizations })), branchName: "Gulberg III Flagship" })
       clearCart()
       setPayOpen(false)
       setCustomerName("")
@@ -390,6 +395,127 @@ export function POS() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Invoice print dialog */}
+      <Dialog open={!!invoiceOrder} onOpenChange={(o) => !o && setInvoiceOrder(null)}>
+        <DialogContent className="sm:max-w-[640px] max-h-[90vh] overflow-y-auto pf-scroll">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2"><Receipt className="h-5 w-5 text-primary" /> Invoice #{invoiceOrder?.number}</DialogTitle>
+            <DialogDescription>Order placed successfully. Print or save this invoice.</DialogDescription>
+          </DialogHeader>
+          {invoiceOrder && <PosInvoice order={invoiceOrder} />}
+          <DialogFooter className="print:hidden">
+            <Button variant="outline" onClick={() => setInvoiceOrder(null)}>Close</Button>
+            <Button onClick={() => { window.print(); toast.success("Invoice sent to printer") }}>
+              <Printer className="h-4 w-4 mr-1.5" /> Print Invoice
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </div>
+  )
+}
+
+// ── POS Invoice component (professional A4 receipt layout) ──
+function PosInvoice({ order }: { order: any }) {
+  const dateStr = new Date(order.createdAt).toLocaleDateString("en-PK", { year: "numeric", month: "short", day: "numeric" })
+  const timeStr = new Date(order.createdAt).toLocaleTimeString("en-PK", { hour: "2-digit", minute: "2-digit" })
+
+  return (
+    <div className="bg-white text-black rounded-lg border-2 border-gray-200 p-6 print:border-0 print:p-0">
+      {/* Header */}
+      <div className="flex items-start justify-between border-b-2 border-black pb-4 mb-4">
+        <div className="flex items-center gap-3">
+          <div className="grid place-items-center h-12 w-12 rounded-xl text-white font-extrabold text-lg" style={{ background: "linear-gradient(135deg, oklch(0.62 0.2 28), oklch(0.66 0.15 145))" }}>FF</div>
+          <div>
+            <div className="text-xl font-extrabold">FusionFlow Restaurant</div>
+            <div className="text-[11px] text-gray-500">{order.branchName ?? "Gulberg III Flagship"}, Lahore</div>
+            <div className="text-[10px] text-gray-500">NTN: 1234567-8 · STRN: 3217654-0987654-1</div>
+          </div>
+        </div>
+        <div className="text-right">
+          <div className="text-lg font-extrabold">TAX INVOICE</div>
+          <div className="text-[11px] text-gray-500">Original for Recipient</div>
+        </div>
+      </div>
+
+      {/* Invoice meta */}
+      <div className="grid grid-cols-2 gap-4 mb-4 text-xs">
+        <div>
+          <div className="text-[9px] uppercase font-bold text-gray-400">Invoice #</div>
+          <div className="font-bold">INV-{order.number}</div>
+          <div className="text-[9px] uppercase font-bold text-gray-400 mt-1.5">Date / Time</div>
+          <div className="font-semibold">{dateStr} · {timeStr}</div>
+        </div>
+        <div>
+          <div className="text-[9px] uppercase font-bold text-gray-400">Bill To</div>
+          <div className="font-bold">{order.customerName || "Walk-in Customer"}</div>
+          {order.customerPhone && <div className="text-gray-600">{order.customerPhone}</div>}
+          <div className="text-[9px] uppercase font-bold text-gray-400 mt-1.5">Order Type</div>
+          <div className="font-semibold capitalize">{order.type.replace("_", " ")}{order.table ? ` · ${order.table}` : ""}</div>
+        </div>
+      </div>
+
+      {/* Items table */}
+      <table className="w-full text-xs border-collapse">
+        <thead>
+          <tr className="border-2 border-black bg-gray-100">
+            <th className="text-center py-1.5 px-1 font-bold w-8">#</th>
+            <th className="text-left py-1.5 px-2 font-bold">Item</th>
+            <th className="text-center py-1.5 px-1 font-bold w-12">Qty</th>
+            <th className="text-right py-1.5 px-2 font-bold w-20">Rate</th>
+            <th className="text-right py-1.5 px-2 font-bold w-24">Amount</th>
+          </tr>
+        </thead>
+        <tbody>
+          {order.items?.map((item: any, i: number) => (
+            <tr key={i} className="border-b border-gray-300">
+              <td className="py-1.5 px-1 text-center text-gray-500">{i + 1}</td>
+              <td className="py-1.5 px-2">
+                <div className="font-semibold">{item.name}</div>
+                {item.customizations && <div className="text-[10px] text-gray-500">{item.customizations}</div>}
+              </td>
+              <td className="py-1.5 px-1 text-center font-semibold">{item.quantity}</td>
+              <td className="py-1.5 px-2 text-right">{formatPKR(item.price)}</td>
+              <td className="py-1.5 px-2 text-right font-semibold">{formatPKR(item.price * item.quantity)}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+
+      {/* Totals */}
+      <div className="flex justify-end mt-3">
+        <div className="w-56 text-xs space-y-0.5">
+          <div className="flex justify-between py-1 border-b border-gray-200">
+            <span className="text-gray-600">Subtotal</span>
+            <span className="font-semibold">{formatPKR(order.subtotal)}</span>
+          </div>
+          <div className="flex justify-between py-1 border-b border-gray-200">
+            <span className="text-gray-600">GST (13%)</span>
+            <span className="font-semibold">{formatPKR(order.tax)}</span>
+          </div>
+          {order.discount > 0 && (
+            <div className="flex justify-between py-1 border-b border-gray-200">
+              <span className="text-gray-600">Discount</span>
+              <span className="font-semibold text-red-600">-{formatPKR(order.discount)}</span>
+            </div>
+          )}
+          <div className="flex justify-between py-2 border-t-2 border-black text-base font-extrabold">
+            <span>TOTAL</span>
+            <span>{formatPKR(order.total)}</span>
+          </div>
+          <div className="text-[10px] text-gray-500 pt-1">
+            Payment: <span className="capitalize font-semibold">{order.paymentMethod ?? "Cash"}</span> · Status: <span className="font-semibold capitalize">{order.paymentStatus}</span>
+          </div>
+        </div>
+      </div>
+
+      {/* Footer */}
+      <div className="mt-5 pt-3 border-t-2 border-gray-200 text-center text-[10px] text-gray-500">
+        <div className="font-bold text-gray-700">Thank you for dining with FusionFlow!</div>
+        <div>Computer-generated invoice — no signature required.</div>
+        <div>For queries: info@fusionflow.dev · +92 300 0000000</div>
+      </div>
     </div>
   )
 }

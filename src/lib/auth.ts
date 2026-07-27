@@ -27,17 +27,17 @@ export const PERMISSIONS: Record<Role, Partial<Record<ModuleId, boolean | "ro">>
   owner: {
     dashboard: true, pos: true, "pizza-builder": true, kds: true, production: true, delivery: true,
     tables: true, "drive-thru": true, inventory: true, purchasing: true, menu: true, online: true, crm: true,
-    marketing: true, analytics: true, compliance: true, franchise: true, hr: true, finance: true, ai: true, users: true, owner: true,
+    marketing: true, analytics: true, compliance: true, franchise: true, hr: true, finance: true, ai: true, reports: true, users: true, owner: true,
   },
   admin: {
     dashboard: true, pos: true, "pizza-builder": true, kds: true, production: true, delivery: true,
     tables: true, "drive-thru": true, inventory: true, purchasing: true, menu: true, online: true, crm: true,
-    marketing: true, analytics: true, compliance: true, franchise: true, hr: true, finance: true, ai: true, users: true, owner: "ro",
+    marketing: true, analytics: true, compliance: true, franchise: true, hr: true, finance: true, ai: true, reports: true, users: true, owner: "ro",
   },
   manager: {
     dashboard: true, pos: true, "pizza-builder": true, kds: true, production: true, delivery: true,
     tables: true, "drive-thru": true, inventory: true, purchasing: true, menu: true, online: true, crm: true,
-    marketing: true, analytics: true, compliance: true, franchise: "ro", hr: true, finance: "ro", ai: true, users: "ro",
+    marketing: true, analytics: true, compliance: true, franchise: "ro", hr: true, finance: "ro", ai: true, reports: true, users: "ro",
   },
   cashier: {
     dashboard: true, pos: true, "pizza-builder": true, tables: true, online: true, crm: true,
@@ -49,7 +49,7 @@ export const PERMISSIONS: Record<Role, Partial<Record<ModuleId, boolean | "ro">>
     dashboard: true, delivery: true,
   },
   viewer: {
-    dashboard: true, analytics: "ro", franchise: "ro", inventory: "ro", purchasing: "ro", menu: "ro", crm: "ro", compliance: "ro", hr: "ro", finance: "ro",
+    dashboard: true, analytics: "ro", franchise: "ro", inventory: "ro", purchasing: "ro", menu: "ro", crm: "ro", compliance: "ro", hr: "ro", finance: "ro", reports: "ro",
   },
 }
 

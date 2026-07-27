@@ -9,8 +9,7 @@ interface LogoProps {
   variant?: "full" | "icon"
 }
 
-// FusionFlow ERP logo — three converging streams fusing into one unified flow,
-// representing the unification of all restaurant operations into a single platform.
+// FusionFlow ERP logo — "FF" monogram on a gradient tile.
 export function Logo({ className, size = 40, showWordmark = false, variant = "icon" }: LogoProps) {
   if (variant === "full" || showWordmark) {
     return (
@@ -42,77 +41,44 @@ function LogoIcon({ size = 40, className }: { size?: number; className?: string 
       aria-label="FusionFlow ERP"
     >
       <defs>
-        <linearGradient id="fusionGrad" x1="4" y1="6" x2="44" y2="42" gradientUnits="userSpaceOnUse">
+        <linearGradient id="ffGrad" x1="4" y1="6" x2="44" y2="42" gradientUnits="userSpaceOnUse">
           <stop stopColor="oklch(0.62 0.2 28)" />
           <stop offset="0.5" stopColor="oklch(0.6 0.18 50)" />
           <stop offset="1" stopColor="oklch(0.66 0.15 145)" />
         </linearGradient>
-        <linearGradient id="fusionShine" x1="8" y1="4" x2="28" y2="28" gradientUnits="userSpaceOnUse">
+        <linearGradient id="ffShine" x1="8" y1="4" x2="28" y2="28" gradientUnits="userSpaceOnUse">
           <stop stopColor="#ffffff" stopOpacity={0.3} />
           <stop offset="1" stopColor="#ffffff" stopOpacity={0} />
         </linearGradient>
       </defs>
       {/* Rounded tile background */}
-      <rect x="2" y="2" width="44" height="44" rx="12" fill="url(#fusionGrad)" />
-      <rect x="2" y="2" width="44" height="44" rx="12" fill="url(#fusionShine)" />
+      <rect x="2" y="2" width="44" height="44" rx="12" fill="url(#ffGrad)" />
+      <rect x="2" y="2" width="44" height="44" rx="12" fill="url(#ffShine)" />
 
-      {/* Three converging streams (left side) fusing into one flow (right side) */}
-      {/* Top stream — tomato red */}
+      {/* FF monogram — two interlocking F shapes */}
+      {/* Left F */}
       <path
-        d="M6 14 C14 14, 18 20, 24 24"
+        d="M11 13 L20 13 M11 13 L11 35 M11 23 L18 23"
         stroke="#fff"
-        strokeWidth="2.5"
-        strokeLinecap="round"
-        fill="none"
-        opacity="0.95"
-      />
-      {/* Middle stream — straight, white */}
-      <path
-        d="M6 24 L24 24"
-        stroke="#fff"
-        strokeWidth="2.5"
-        strokeLinecap="round"
-        fill="none"
-        opacity="0.95"
-      />
-      {/* Bottom stream — amber */}
-      <path
-        d="M6 34 C14 34, 18 28, 24 24"
-        stroke="#fff"
-        strokeWidth="2.5"
-        strokeLinecap="round"
-        fill="none"
-        opacity="0.95"
-      />
-
-      {/* Fusion node — where three streams merge */}
-      <circle cx="24" cy="24" r="3.5" fill="#fff" />
-      <circle cx="24" cy="24" r="3.5" fill="none" stroke="#fff" strokeWidth="0.5" opacity="0.6">
-        <animate attributeName="r" values="3.5;6;3.5" dur="2.5s" repeatCount="indefinite" />
-        <animate attributeName="opacity" values="0.6;0;0.6" dur="2.5s" repeatCount="indefinite" />
-      </circle>
-
-      {/* Unified flow — single arrow-like stream continuing right */}
-      <path
-        d="M27 24 C32 24, 36 24, 40 24"
-        stroke="#fff"
-        strokeWidth="3.5"
-        strokeLinecap="round"
-        fill="none"
-      />
-      {/* Flow arrowhead */}
-      <path
-        d="M37 20 L42 24 L37 28"
-        stroke="#fff"
-        strokeWidth="2.5"
+        strokeWidth="3"
         strokeLinecap="round"
         strokeLinejoin="round"
         fill="none"
       />
+      {/* Right F (slightly offset/interlocking) */}
+      <path
+        d="M26 13 L37 13 M26 13 L26 35 M26 23 L35 23"
+        stroke="#fff"
+        strokeWidth="3"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        fill="none"
+        opacity="0.85"
+      />
 
-      {/* Small flow particles along the unified stream */}
-      <circle cx="31" cy="24" r="1" fill="#fff" opacity="0.5" />
-      <circle cx="35" cy="24" r="1" fill="#fff" opacity="0.3" />
+      {/* Flow accent — small dots representing the fusion flow */}
+      <circle cx="22.5" cy="18" r="1.2" fill="#fff" opacity="0.9" />
+      <circle cx="22.5" cy="24" r="1" fill="#fff" opacity="0.6" />
     </svg>
   )
 }
