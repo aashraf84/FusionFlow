@@ -5,7 +5,7 @@ import {
   LayoutDashboard, MonitorSmartphone, Pizza, ChefHat, Bike, Boxes, UtensilsCrossed,
   Users, BarChart3, Store, Sparkles, X, ShieldCheck, ChevronDown, Table2, Car,
   ClipboardList, Megaphone, Wallet, Crown, Cog, ShoppingBag, Lock, UserCog,
-  ShoppingCart, ShieldCheck as ShieldCheckIcon, FileBarChart,
+  ShoppingCart, ShieldCheck as ShieldCheckIcon, FileBarChart, Settings,
 } from "lucide-react"
 import { useAppStore } from "@/lib/store"
 import { useAuthStore } from "@/lib/auth-store"
@@ -67,6 +67,7 @@ const NAV_GROUPS: NavGroup[] = [
       { id: "finance", label: "Finance", icon: Wallet, desc: "Accounting & P&L", hot: true },
       { id: "ai", label: "AI Insights", icon: Sparkles, desc: "Predictions", hot: true },
       { id: "reports", label: "Reports Center", icon: FileBarChart, desc: "A4 printable reports" },
+      { id: "settings", label: "Settings", icon: Settings, desc: "System configuration" },
       { id: "users", label: "User Management", icon: UserCog, desc: "Roles & permissions" },
       { id: "owner", label: "Owner Portal", icon: Crown, desc: "SaaS & tenants" },
     ],

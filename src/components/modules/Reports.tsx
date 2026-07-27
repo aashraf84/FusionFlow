@@ -124,7 +124,32 @@ export function Reports() {
   })
 
   const printReport = () => {
-    window.print()
+    // Open report in new window for clean printing (avoids app shell interference)
+    const reportEl = document.querySelector("[style*='210mm']") as HTMLElement
+    if (!reportEl) {
+      toast.error("Report not found")
+      return
+    }
+    const printWindow = window.open("", "_blank", "width=900,height=1200")
+    if (!printWindow) {
+      toast.error("Pop-up blocked. Please allow pop-ups to print.")
+      return
+    }
+    printWindow.document.open()
+    printWindow.document.write(`<!DOCTYPE html><html><head><meta charset="utf-8"><title>${selected?.name ?? "Report"}</title>
+<style>
+  @page { size: A4; margin: 12mm; }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Helvetica Neue', Arial, sans-serif; color: #000; background: #fff; }
+  table { width: 100%; border-collapse: collapse; }
+  th, td { padding: 4px 8px; text-align: left; font-size: 11px; }
+  .border-b { border-bottom: 1px solid #ddd; }
+  .font-bold { font-weight: bold; }
+  .text-right { text-align: right; }
+  .text-center { text-align: center; }
+</style></head><body>${reportEl.innerHTML}</body></html>`)
+    printWindow.document.close()
+    printWindow.onload = () => { printWindow.print(); setTimeout(() => printWindow.close(), 500) }
     toast.success("Report sent to printer")
   }
 

@@ -60,6 +60,7 @@ const MODULE_TITLES: Record<string, { title: string; subtitle: string }> = {
   finance: { title: "Finance & Accounting", subtitle: "P&L, cash flow, AR/AP & expenses" },
   ai: { title: "AI Intelligence", subtitle: "Predictions, forecasting & recommendations" },
   reports: { title: "Reports Center", subtitle: "A4 printable reports across all modules" },
+  settings: { title: "Settings", subtitle: "Company, POS, kitchen, tax, integrations & system configuration" },
   users: { title: "User Management", subtitle: "Accounts, roles & permissions (RBAC)" },
   owner: { title: "Owner Portal", subtitle: "SaaS tenants, subscriptions & licensing" },
 }

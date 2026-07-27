@@ -399,16 +399,16 @@ export function POS() {
       {/* Invoice print dialog */}
       <Dialog open={!!invoiceOrder} onOpenChange={(o) => !o && setInvoiceOrder(null)}>
         <DialogContent className="sm:max-w-[400px] max-h-[90vh] overflow-y-auto pf-scroll p-0">
-          <DialogHeader className="px-4 pt-4 pb-2 border-b print:hidden">
+          <DialogHeader className="px-4 pt-4 pb-2 border-b">
             <DialogTitle className="flex items-center gap-2 text-sm"><Receipt className="h-4 w-4 text-primary" /> Receipt #{invoiceOrder?.number}</DialogTitle>
             <DialogDescription className="text-xs">80mm thermal receipt · ready to print</DialogDescription>
           </DialogHeader>
           <div className="overflow-y-auto pf-scroll">
             {invoiceOrder && <PosInvoice order={invoiceOrder} />}
           </div>
-          <DialogFooter className="print:hidden px-4 py-3 border-t gap-2">
+          <DialogFooter className="px-4 py-3 border-t gap-2">
             <Button variant="outline" onClick={() => setInvoiceOrder(null)} className="h-9">Close</Button>
-            <Button onClick={() => { window.print(); toast.success("Receipt sent to thermal printer") }} className="h-9">
+            <Button onClick={() => printReceipt(invoiceOrder)} className="h-9">
               <Printer className="h-4 w-4 mr-1.5" /> Print Receipt
             </Button>
           </DialogFooter>
@@ -416,6 +416,122 @@ export function POS() {
       </Dialog>
     </div>
   )
+}
+
+// ── Print receipt in a new window (avoids dialog/portal print issues) ──
+function printReceipt(order: any) {
+  const dateStr = new Date(order.createdAt).toLocaleDateString("en-PK", { year: "numeric", month: "short", day: "numeric" })
+  const timeStr = new Date(order.createdAt).toLocaleTimeString("en-PK", { hour: "2-digit", minute: "2-digit" })
+  const items = order.items ?? []
+
+  const itemsHtml = items.map((item: any) => `
+    <div class="item">
+      <div class="item-name">${item.name}</div>
+      ${item.customizations ? `<div class="item-sub">${item.customizations}</div>` : ""}
+      <div class="item-row">
+        <span class="item-rate">${formatPKR(item.price)} x${item.quantity}</span>
+        <span class="item-amt">${formatPKR(item.price * item.quantity)}</span>
+      </div>
+    </div>
+  `).join("")
+
+  const html = `<!DOCTYPE html>
+<html><head><meta charset="utf-8"><title>Receipt #${order.number}</title>
+<style>
+  @page { size: 80mm auto; margin: 0; }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { width: 80mm; font-family: 'Courier New', 'Liberation Mono', monospace; font-size: 11px; line-height: 1.4; color: #000; background: #fff; padding: 4px; }
+  .center { text-align: center; }
+  .bold { font-weight: bold; }
+  .xl { font-size: 18px; }
+  .lg { font-size: 13px; letter-spacing: 0.1em; }
+  .md { font-size: 12px; }
+  .sm { font-size: 10px; }
+  .xs { font-size: 9px; }
+  .xxs { font-size: 8px; }
+  .gray { color: #555; }
+  .divider { border-top: 1px dashed #000; margin: 4px 0; }
+  .row { display: flex; justify-content: space-between; }
+  .item { padding: 2px 0; }
+  .item-name { font-weight: bold; }
+  .item-sub { font-size: 8px; color: #555; }
+  .item-row { display: flex; justify-content: space-between; font-size: 9px; }
+  .item-amt { font-weight: bold; width: 60px; text-align: right; }
+  .total-line { border-top: 1px solid #000; margin-top: 2px; padding-top: 2px; display: flex; justify-content: space-between; font-weight: bold; font-size: 14px; }
+  .barcode { display: flex; justify-content: center; gap: 1px; height: 24px; margin-top: 8px; }
+  .barcode div { background: #000; height: 100%; }
+  .pad { padding: 0 8px; }
+  .mt2 { margin-top: 8px; }
+</style></head>
+<body>
+  <div class="center pad">
+    <div class="bold xl">FusionFlow</div>
+    <div class="bold md">Restaurant & Pizza</div>
+    <div class="sm">${order.branchName ?? "Gulberg III Flagship"}</div>
+    <div class="sm">Lahore, Pakistan</div>
+    <div class="sm">+92 300 0000000</div>
+    <div class="xs">NTN: 1234567-8</div>
+    <div class="xs">STRN: 3217654-0987654-1</div>
+  </div>
+  <div class="divider"></div>
+  <div class="center bold lg">TAX INVOICE</div>
+  <div class="divider"></div>
+  <div class="pad sm">
+    <div class="row"><span>Invoice #:</span><span class="bold">INV-${order.number}</span></div>
+    <div class="row"><span>Date:</span><span class="bold">${dateStr}</span></div>
+    <div class="row"><span>Time:</span><span class="bold">${timeStr}</span></div>
+    <div class="row"><span>Type:</span><span class="bold">${order.type.replace("_", " ").toUpperCase()}</span></div>
+    ${order.table ? `<div class="row"><span>Table:</span><span class="bold">${order.table}</span></div>` : ""}
+    <div class="row"><span>Customer:</span><span class="bold">${order.customerName || "Walk-in"}</span></div>
+    ${order.customerPhone ? `<div class="row"><span>Phone:</span><span class="bold">${order.customerPhone}</span></div>` : ""}
+    <div class="row"><span>Cashier:</span><span class="bold">AK</span></div>
+  </div>
+  <div class="divider"></div>
+  <div class="pad sm bold">
+    <div class="row"><span>ITEM</span><span style="width:32px;text-align:center;">QTY</span><span style="width:60px;text-align:right;">AMOUNT</span></div>
+  </div>
+  <div style="border-top:1px dashed #000;margin:2px 0;"></div>
+  <div class="pad sm">${itemsHtml}</div>
+  <div class="divider"></div>
+  <div class="pad sm">
+    <div class="row"><span>Subtotal:</span><span class="bold">${formatPKR(order.subtotal)}</span></div>
+    <div class="row"><span>GST (13%):</span><span class="bold">${formatPKR(order.tax)}</span></div>
+    ${order.discount > 0 ? `<div class="row"><span>Discount:</span><span class="bold">-${formatPKR(order.discount)}</span></div>` : ""}
+  </div>
+  <div class="pad total-line">
+    <span>TOTAL</span><span>${formatPKR(order.total)}</span>
+  </div>
+  <div class="divider"></div>
+  <div class="pad sm">
+    <div class="row"><span>Payment:</span><span class="bold">${(order.paymentMethod ?? "Cash").toUpperCase()}</span></div>
+    <div class="row"><span>Status:</span><span class="bold">${(order.paymentStatus ?? "paid").toUpperCase()}</span></div>
+    <div class="row"><span>Items:</span><span class="bold">${items.length}</span></div>
+  </div>
+  <div class="divider"></div>
+  <div class="center pad xxs">
+    <div class="bold sm">Thank you for dining with us!</div>
+    <div class="mt2">Please come again</div>
+    <div class="mt2">www.fusionflow.dev</div>
+    <div class="mt2">This is a computer-generated receipt.<br>No signature required.</div>
+    <div class="barcode">
+      ${Array.from({ length: 40 }).map((_, i) => `<div style="width:${(i * 7) % 3 === 0 ? "2px" : "1px"};"></div>`).join("")}
+    </div>
+    <div class="mt2">*${order.number}*</div>
+  </div>
+  <script>
+    window.onload = function() { window.print(); setTimeout(function() { window.close(); }, 500); };
+  </script>
+</body></html>`
+
+  const printWindow = window.open("", "_blank", "width=400,height=600")
+  if (!printWindow) {
+    toast.error("Pop-up blocked. Please allow pop-ups to print receipts.")
+    return
+  }
+  printWindow.document.open()
+  printWindow.document.write(html)
+  printWindow.document.close()
+  toast.success("Receipt sent to printer")
 }
 
 // ── POS Receipt component (80mm thermal printer compatible) ──
@@ -532,16 +648,6 @@ function PosInvoice({ order }: { order: any }) {
         </div>
         <div style={{ fontSize: "8px", marginTop: "2px" }}>*{order.number}*</div>
       </div>
-
-      {/* Print styles for 80mm thermal printer */}
-      <style dangerouslySetInnerHTML={{ __html: `
-        @media print {
-          @page { size: 80mm auto; margin: 0; }
-          body * { visibility: hidden !important; }
-          .receipt-80mm, .receipt-80mm * { visibility: visible !important; }
-          .receipt-80mm { position: absolute; left: 0; top: 0; width: 80mm !important; box-shadow: none !important; }
-        }
-      `}} />
     </div>
   )
 }

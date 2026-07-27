@@ -22,6 +22,7 @@ export type ModuleId =
   | "finance"
   | "ai"
   | "reports"
+  | "settings"
   | "users"
   | "owner"
 
