@@ -398,16 +398,18 @@ export function POS() {
 
       {/* Invoice print dialog */}
       <Dialog open={!!invoiceOrder} onOpenChange={(o) => !o && setInvoiceOrder(null)}>
-        <DialogContent className="sm:max-w-[640px] max-h-[90vh] overflow-y-auto pf-scroll">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2"><Receipt className="h-5 w-5 text-primary" /> Invoice #{invoiceOrder?.number}</DialogTitle>
-            <DialogDescription>Order placed successfully. Print or save this invoice.</DialogDescription>
+        <DialogContent className="sm:max-w-[400px] max-h-[90vh] overflow-y-auto pf-scroll p-0">
+          <DialogHeader className="px-4 pt-4 pb-2 border-b print:hidden">
+            <DialogTitle className="flex items-center gap-2 text-sm"><Receipt className="h-4 w-4 text-primary" /> Receipt #{invoiceOrder?.number}</DialogTitle>
+            <DialogDescription className="text-xs">80mm thermal receipt · ready to print</DialogDescription>
           </DialogHeader>
-          {invoiceOrder && <PosInvoice order={invoiceOrder} />}
-          <DialogFooter className="print:hidden">
-            <Button variant="outline" onClick={() => setInvoiceOrder(null)}>Close</Button>
-            <Button onClick={() => { window.print(); toast.success("Invoice sent to printer") }}>
-              <Printer className="h-4 w-4 mr-1.5" /> Print Invoice
+          <div className="overflow-y-auto pf-scroll">
+            {invoiceOrder && <PosInvoice order={invoiceOrder} />}
+          </div>
+          <DialogFooter className="print:hidden px-4 py-3 border-t gap-2">
+            <Button variant="outline" onClick={() => setInvoiceOrder(null)} className="h-9">Close</Button>
+            <Button onClick={() => { window.print(); toast.success("Receipt sent to thermal printer") }} className="h-9">
+              <Printer className="h-4 w-4 mr-1.5" /> Print Receipt
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -416,106 +418,145 @@ export function POS() {
   )
 }
 
-// ── POS Invoice component (professional A4 receipt layout) ──
+// ── POS Receipt component (80mm thermal printer compatible) ──
 function PosInvoice({ order }: { order: any }) {
   const dateStr = new Date(order.createdAt).toLocaleDateString("en-PK", { year: "numeric", month: "short", day: "numeric" })
   const timeStr = new Date(order.createdAt).toLocaleTimeString("en-PK", { hour: "2-digit", minute: "2-digit" })
+  const itemRows = order.items ?? []
 
   return (
-    <div className="bg-white text-black rounded-lg border-2 border-gray-200 p-6 print:border-0 print:p-0">
-      {/* Header */}
-      <div className="flex items-start justify-between border-b-2 border-black pb-4 mb-4">
-        <div className="flex items-center gap-3">
-          <div className="grid place-items-center h-12 w-12 rounded-xl text-white font-extrabold text-lg shrink-0" style={{ background: "linear-gradient(135deg, oklch(0.55 0.2 28), oklch(0.58 0.18 45), oklch(0.62 0.15 145))", letterSpacing: "-0.02em" }}>FF</div>
-          <div>
-            <div className="text-xl font-extrabold">FusionFlow Restaurant</div>
-            <div className="text-[11px] text-gray-500">{order.branchName ?? "Gulberg III Flagship"}, Lahore</div>
-            <div className="text-[10px] text-gray-500">NTN: 1234567-8 · STRN: 3217654-0987654-1</div>
-          </div>
-        </div>
-        <div className="text-right">
-          <div className="text-lg font-extrabold">TAX INVOICE</div>
-          <div className="text-[11px] text-gray-500">Original for Recipient</div>
-        </div>
+    <div className="receipt-80mm bg-white text-black mx-auto" style={{ width: "80mm", fontFamily: "'Courier New', 'Liberation Mono', monospace", fontSize: "11px", lineHeight: "1.4" }}>
+      {/* ── Store header ── */}
+      <div className="text-center px-2 pt-2">
+        <div className="text-xl font-extrabold tracking-tight" style={{ fontSize: "18px" }}>FusionFlow</div>
+        <div className="font-bold" style={{ fontSize: "12px" }}>Restaurant & Pizza</div>
+        <div style={{ fontSize: "10px" }}>{order.branchName ?? "Gulberg III Flagship"}</div>
+        <div style={{ fontSize: "10px" }}>Lahore, Pakistan</div>
+        <div style={{ fontSize: "10px" }}>+92 300 0000000</div>
+        <div style={{ fontSize: "9px" }}>NTN: 1234567-8</div>
+        <div style={{ fontSize: "9px" }}>STRN: 3217654-0987654-1</div>
       </div>
 
-      {/* Invoice meta */}
-      <div className="grid grid-cols-2 gap-4 mb-4 text-xs">
-        <div>
-          <div className="text-[9px] uppercase font-bold text-gray-400">Invoice #</div>
-          <div className="font-bold">INV-{order.number}</div>
-          <div className="text-[9px] uppercase font-bold text-gray-400 mt-1.5">Date / Time</div>
-          <div className="font-semibold">{dateStr} · {timeStr}</div>
-        </div>
-        <div>
-          <div className="text-[9px] uppercase font-bold text-gray-400">Bill To</div>
-          <div className="font-bold">{order.customerName || "Walk-in Customer"}</div>
-          {order.customerPhone && <div className="text-gray-600">{order.customerPhone}</div>}
-          <div className="text-[9px] uppercase font-bold text-gray-400 mt-1.5">Order Type</div>
-          <div className="font-semibold capitalize">{order.type.replace("_", " ")}{order.table ? ` · ${order.table}` : ""}</div>
-        </div>
+      {/* Separator */}
+      <ReceiptDivider />
+
+      {/* ── Tax invoice title ── */}
+      <div className="text-center font-extrabold" style={{ fontSize: "13px", letterSpacing: "0.1em" }}>TAX INVOICE</div>
+      <ReceiptDivider />
+
+      {/* ── Invoice meta ── */}
+      <div className="px-2" style={{ fontSize: "10px" }}>
+        <ReceiptRow label="Invoice #:" value={`INV-${order.number}`} />
+        <ReceiptRow label="Date:" value={dateStr} />
+        <ReceiptRow label="Time:" value={timeStr} />
+        <ReceiptRow label="Type:" value={order.type.replace("_", " ").toUpperCase()} />
+        {order.table && <ReceiptRow label="Table:" value={order.table} />}
+        <ReceiptRow label="Customer:" value={order.customerName || "Walk-in"} />
+        {order.customerPhone && <ReceiptRow label="Phone:" value={order.customerPhone} />}
+        <ReceiptRow label="Cashier:" value="AK" />
       </div>
 
-      {/* Items table */}
-      <table className="w-full text-xs border-collapse">
-        <thead>
-          <tr className="border-2 border-black bg-gray-100">
-            <th className="text-center py-1.5 px-1 font-bold w-8">#</th>
-            <th className="text-left py-1.5 px-2 font-bold">Item</th>
-            <th className="text-center py-1.5 px-1 font-bold w-12">Qty</th>
-            <th className="text-right py-1.5 px-2 font-bold w-20">Rate</th>
-            <th className="text-right py-1.5 px-2 font-bold w-24">Amount</th>
-          </tr>
-        </thead>
-        <tbody>
-          {order.items?.map((item: any, i: number) => (
-            <tr key={i} className="border-b border-gray-300">
-              <td className="py-1.5 px-1 text-center text-gray-500">{i + 1}</td>
-              <td className="py-1.5 px-2">
-                <div className="font-semibold">{item.name}</div>
-                {item.customizations && <div className="text-[10px] text-gray-500">{item.customizations}</div>}
-              </td>
-              <td className="py-1.5 px-1 text-center font-semibold">{item.quantity}</td>
-              <td className="py-1.5 px-2 text-right">{formatPKR(item.price)}</td>
-              <td className="py-1.5 px-2 text-right font-semibold">{formatPKR(item.price * item.quantity)}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      <ReceiptDivider />
 
-      {/* Totals */}
-      <div className="flex justify-end mt-3">
-        <div className="w-56 text-xs space-y-0.5">
-          <div className="flex justify-between py-1 border-b border-gray-200">
-            <span className="text-gray-600">Subtotal</span>
-            <span className="font-semibold">{formatPKR(order.subtotal)}</span>
-          </div>
-          <div className="flex justify-between py-1 border-b border-gray-200">
-            <span className="text-gray-600">GST (13%)</span>
-            <span className="font-semibold">{formatPKR(order.tax)}</span>
-          </div>
-          {order.discount > 0 && (
-            <div className="flex justify-between py-1 border-b border-gray-200">
-              <span className="text-gray-600">Discount</span>
-              <span className="font-semibold text-red-600">-{formatPKR(order.discount)}</span>
+      {/* ── Items header ── */}
+      <div className="px-2 font-bold" style={{ fontSize: "10px" }}>
+        <div className="flex justify-between">
+          <span className="flex-1">ITEM</span>
+          <span className="w-8 text-center">QTY</span>
+          <span className="w-16 text-right">AMOUNT</span>
+        </div>
+      </div>
+      <div className="px-2" style={{ borderTop: "1px dashed #000", marginTop: "2px" }} />
+
+      {/* ── Items ── */}
+      <div className="px-2" style={{ fontSize: "10px" }}>
+        {itemRows.map((item: any, i: number) => (
+          <div key={i} className="py-0.5">
+            <div className="font-bold">{item.name}</div>
+            {item.customizations && (
+              <div style={{ fontSize: "8px", color: "#555" }}>{item.customizations}</div>
+            )}
+            <div className="flex justify-between">
+              <span className="flex-1" style={{ fontSize: "9px" }}>
+                {formatPKR(item.price)} x{item.quantity}
+              </span>
+              <span className="w-16 text-right font-bold">{formatPKR(item.price * item.quantity)}</span>
             </div>
-          )}
-          <div className="flex justify-between py-2 border-t-2 border-black text-base font-extrabold">
-            <span>TOTAL</span>
-            <span>{formatPKR(order.total)}</span>
           </div>
-          <div className="text-[10px] text-gray-500 pt-1">
-            Payment: <span className="capitalize font-semibold">{order.paymentMethod ?? "Cash"}</span> · Status: <span className="font-semibold capitalize">{order.paymentStatus}</span>
-          </div>
+        ))}
+      </div>
+
+      <ReceiptDivider />
+
+      {/* ── Totals ── */}
+      <div className="px-2" style={{ fontSize: "10px" }}>
+        <ReceiptRow label="Subtotal:" value={formatPKR(order.subtotal)} />
+        <ReceiptRow label="GST (13%):" value={formatPKR(order.tax)} />
+        {order.discount > 0 && (
+          <ReceiptRow label="Discount:" value={`-${formatPKR(order.discount)}`} />
+        )}
+      </div>
+
+      <div className="px-2" style={{ borderTop: "1px solid #000", marginTop: "2px", paddingTop: "2px" }}>
+        <div className="flex justify-between font-extrabold" style={{ fontSize: "14px" }}>
+          <span>TOTAL</span>
+          <span>{formatPKR(order.total)}</span>
         </div>
       </div>
 
-      {/* Footer */}
-      <div className="mt-5 pt-3 border-t-2 border-gray-200 text-center text-[10px] text-gray-500">
-        <div className="font-bold text-gray-700">Thank you for dining with FusionFlow!</div>
-        <div>Computer-generated invoice — no signature required.</div>
-        <div>For queries: info@fusionflow.dev · +92 300 0000000</div>
+      <ReceiptDivider />
+
+      {/* ── Payment ── */}
+      <div className="px-2" style={{ fontSize: "10px" }}>
+        <ReceiptRow label="Payment:" value={(order.paymentMethod ?? "Cash").toUpperCase()} />
+        <ReceiptRow label="Status:" value={(order.paymentStatus ?? "paid").toUpperCase()} />
+        <ReceiptRow label="Items:" value={`${itemRows.length}`} />
       </div>
+
+      <ReceiptDivider />
+
+      {/* ── Footer ── */}
+      <div className="text-center px-2 pb-2" style={{ fontSize: "9px" }}>
+        <div className="font-bold">Thank you for dining with us!</div>
+        <div style={{ marginTop: "2px" }}>Please come again</div>
+        <div style={{ marginTop: "4px" }}>www.fusionflow.dev</div>
+        <div style={{ marginTop: "4px", fontSize: "8px" }}>
+          This is a computer-generated receipt.<br />No signature required.
+        </div>
+        {/* Barcode-like visual */}
+        <div className="flex justify-center gap-px mt-2" style={{ height: "24px" }}>
+          {Array.from({ length: 40 }).map((_, i) => {
+            const barWidth = (i * 7) % 3 === 0 ? "2px" : "1px"
+            return <div key={i} style={{ width: barWidth, height: "100%", background: "#000" }} />
+          })}
+        </div>
+        <div style={{ fontSize: "8px", marginTop: "2px" }}>*{order.number}*</div>
+      </div>
+
+      {/* Print styles for 80mm thermal printer */}
+      <style dangerouslySetInnerHTML={{ __html: `
+        @media print {
+          @page { size: 80mm auto; margin: 0; }
+          body * { visibility: hidden !important; }
+          .receipt-80mm, .receipt-80mm * { visibility: visible !important; }
+          .receipt-80mm { position: absolute; left: 0; top: 0; width: 80mm !important; box-shadow: none !important; }
+        }
+      `}} />
+    </div>
+  )
+}
+
+function ReceiptDivider() {
+  return (
+    <div className="my-1 mx-2" style={{ borderTop: "1px dashed #000" }} />
+  )
+}
+
+function ReceiptRow({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="flex justify-between">
+      <span>{label}</span>
+      <span className="font-bold">{value}</span>
     </div>
   )
 }

@@ -82,6 +82,39 @@ export function Reports() {
   const [search, setSearch] = useState("")
   const [selected, setSelected] = useState<ReportDef | null>(null)
 
+  // Periodic date selection
+  const today = new Date()
+  const [period, setPeriod] = useState<"today" | "yesterday" | "week" | "month" | "quarter" | "year" | "custom">("month")
+  const [fromDate, setFromDate] = useState(() => {
+    const d = new Date(today.getFullYear(), today.getMonth(), 1)
+    return d.toISOString().slice(0, 10)
+  })
+  const [toDate, setToDate] = useState(() => today.toISOString().slice(0, 10))
+
+  const periodLabels: Record<string, string> = {
+    today: "Today", yesterday: "Yesterday", week: "This Week", month: "This Month", quarter: "This Quarter", year: "This Year", custom: "Custom Range",
+  }
+
+  const applyPeriod = (p: typeof period) => {
+    setPeriod(p)
+    const now = new Date()
+    let from = new Date()
+    const to = new Date()
+    switch (p) {
+      case "today": from = new Date(now); break
+      case "yesterday": from = new Date(now); from.setDate(from.getDate() - 1); to.setDate(to.getDate() - 1); break
+      case "week": from = new Date(now); from.setDate(from.getDate() - from.getDay()); break
+      case "month": from = new Date(now.getFullYear(), now.getMonth(), 1); break
+      case "quarter": from = new Date(now.getFullYear(), Math.floor(now.getMonth() / 3) * 3, 1); break
+      case "year": from = new Date(now.getFullYear(), 0, 1); break
+      case "custom": return // keep existing custom dates
+    }
+    setFromDate(from.toISOString().slice(0, 10))
+    setToDate(to.toISOString().slice(0, 10))
+  }
+
+  const dateRangeLabel = `${new Date(fromDate).toLocaleDateString("en-PK", { day: "2-digit", month: "short", year: "numeric" })} — ${new Date(toDate).toLocaleDateString("en-PK", { day: "2-digit", month: "short", year: "numeric" })}`
+
   const d = data
 
   const filtered = REPORTS.filter(r => {
@@ -101,9 +134,32 @@ export function Reports() {
         {selected ? (
           <motion.div key="report-view" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}>
             {/* Report toolbar (screen only) */}
-            <div className="flex items-center gap-2 mb-4 print:hidden">
+            <div className="flex flex-col sm:flex-row sm:items-center gap-2 mb-4 print:hidden">
               <Button variant="outline" size="sm" onClick={() => setSelected(null)}>← Back to Reports</Button>
-              <div className="ml-auto flex items-center gap-2">
+              {/* Period selector */}
+              <div className="flex items-center gap-1 flex-wrap">
+                {(Object.keys(periodLabels) as typeof period[]).map(p => (
+                  <button
+                    key={p}
+                    onClick={() => applyPeriod(p)}
+                    className={cn(
+                      "px-2.5 py-1 rounded-md text-[10px] font-semibold transition-colors",
+                      period === p ? "bg-primary text-primary-foreground" : "bg-muted/60 hover:bg-muted"
+                    )}
+                  >
+                    {periodLabels[p]}
+                  </button>
+                ))}
+              </div>
+              {/* Custom date inputs */}
+              {period === "custom" && (
+                <div className="flex items-center gap-1.5">
+                  <Input type="date" value={fromDate} onChange={e => setFromDate(e.target.value)} className="h-7 w-36 text-xs" />
+                  <span className="text-xs text-muted-foreground">→</span>
+                  <Input type="date" value={toDate} onChange={e => setToDate(e.target.value)} className="h-7 w-36 text-xs" />
+                </div>
+              )}
+              <div className="sm:ml-auto flex items-center gap-2">
                 <Button variant="outline" size="sm" onClick={() => toast.success("Exporting to PDF…")}>
                   <Download className="h-3.5 w-3.5 mr-1.5" /> Export PDF
                 </Button>
@@ -116,7 +172,7 @@ export function Reports() {
             {/* A4 Report Page */}
             <div className="mx-auto print:m-0" style={{ maxWidth: "210mm" }}>
               <div className="bg-white text-black shadow-lg print:shadow-none print:border-0" style={{ minHeight: "297mm" }}>
-                <ReportContent report={selected} data={d} branchId={activeBranchId} />
+                <ReportContent report={selected} data={d} branchId={activeBranchId} dateRangeLabel={dateRangeLabel} />
               </div>
             </div>
           </motion.div>
@@ -202,7 +258,7 @@ export function Reports() {
 }
 
 // ── Report content renderer ──
-function ReportContent({ report, data, branchId }: { report: ReportDef; data: DData | null; branchId: string }) {
+function ReportContent({ report, data, branchId, dateRangeLabel }: { report: ReportDef; data: DData | null; branchId: string; dateRangeLabel: string }) {
   const now = new Date()
   const dateStr = now.toLocaleDateString("en-PK", { year: "numeric", month: "long", day: "numeric" })
   const branchName = data?.branchStats?.find((b: any) => b.id === branchId)?.name ?? "All Branches"
@@ -210,7 +266,7 @@ function ReportContent({ report, data, branchId }: { report: ReportDef; data: DD
   return (
     <div className="p-10 print:p-0">
       {/* ── Report Header (A4) ── */}
-      <ReportHeader title={report.name} dateStr={dateStr} branchName={branchName} />
+      <ReportHeader title={report.name} dateStr={dateStr} branchName={branchName} dateRange={dateRangeLabel} />
 
       {/* ── Report Body ── */}
       <div className="mt-6">
@@ -240,7 +296,7 @@ function ReportContent({ report, data, branchId }: { report: ReportDef; data: DD
   )
 }
 
-function ReportHeader({ title, dateStr, branchName }: { title: string; dateStr: string; branchName: string }) {
+function ReportHeader({ title, dateStr, branchName, dateRange }: { title: string; dateStr: string; branchName: string; dateRange: string }) {
   return (
     <div className="border-b-2 border-black pb-4">
       <div className="flex items-start justify-between">
@@ -261,6 +317,10 @@ function ReportHeader({ title, dateStr, branchName }: { title: string; dateStr: 
         <div>
           <div className="text-[10px] uppercase font-bold text-gray-400 tracking-wider">Report Title</div>
           <div className="text-xl font-extrabold">{title}</div>
+        </div>
+        <div className="text-center">
+          <div className="text-[10px] uppercase font-bold text-gray-400 tracking-wider">Period</div>
+          <div className="text-sm font-bold">{dateRange}</div>
         </div>
         <div className="text-right">
           <div className="text-[10px] uppercase font-bold text-gray-400 tracking-wider">Branch</div>

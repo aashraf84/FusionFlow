@@ -81,3 +81,24 @@ Stage Summary:
 - 18 professional A4 printable reports linking all modules
 - POS invoice printing with professional layout
 - Lint clean, 0 errors verified with Agent Browser
+
+---
+Task ID: 6
+Agent: Receipt & Reports Enhancer
+Task: Convert POS invoice to 80mm thermal receipt format + enhance Reports with periodic date selection
+
+Work Log:
+- Rewrote PosInvoice component as 80mm thermal receipt: 80mm width, Courier monospaced font, dashed separators, compact layout, barcode visual, print CSS (@page size 80mm auto, margin 0)
+- Receipt includes: store header (name, branch, address, phone, NTN, STRN), TAX INVOICE title, invoice meta (number, date, time, type, table, customer, cashier), items (name, price x qty, amount), totals (subtotal, GST, discount, TOTAL), payment info, footer (thank you, barcode, order number)
+- Updated POS dialog to narrower width (400px) for receipt preview
+- Added periodic date selection to Reports module: 7 period presets (Today, Yesterday, This Week, This Month, This Quarter, This Year, Custom Range)
+- Custom Range shows 2 date pickers (from/to)
+- Period label with date range displayed in A4 report header (3-column layout: Title | Period | Branch)
+- applyPeriod function calculates correct date ranges for each preset
+- Fixed barcode ternary parsing error by extracting to variable
+
+Stage Summary:
+- POS receipt now 80mm thermal printer compatible (Courier font, dashed dividers, @page 80mm)
+- Reports module enhanced with 7 date period presets + custom range picker
+- A4 report header now shows Period column with selected date range
+- Lint clean, verified with Agent Browser (receipt width=80mm, font=Courier, period buttons present, custom date inputs work)
