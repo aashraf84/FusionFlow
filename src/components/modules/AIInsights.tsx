@@ -101,13 +101,13 @@ export function AIInsights() {
           </div>
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 flex-wrap">
-              <h2 className="font-extrabold text-lg">Crave AI · Predictive Intelligence</h2>
+              <h2 className="font-extrabold text-lg">FusionFlow AI · Predictive Intelligence</h2>
               <Badge className="bg-primary"><Sparkles className="h-3 w-3 mr-1" />Live</Badge>
             </div>
             <p className="text-sm text-muted-foreground mt-1">{ins.executiveSummary}</p>
             <div className="flex items-center gap-3 mt-2 text-[11px]">
               <span className="flex items-center gap-1"><Zap className="h-3 w-3 text-chart-2" />Confidence <strong className="text-foreground">{ins.confidenceScore}%</strong></span>
-              <span className="flex items-center gap-1"><Activity className="h-3 w-3 text-chart-3" />Model: Crave-GPT</span>
+              <span className="flex items-center gap-1"><Activity className="h-3 w-3 text-chart-3" />Model: FusionFlow-GPT</span>
             </div>
           </div>
           <Button variant="outline" size="sm" onClick={regenerate} disabled={regenerating} className="shrink-0">

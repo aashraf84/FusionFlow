@@ -11,20 +11,20 @@ import { toast } from "sonner"
 import { motion } from "framer-motion"
 
 const DEMO_ACCOUNTS: { role: Role; email: string; label: string; desc: string }[] = [
-  { role: "owner", email: "owner@crave.dev", label: "Owner", desc: "Full access incl. SaaS portal" },
-  { role: "admin", email: "admin@crave.dev", label: "Admin", desc: "Full ERP management" },
-  { role: "manager", email: "manager@crave.dev", label: "Manager", desc: "Branch operations" },
-  { role: "cashier", email: "cashier@crave.dev", label: "Cashier", desc: "POS & front-of-house" },
-  { role: "chef", email: "chef@crave.dev", label: "Chef", desc: "Kitchen & production" },
-  { role: "rider", email: "rider@crave.dev", label: "Rider", desc: "Delivery only" },
-  { role: "viewer", email: "viewer@crave.dev", label: "Viewer", desc: "Read-only audits" },
+  { role: "owner", email: "owner@fusionflow.dev", label: "Owner", desc: "Full access incl. SaaS portal" },
+  { role: "admin", email: "admin@fusionflow.dev", label: "Admin", desc: "Full ERP management" },
+  { role: "manager", email: "manager@fusionflow.dev", label: "Manager", desc: "Branch operations" },
+  { role: "cashier", email: "cashier@fusionflow.dev", label: "Cashier", desc: "POS & front-of-house" },
+  { role: "chef", email: "chef@fusionflow.dev", label: "Chef", desc: "Kitchen & production" },
+  { role: "rider", email: "rider@fusionflow.dev", label: "Rider", desc: "Delivery only" },
+  { role: "viewer", email: "viewer@fusionflow.dev", label: "Viewer", desc: "Read-only audits" },
 ]
 
 export function LoginScreen() {
   const login = useAuthStore((s) => s.login)
   const switchRole = useAuthStore((s) => s.switchRole)
-  const [email, setEmail] = useState("admin@crave.dev")
-  const [password, setPassword] = useState("crave123")
+  const [email, setEmail] = useState("admin@fusionflow.dev")
+  const [password, setPassword] = useState("fusionflow123")
   const [showPw, setShowPw] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
@@ -39,7 +39,7 @@ export function LoginScreen() {
       setError(res.error ?? "Login failed")
       toast.error(res.error ?? "Login failed")
     } else {
-      toast.success("Welcome to Crave ERP")
+      toast.success("Welcome to FusionFlow ERP")
     }
   }
 
@@ -65,7 +65,7 @@ export function LoginScreen() {
 
         <div className="relative">
           <Logo size={56} variant="icon" className="drop-shadow-xl" />
-          <h1 className="mt-6 text-4xl font-extrabold tracking-tight leading-tight">Crave ERP</h1>
+          <h1 className="mt-6 text-4xl font-extrabold tracking-tight leading-tight">FusionFlow ERP</h1>
           <p className="mt-2 text-white/80 text-lg font-medium">The Enterprise Restaurant Operating System</p>
           <p className="mt-4 text-white/70 text-sm max-w-md leading-relaxed">
             Run pizza chains, burger brands, fried chicken, cafés, cloud kitchens and franchises from one unified platform — POS, KDS, delivery, inventory, CRM, finance, HR & AI insights with role-based access control.
@@ -111,7 +111,7 @@ export function LoginScreen() {
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="you@crave.dev"
+                  placeholder="you@fusionflow.dev"
                   className="pl-9 h-11"
                   required
                 />
@@ -172,7 +172,7 @@ export function LoginScreen() {
               })}
             </div>
             <p className="text-[10px] text-center text-muted-foreground mt-3">
-              All demo accounts use password <code className="font-mono bg-muted px-1 py-0.5 rounded">crave123</code>
+              All demo accounts use password <code className="font-mono bg-muted px-1 py-0.5 rounded">fusionflow123</code>
             </p>
           </div>
         </motion.div>

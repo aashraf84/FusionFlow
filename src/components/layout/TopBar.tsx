@@ -122,7 +122,7 @@ export function TopBar() {
     return () => window.removeEventListener("keydown", handler)
   }, [])
 
-  const meta = MODULE_TITLES[activeModule] ?? { title: "Crave ERP", subtitle: "" }
+  const meta = MODULE_TITLES[activeModule] ?? { title: "FusionFlow ERP", subtitle: "" }
   const timeStr = now?.toLocaleTimeString("en-PK", { hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: true }) ?? ""
 
   return (

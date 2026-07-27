@@ -1,4 +1,4 @@
-// Crave ERP — RBAC permissions matrix & role definitions
+// FusionFlow ERP — RBAC permissions matrix & role definitions
 
 import type { ModuleId } from "./data"
 

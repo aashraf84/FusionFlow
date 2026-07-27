@@ -79,10 +79,10 @@ export function OwnerPortal() {
           </div>
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 flex-wrap">
-              <h2 className="font-extrabold text-lg">Crave Owner Portal</h2>
+              <h2 className="font-extrabold text-lg">FusionFlow Owner Portal</h2>
               <Badge className="bg-chart-5 text-white">ApexFlow Suite</Badge>
             </div>
-            <p className="text-sm text-muted-foreground mt-1">Manage Crave ERP tenants, subscriptions, licenses, devices, billing & SaaS health.</p>
+            <p className="text-sm text-muted-foreground mt-1">Manage FusionFlow ERP tenants, subscriptions, licenses, devices, billing & SaaS health.</p>
           </div>
           <Button onClick={() => toast.info("Provision new tenant")}>
             <Plus className="h-4 w-4 mr-1.5" /> New Tenant

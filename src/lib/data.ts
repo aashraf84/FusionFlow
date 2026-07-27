@@ -1,4 +1,4 @@
-// Crave ERP — shared domain types & seed catalog
+// FusionFlow ERP — shared domain types & seed catalog
 
 export type ModuleId =
   | "dashboard"

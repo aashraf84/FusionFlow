@@ -14,7 +14,7 @@ export function Footer() {
         <div className="flex items-center gap-3 flex-wrap justify-center sm:justify-start">
           <span className="flex items-center gap-1.5 font-semibold text-foreground">
             <Logo size={16} variant="icon" />
-            Crave ERP
+            FusionFlow ERP
           </span>
           <span className="opacity-60">v3.0.0 · Enterprise Edition</span>
           <span className="hidden sm:inline opacity-40">·</span>

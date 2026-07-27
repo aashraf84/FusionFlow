@@ -80,7 +80,7 @@ export default function Home() {
       <div className="min-h-screen grid place-items-center bg-background">
         <div className="text-center space-y-3">
           <Loader2 className="h-8 w-8 animate-spin text-primary mx-auto" />
-          <div className="font-semibold text-sm">Initializing Crave ERP database…</div>
+          <div className="font-semibold text-sm">Initializing FusionFlow ERP database…</div>
           <div className="text-[11px] text-muted-foreground max-w-xs">
             Seeding branches, menu, inventory, riders, customers, users & sample orders
           </div>

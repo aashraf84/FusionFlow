@@ -265,7 +265,7 @@ export function UserManagement() {
 function AddUserDialog({ open, onOpenChange, onCreated }: { open: boolean; onOpenChange: (o: boolean) => void; onCreated: () => void }) {
   const [name, setName] = useState("")
   const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("crave123")
+  const [password, setPassword] = useState("fusionflow123")
   const [role, setRole] = useState<Role>("cashier")
   const [phone, setPhone] = useState("")
   const [saving, setSaving] = useState(false)
@@ -281,7 +281,7 @@ function AddUserDialog({ open, onOpenChange, onCreated }: { open: boolean; onOpe
       const json = await res.json()
       if (!res.ok) throw new Error(json.error ?? "Failed")
       toast.success(`${name} added as ${role}`)
-      setName(""); setEmail(""); setPassword("crave123"); setRole("cashier"); setPhone("")
+      setName(""); setEmail(""); setPassword("fusionflow123"); setRole("cashier"); setPhone("")
       onOpenChange(false)
       onCreated()
     } catch (e) {
@@ -305,7 +305,7 @@ function AddUserDialog({ open, onOpenChange, onCreated }: { open: boolean; onOpe
           </div>
           <div>
             <label className="text-xs font-semibold mb-1 block">Email *</label>
-            <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="user@crave.dev" className="h-9" />
+            <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="user@fusionflow.dev" className="h-9" />
           </div>
           <div className="grid grid-cols-2 gap-2">
             <div>

@@ -9,7 +9,8 @@ interface LogoProps {
   variant?: "full" | "icon"
 }
 
-// Crave ERP logo — a warm gradient rounded tile with a stylized plate + fork/knife
+// FusionFlow ERP logo — three converging streams fusing into one unified flow,
+// representing the unification of all restaurant operations into a single platform.
 export function Logo({ className, size = 40, showWordmark = false, variant = "icon" }: LogoProps) {
   if (variant === "full" || showWordmark) {
     return (
@@ -17,7 +18,7 @@ export function Logo({ className, size = 40, showWordmark = false, variant = "ic
         <LogoIcon size={size} />
         <div className="leading-tight">
           <div className="font-extrabold tracking-tight text-[15px] flex items-center gap-1.5">
-            Crave
+            FusionFlow
             <span className="text-[8px] font-bold px-1 py-0.5 rounded bg-primary/20 text-primary">ERP</span>
           </div>
           <div className="text-[10px] text-muted-foreground font-medium">Restaurant Operating System</div>
@@ -38,40 +39,80 @@ function LogoIcon({ size = 40, className }: { size?: number; className?: string 
       xmlns="http://www.w3.org/2000/svg"
       className={cn("shrink-0", className)}
       role="img"
-      aria-label="Crave ERP"
+      aria-label="FusionFlow ERP"
     >
       <defs>
-        <linearGradient id="craveGrad" x1="0" y1="0" x2="48" y2="48" gradientUnits="userSpaceOnUse">
+        <linearGradient id="fusionGrad" x1="4" y1="6" x2="44" y2="42" gradientUnits="userSpaceOnUse">
           <stop stopColor="oklch(0.62 0.2 28)" />
-          <stop offset="0.55" stopColor="oklch(0.58 0.21 28)" />
-          <stop offset="1" stopColor="oklch(0.7 0.16 60)" />
+          <stop offset="0.5" stopColor="oklch(0.6 0.18 50)" />
+          <stop offset="1" stopColor="oklch(0.66 0.15 145)" />
         </linearGradient>
-        <linearGradient id="craveShine" x1="8" y1="6" x2="24" y2="24" gradientUnits="userSpaceOnUse">
-          <stop stopColor="#ffffff" stopOpacity="0.35" />
-          <stop offset="1" stopColor="#ffffff" stopOpacity="0" />
+        <linearGradient id="fusionShine" x1="8" y1="4" x2="28" y2="28" gradientUnits="userSpaceOnUse">
+          <stop stopColor="#ffffff" stopOpacity={0.3} />
+          <stop offset="1" stopColor="#ffffff" stopOpacity={0} />
         </linearGradient>
       </defs>
       {/* Rounded tile background */}
-      <rect x="2" y="2" width="44" height="44" rx="12" fill="url(#craveGrad)" />
-      <rect x="2" y="2" width="44" height="44" rx="12" fill="url(#craveShine)" />
-      {/* Plate circle */}
-      <circle cx="24" cy="24" r="13" fill="none" stroke="#fff" strokeWidth="2" strokeOpacity="0.95" />
-      <circle cx="24" cy="24" r="9" fill="#fff" fillOpacity="0.12" />
-      {/* Fork (left) */}
-      <g stroke="#fff" strokeWidth="2" strokeLinecap="round" fill="none">
-        <path d="M14 15.5 L14 19" />
-        <path d="M16.2 15.5 L16.2 19" />
-        <path d="M12 19 L18.2 19" />
-        <path d="M15.1 19 L15.1 33" />
-      </g>
-      {/* Knife (right) */}
-      <g stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none">
-        <path d="M33.5 15 C36 16.5, 36 20, 34 21.5 L33.5 21.5 L33.5 33" />
-      </g>
-      {/* Steam dots */}
-      <circle cx="21" cy="9" r="1.1" fill="#fff" fillOpacity="0.7" />
-      <circle cx="24" cy="7.5" r="1.1" fill="#fff" fillOpacity="0.55" />
-      <circle cx="27" cy="9" r="1.1" fill="#fff" fillOpacity="0.7" />
+      <rect x="2" y="2" width="44" height="44" rx="12" fill="url(#fusionGrad)" />
+      <rect x="2" y="2" width="44" height="44" rx="12" fill="url(#fusionShine)" />
+
+      {/* Three converging streams (left side) fusing into one flow (right side) */}
+      {/* Top stream — tomato red */}
+      <path
+        d="M6 14 C14 14, 18 20, 24 24"
+        stroke="#fff"
+        strokeWidth="2.5"
+        strokeLinecap="round"
+        fill="none"
+        opacity="0.95"
+      />
+      {/* Middle stream — straight, white */}
+      <path
+        d="M6 24 L24 24"
+        stroke="#fff"
+        strokeWidth="2.5"
+        strokeLinecap="round"
+        fill="none"
+        opacity="0.95"
+      />
+      {/* Bottom stream — amber */}
+      <path
+        d="M6 34 C14 34, 18 28, 24 24"
+        stroke="#fff"
+        strokeWidth="2.5"
+        strokeLinecap="round"
+        fill="none"
+        opacity="0.95"
+      />
+
+      {/* Fusion node — where three streams merge */}
+      <circle cx="24" cy="24" r="3.5" fill="#fff" />
+      <circle cx="24" cy="24" r="3.5" fill="none" stroke="#fff" strokeWidth="0.5" opacity="0.6">
+        <animate attributeName="r" values="3.5;6;3.5" dur="2.5s" repeatCount="indefinite" />
+        <animate attributeName="opacity" values="0.6;0;0.6" dur="2.5s" repeatCount="indefinite" />
+      </circle>
+
+      {/* Unified flow — single arrow-like stream continuing right */}
+      <path
+        d="M27 24 C32 24, 36 24, 40 24"
+        stroke="#fff"
+        strokeWidth="3.5"
+        strokeLinecap="round"
+        fill="none"
+      />
+      {/* Flow arrowhead */}
+      <path
+        d="M37 20 L42 24 L37 28"
+        stroke="#fff"
+        strokeWidth="2.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        fill="none"
+      />
+
+      {/* Small flow particles along the unified stream */}
+      <circle cx="31" cy="24" r="1" fill="#fff" opacity="0.5" />
+      <circle cx="35" cy="24" r="1" fill="#fff" opacity="0.3" />
     </svg>
   )
 }

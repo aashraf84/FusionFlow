@@ -128,19 +128,19 @@ export async function POST() {
     })),
   })
 
-  // Users (RBAC) — all share password "crave123" for demo
+  // Users (RBAC) — all share password "fusionflow123" for demo
   const demoUsers = [
-    { id: "U-OWNER", name: "Daniyal Khan", email: "owner@crave.dev", role: "owner", branchId: null, color: "var(--chart-5)", phone: "+923001111111" },
-    { id: "U-ADMIN", name: "Ahsan Khan", email: "admin@crave.dev", role: "admin", branchId: null, color: "var(--chart-1)", phone: "+923002222222" },
-    { id: "U-MGR", name: "Sara Malik", email: "manager@crave.dev", role: "manager", branchId: "BR-GUL", color: "var(--chart-3)", phone: "+923003333333" },
-    { id: "U-CASH", name: "Bilal Raza", email: "cashier@crave.dev", role: "cashier", branchId: "BR-GUL", color: "var(--chart-2)", phone: "+923004444444" },
-    { id: "U-CHEF", name: "Imran Sheikh", email: "chef@crave.dev", role: "chef", branchId: "BR-GUL", color: "var(--chart-4)", phone: "+923005555555" },
-    { id: "U-RIDER", name: "Usman Ali", email: "rider@crave.dev", role: "rider", branchId: "BR-GUL", color: "var(--chart-3)", phone: "+923006666666" },
-    { id: "U-VIEW", name: "Nida Yusuf", email: "viewer@crave.dev", role: "viewer", branchId: null, color: "var(--muted-foreground)", phone: "+923007777777" },
+    { id: "U-OWNER", name: "Daniyal Khan", email: "owner@fusionflow.dev", role: "owner", branchId: null, color: "var(--chart-5)", phone: "+923001111111" },
+    { id: "U-ADMIN", name: "Ahsan Khan", email: "admin@fusionflow.dev", role: "admin", branchId: null, color: "var(--chart-1)", phone: "+923002222222" },
+    { id: "U-MGR", name: "Sara Malik", email: "manager@fusionflow.dev", role: "manager", branchId: "BR-GUL", color: "var(--chart-3)", phone: "+923003333333" },
+    { id: "U-CASH", name: "Bilal Raza", email: "cashier@fusionflow.dev", role: "cashier", branchId: "BR-GUL", color: "var(--chart-2)", phone: "+923004444444" },
+    { id: "U-CHEF", name: "Imran Sheikh", email: "chef@fusionflow.dev", role: "chef", branchId: "BR-GUL", color: "var(--chart-4)", phone: "+923005555555" },
+    { id: "U-RIDER", name: "Usman Ali", email: "rider@fusionflow.dev", role: "rider", branchId: "BR-GUL", color: "var(--chart-3)", phone: "+923006666666" },
+    { id: "U-VIEW", name: "Nida Yusuf", email: "viewer@fusionflow.dev", role: "viewer", branchId: null, color: "var(--muted-foreground)", phone: "+923007777777" },
   ]
   await db.user.createMany({
     data: demoUsers.map((u) => ({
-      id: u.id, name: u.name, email: u.email, password: "crave123", role: u.role,
+      id: u.id, name: u.name, email: u.email, password: "fusionflow123", role: u.role,
       branchId: u.branchId, active: true, avatarColor: u.color, phone: u.phone,
     })),
   })

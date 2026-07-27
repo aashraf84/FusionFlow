@@ -1952,7 +1952,7 @@ export function HR() {
                 {/* Letterhead */}
                 <div className="bg-primary text-primary-foreground px-5 py-3 flex items-center justify-between">
                   <div>
-                    <div className="font-extrabold text-base leading-tight">CRAVE ERP</div>
+                    <div className="font-extrabold text-base leading-tight">FUSIONFLOW ERP</div>
                     <div className="text-[10px] opacity-90">Restaurant Management System</div>
                   </div>
                   <div className="text-right">
@@ -2038,7 +2038,7 @@ export function HR() {
 
                 {/* Footer */}
                 <div className="px-5 py-2.5 text-[9px] text-muted-foreground text-center border-t">
-                  This is a computer-generated payslip from Crave ERP · Generated{" "}
+                  This is a computer-generated payslip from FusionFlow ERP · Generated{" "}
                   {new Date().toLocaleString("en-PK")} · Status:{" "}
                   <span className="font-semibold uppercase">{payslipEntry.status}</span>
                 </div>

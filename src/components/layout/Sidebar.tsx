@@ -97,17 +97,17 @@ export function Sidebar() {
           sidebarOpen ? "translate-x-0 shadow-2xl" : "-translate-x-full lg:translate-x-0",
         )}
         style={{
-          background: "linear-gradient(180deg, oklch(0.2 0.03 40) 0%, oklch(0.17 0.025 42) 50%, oklch(0.15 0.02 44) 100%)",
+          background: "linear-gradient(180deg, oklch(0.2 0.035 35) 0%, oklch(0.17 0.03 42) 50%, oklch(0.15 0.025 50) 100%)",
           borderColor: "oklch(0.28 0.03 40)",
         }}
       >
         {/* Brand header */}
         <div className="relative h-16 border-b shrink-0 flex items-center px-4 overflow-hidden" style={{ borderColor: "oklch(0.28 0.03 40)" }}>
-          <div className="absolute inset-0 opacity-40 pointer-events-none" style={{ background: "radial-gradient(ellipse at top left, oklch(0.55 0.2 28 / 0.25), transparent 70%)" }} />
+          <div className="absolute inset-0 opacity-50 pointer-events-none" style={{ background: "linear-gradient(90deg, oklch(0.55 0.2 28 / 0.2), oklch(0.7 0.16 75 / 0.12), oklch(0.6 0.15 145 / 0.15))" }} />
           <Logo size={40} variant="icon" className="relative drop-shadow-md" />
           <div className="relative leading-tight ml-2.5">
             <div className="font-extrabold tracking-tight text-[15px] text-white flex items-center gap-1.5">
-              Crave
+              FusionFlow
               <span className="text-[8px] font-bold px-1 py-0.5 rounded text-white" style={{ background: "oklch(0.55 0.2 28)" }}>ERP</span>
             </div>
             <div className="text-[10px] font-medium" style={{ color: "oklch(0.96 0.01 70 / 0.55)" }}>Restaurant Operating System</div>
@@ -200,7 +200,7 @@ export function Sidebar() {
             </button>
           </div>
           <div className="flex items-center gap-1.5 px-1 text-[9px]" style={{ color: "oklch(0.96 0.01 70 / 0.4)" }}>
-            <Lock className="h-2.5 w-2.5" /> Crave ERP v3.0 · RBAC secured
+            <Lock className="h-2.5 w-2.5" /> FusionFlow ERP v3.0 · RBAC secured
           </div>
         </div>
       </aside>

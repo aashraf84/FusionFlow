@@ -16,11 +16,11 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Crave ERP — Enterprise Restaurant Operating System",
+  title: "FusionFlow ERP — Enterprise Restaurant Operating System",
   description:
-    "Crave ERP: the enterprise operating system for pizza brands, burger chains, fried chicken, cafés, cloud kitchens and franchises. POS, KDS, delivery, inventory, CRM, finance, HR, RBAC & AI insights in one unified platform.",
+    "FusionFlow ERP: the enterprise operating system for pizza brands, burger chains, fried chicken, cafés, cloud kitchens and franchises. POS, KDS, delivery, inventory, CRM, finance, HR, RBAC & AI insights in one unified platform.",
   keywords: [
-    "Crave",
+    "FusionFlow",
     "Restaurant ERP",
     "POS",
     "KDS",
@@ -30,14 +30,14 @@ export const metadata: Metadata = {
     "RBAC",
     "Next.js",
   ],
-  authors: [{ name: "Crave Systems" }],
+  authors: [{ name: "FusionFlow Systems" }],
   icons: {
     icon: "https://z-cdn.chatglm.cn/z-ai/static/logo.svg",
   },
   openGraph: {
-    title: "Crave ERP",
+    title: "FusionFlow ERP",
     description: "Enterprise Restaurant Operating System for QSR & Franchise Chains",
-    siteName: "Crave ERP",
+    siteName: "FusionFlow ERP",
     type: "website",
   },
 };
