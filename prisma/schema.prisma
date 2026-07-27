@@ -1,0 +1,146 @@
+// PizzaFlow ERP — Prisma schema
+// Enterprise restaurant operating system data model
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Branch {
+  id          String          @id
+  name        String
+  brand       String          @default("NY212 Pizza")
+  type        String          @default("restaurant") // restaurant, cloud_kitchen, food_truck, food_court, drive_thru
+  city        String
+  address     String?
+  manager     String?
+  phone       String?
+  status      String          @default("active") // active, maintenance, closed
+  isOpen      Boolean         @default(true)
+  royaltyPct  Float           @default(6.0)
+  franchisee  String?
+  openedAt    DateTime        @default(now())
+  orders      Order[]
+  inventory   InventoryItem[]
+  riders      Rider[]
+  employees   Employee[]
+}
+
+model Product {
+  id          String      @id
+  name        String
+  category    String      // pizza, burger, chicken, sides, drinks, desserts, combos
+  price       Float
+  cost        Float
+  image       String?
+  description String?
+  available   Boolean     @default(true)
+  calories    Int?
+  prepTime    Int         @default(10)
+  station     String      @default("pizza") // pizza, burger, fry, grill, drinks, dessert
+  popular     Boolean     @default(false)
+  createdAt   DateTime    @default(now())
+  orderItems  OrderItem[]
+}
+
+model Order {
+  id             String      @id
+  number         Int         @default(0)
+  branchId       String
+  branch         Branch      @relation(fields: [branchId], references: [id])
+  type           String      @default("dine_in") // dine_in, takeaway, delivery, drive_thru
+  status         String      @default("pending") // pending, preparing, ready, dispatched, delivered, cancelled
+  station        String      @default("pizza")
+  table          String?
+  customerName   String?
+  customerPhone  String?
+  customerAddress String?
+  riderId        String?
+  items          OrderItem[]
+  subtotal       Float       @default(0)
+  tax            Float       @default(0)
+  discount       Float       @default(0)
+  total          Float       @default(0)
+  paymentMethod  String?     // cash, card, wallet, mixed
+  paymentStatus  String      @default("unpaid") // unpaid, paid, refunded
+  notes          String?
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+}
+
+model OrderItem {
+  id             String   @id
+  orderId        String
+  order          Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId      String
+  product        Product  @relation(fields: [productId], references: [id])
+  name           String
+  quantity       Int
+  price          Float
+  customizations String?  // JSON string for pizza builder options
+}
+
+model Customer {
+  id            String    @id
+  name          String
+  phone         String    @unique
+  email         String?
+  address       String?
+  loyaltyPoints Int       @default(0)
+  tier          String    @default("Silver") // Bronze, Silver, Gold, Platinum
+  totalSpent    Float     @default(0)
+  ordersCount   Int       @default(0)
+  lastOrderAt   DateTime?
+  birthday      String?
+  notes         String?
+  createdAt     DateTime  @default(now())
+}
+
+model Rider {
+  id              String   @id
+  name            String
+  phone           String
+  vehicle         String   @default("motorbike")
+  status          String   @default("available") // available, on_delivery, offline
+  rating          Float    @default(5.0)
+  totalDeliveries Int      @default(0)
+  earnings        Float    @default(0)
+  branchId        String
+  branch          Branch   @relation(fields: [branchId], references: [id])
+  currentOrderId  String?
+  createdAt       DateTime @default(now())
+}
+
+model InventoryItem {
+  id        String   @id
+  branchId  String
+  branch    Branch   @relation(fields: [branchId], references: [id])
+  name      String
+  category  String   @default("raw") // raw, semi_finished, finished, packaging
+  unit      String   @default("kg")
+  quantity  Float
+  minStock  Float
+  cost      Float
+  batchNo   String?
+  expiry    DateTime?
+  updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now())
+}
+
+model Employee {
+  id        String   @id
+  name      String
+  role      String   // manager, cashier, chef, rider, cleaner, supervisor
+  branchId  String?
+  branch    Branch?  @relation(fields: [branchId], references: [id])
+  phone     String?
+  salary    Float    @default(0)
+  status    String   @default("active")
+  attendance String  @default("present") // present, absent, leave, late
+  shift     String   @default("morning")
+  createdAt DateTime @default(now())
+}
