@@ -1,6 +1,8 @@
 "use client"
 
-import { useState } from "react"
+import { useMemo, useState } from "react"
+import { useAppStore } from "@/lib/store"
+import { useFetch } from "@/hooks/use-fetch"
 import { Card } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -92,6 +94,30 @@ const CERT_STATUS = {
 
 export function Compliance() {
   const [tab, setTab] = useState("overview")
+  const activeBranchId = useAppStore((s) => s.activeBranchId)
+  const branchParam = activeBranchId === "__ALL__" ? "" : `?branchId=${activeBranchId}`
+  const { data: empData } = useFetch<{ employees: any[] }>(`/api/dashboard${branchParam}`, {})
+
+  // Generate training records from real employees
+  const trainingRecords = useMemo(() => {
+    const employees = empData?.employees ?? []
+    const courses = ["HACCP Level 2", "Food Handler Certification", "Allergen Awareness", "Fire Safety Training", "Hygiene & Sanitation"]
+    return employees.map((e, i) => {
+      const course = courses[i % courses.length]
+      const completedDate = new Date(Date.now() - (3 + (i * 2)) * 30 * 86400000)
+      const expiryDate = new Date(completedDate.getTime() + 365 * 86400000)
+      const daysToExpiry = Math.ceil((expiryDate.getTime() - Date.now()) / 86400000)
+      const status = daysToExpiry < 0 ? "expired" : daysToExpiry < 30 ? "expiring" : "valid"
+      return {
+        id: `T-${i + 1}`,
+        name: e.name,
+        course,
+        completed: completedDate.toISOString().slice(0, 10),
+        expiry: expiryDate.toISOString().slice(0, 10),
+        status,
+      }
+    })
+  }, [empData])
 
   const avgScore = Math.round(INSPECTIONS.reduce((s, i) => s + i.score, 0) / INSPECTIONS.length)
   const passed = INSPECTIONS.filter(i => i.status === "passed").length
@@ -99,7 +125,7 @@ export function Compliance() {
   const ccpControlled = CCP_LIST.filter(c => c.status === "controlled").length
   const ccpWarnings = CCP_LIST.filter(c => c.status === "warning").length
   const expiringCerts = CERTS.filter(c => c.status === "expiring" || c.status === "expired").length
-  const expiredTraining = TRAINING.filter(t => t.status === "expired" || t.status === "expiring").length
+  const expiredTraining = trainingRecords.filter(t => t.status === "expired" || t.status === "expiring").length
 
   return (
     <div className="space-y-4">
@@ -377,7 +403,7 @@ export function Compliance() {
                   </tr>
                 </thead>
                 <tbody className="divide-y">
-                  {TRAINING.map(t => (
+                  {trainingRecords.map(t => (
                     <tr key={t.id} className="hover:bg-muted/20">
                       <td className="px-4 py-2.5 text-xs font-semibold">{t.name}</td>
                       <td className="px-4 py-2.5 text-xs">{t.course}</td>

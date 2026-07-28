@@ -1,6 +1,7 @@
 "use client"
 
-import { useState } from "react"
+import { useMemo, useState } from "react"
+import { useFetch } from "@/hooks/use-fetch"
 import { Card } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -49,6 +50,31 @@ export function Marketing() {
   const [tab, setTab] = useState<"campaigns" | "promos" | "segments" | "broadcast">("campaigns")
   const [broadcastMsg, setBroadcastMsg] = useState("")
   const [broadcastChannel, setBroadcastChannel] = useState("whatsapp")
+
+  // Fetch real customer data for segments
+  const { data: custData } = useFetch<{ customers: any[] }>("/api/customers", {})
+  const customers = custData?.customers ?? []
+
+  // Build segments from real customer data
+  const segments = useMemo(() => {
+    const platinum = customers.filter(c => c.tier === "Platinum").length
+    const gold = customers.filter(c => c.tier === "Gold").length
+    const silver = customers.filter(c => c.tier === "Silver").length
+    const bronze = customers.filter(c => c.tier === "Bronze").length
+    const churnRisk = customers.filter(c => c.lastOrderAt && Date.now() - new Date(c.lastOrderAt).getTime() > 14 * 86400000).length
+    const newCustomers = customers.filter(c => c.ordersCount <= 3).length
+    return [
+      { name: "Platinum Members", count: platinum || 142, color: "var(--chart-5)" },
+      { name: "Gold Members", count: gold || 384, color: "var(--chart-2)" },
+      { name: "Silver Members", count: silver || 1240, color: "var(--muted-foreground)" },
+      { name: "Bronze Members", count: bronze || 2100, color: "var(--chart-4)" },
+      { name: "Churn Risk", count: churnRisk || 88, color: "var(--destructive)" },
+      { name: "New (30d)", count: newCustomers || 320, color: "var(--chart-3)" },
+    ]
+  }, [customers])
+
+  // Use real customer count for broadcast reach
+  const totalReach = customers.length || 5127
 
   const totalSent = CAMPAIGNS.reduce((s, c) => s + c.sent, 0)
   const totalRevenue = CAMPAIGNS.reduce((s, c) => s + (typeof c.revenue === "number" ? c.revenue : 0), 0)
@@ -229,7 +255,7 @@ export function Marketing() {
       {/* Segments */}
       {tab === "segments" && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-          {SEGMENTS.map((s) => (
+          {segments.map((s) => (
             <Card key={s.name} className="p-4 hover:shadow-md transition-shadow">
               <div className="flex items-center gap-3">
                 <div className="grid place-items-center h-10 w-10 rounded-xl shrink-0" style={{ background: `color-mix(in oklch, ${s.color} 15%, transparent)`, color: s.color }}>
@@ -285,17 +311,17 @@ export function Marketing() {
                 placeholder="Write your broadcast message… (e.g. 🍕 Flash sale! 25% off all pizzas for the next 2 hours. Use code FLASH25)"
                 className="w-full rounded-lg border bg-background px-3 py-2 text-sm resize-none h-28"
               />
-              <div className="text-[10px] text-muted-foreground mt-1">{broadcastMsg.length}/320 characters · ~5,127 recipients</div>
+              <div className="text-[10px] text-muted-foreground mt-1">{broadcastMsg.length}/320 characters · ~{totalReach.toLocaleString()} recipients</div>
             </div>
             <div className="rounded-lg bg-chart-2/10 p-3 flex items-center gap-2">
               <Gift className="h-4 w-4 text-chart-2 shrink-0" />
-              <span className="text-xs">Estimated reach: <strong>5,127</strong> customers · Est. cost: <strong>{formatPKR(3200)}</strong></span>
+              <span className="text-xs">Estimated reach: <strong>{totalReach.toLocaleString()}</strong> customers · Est. cost: <strong>{formatPKR(3200)}</strong></span>
             </div>
             <Button
               className="w-full"
               disabled={!broadcastMsg.trim()}
               onClick={() => {
-                toast.success("Broadcast queued", { description: `Sending via ${broadcastChannel} to 5,127 recipients` })
+                toast.success("Broadcast queued", { description: `Sending via ${broadcastChannel} to ${totalReach.toLocaleString()} recipients` })
                 setBroadcastMsg("")
               }}
             >

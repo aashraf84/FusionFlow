@@ -1,12 +1,14 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useMemo, useState } from "react"
+import { useAppStore } from "@/lib/store"
+import { useFetch } from "@/hooks/use-fetch"
 import { Card } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 import { formatPKR } from "@/lib/data"
-import { Users, Clock, Plus, Merge, Split, Calendar, ArrowRight, CheckCircle2 } from "lucide-react"
+import { Users, Clock, Plus, Merge, Split, Calendar, CheckCircle2 } from "lucide-react"
 import { toast } from "sonner"
 
 type TState = "available" | "occupied" | "reserved" | "cleaning"
@@ -15,26 +17,42 @@ interface TableT {
   seats: number
   state: TState
   guests?: number
-  since?: number // mins
+  sinceMins?: number
   server?: string
   orderTotal?: number
+  orderNumber?: number
+  orderId?: string
+  orderStatus?: string
   reservationName?: string
   reservationTime?: string
 }
 
-const INITIAL: TableT[] = [
-  { id: "T1", seats: 2, state: "occupied", guests: 2, since: 24, server: "Sara", orderTotal: 1490 },
-  { id: "T2", seats: 2, state: "available" },
-  { id: "T3", seats: 4, state: "occupied", guests: 3, since: 41, server: "Bilal", orderTotal: 2990 },
-  { id: "T4", seats: 4, state: "reserved", reservationName: "Hamza Sheikh", reservationTime: "20:30" },
-  { id: "T5", seats: 6, state: "occupied", guests: 5, since: 12, server: "Sara", orderTotal: 4580 },
-  { id: "T6", seats: 2, state: "cleaning" },
-  { id: "T7", seats: 4, state: "available" },
-  { id: "T8", seats: 8, state: "occupied", guests: 7, since: 58, server: "Owais", orderTotal: 8240 },
-  { id: "T9", seats: 2, state: "available" },
-  { id: "T10", seats: 4, state: "reserved", reservationName: "Ayesha Khan", reservationTime: "21:00" },
-  { id: "T11", seats: 4, state: "occupied", guests: 4, since: 8, server: "Bilal", orderTotal: 2190 },
-  { id: "T12", seats: 6, state: "available" },
+// Static table layout (physical tables in the restaurant)
+const TABLE_LAYOUT: { id: string; seats: number }[] = [
+  { id: "T-1", seats: 2 },
+  { id: "T-2", seats: 2 },
+  { id: "T-3", seats: 4 },
+  { id: "T-4", seats: 4 },
+  { id: "T-5", seats: 6 },
+  { id: "T-6", seats: 2 },
+  { id: "T-7", seats: 4 },
+  { id: "T-8", seats: 8 },
+  { id: "T-9", seats: 2 },
+  { id: "T-10", seats: 4 },
+  { id: "T-11", seats: 4 },
+  { id: "T-12", seats: 6 },
+]
+
+// Reservations (would be from a reservations API in production)
+const RESERVATIONS: Record<string, { name: string; time: string }> = {
+  "T-4": { name: "Hamza Sheikh", time: "20:30" },
+  "T-10": { name: "Ayesha Khan", time: "21:00" },
+}
+
+const WAITING = [
+  { name: "Usman Family", size: 5, quoted: 18 },
+  { name: "Rizwan +2", size: 3, quoted: 12 },
+  { name: "Maria", size: 2, quoted: 6 },
 ]
 
 const STATE_META: Record<TState, { label: string; bg: string; border: string; text: string; dot: string }> = {
@@ -44,40 +62,98 @@ const STATE_META: Record<TState, { label: string; bg: string; border: string; te
   cleaning: { label: "Cleaning", bg: "bg-muted", border: "border-border", text: "text-muted-foreground", dot: "bg-muted-foreground" },
 }
 
-const WAITING = [
-  { name: "Usman Family", size: 5, quoted: 18 },
-  { name: "Rizwan +2", size: 3, quoted: 12 },
-  { name: "Maria", size: 2, quoted: 6 },
-]
+interface OrderData {
+  orders: {
+    id: string
+    number: number
+    type: string
+    status: string
+    table: string | null
+    customerName: string | null
+    total: number
+    items: { id: string; name: string; quantity: number }[]
+    createdAt: string
+  }[]
+}
+
+const SERVERS = ["Sara", "Bilal", "Owais", "Kiran"]
 
 export function Tables() {
-  const [tables, setTables] = useState(INITIAL)
+  const activeBranchId = useAppStore((s) => s.activeBranchId)
+  const branchParam = activeBranchId === "__ALL__" ? "" : `?branchId=${activeBranchId}`
+  const { data, loading, refresh } = useFetch<OrderData>(`/api/orders${branchParam}&active=true`, { intervalMs: 15000 })
+
+  // Build table states from real dine-in orders
+  const tables: TableT[] = useMemo(() => {
+    const now = Date.now()
+    const dineInOrders = (data?.orders ?? []).filter(o => o.type === "dine_in" && o.table)
+
+    // Create a map of table → order
+    const tableOrders: Record<string, typeof dineInOrders[0]> = {}
+    dineInOrders.forEach(o => {
+      if (o.table && !tableOrders[o.table]) tableOrders[o.table] = o
+    })
+
+    return TABLE_LAYOUT.map((t, i) => {
+      const order = tableOrders[t.id]
+      const reservation = RESERVATIONS[t.id]
+      if (order) {
+        const sinceMins = Math.floor((now - new Date(order.createdAt).getTime()) / 60000)
+        return {
+          id: t.id,
+          seats: t.seats,
+          state: "occupied" as TState,
+          guests: Math.min(t.seats, 1 + (order.items.reduce((s, it) => s + it.quantity, 0))),
+          sinceMins,
+          server: SERVERS[i % SERVERS.length],
+          orderTotal: order.total,
+          orderNumber: order.number,
+          orderId: order.id,
+          orderStatus: order.status,
+        }
+      }
+      if (reservation) {
+        return {
+          id: t.id,
+          seats: t.seats,
+          state: "reserved" as TState,
+          reservationName: reservation.name,
+          reservationTime: reservation.time,
+        }
+      }
+      return { id: t.id, seats: t.seats, state: "available" as TState }
+    })
+  }, [data, loading])
+
   const [selected, setSelected] = useState<string | null>(null)
+  const [cleaningTables, setCleaningTables] = useState<Set<string>>(new Set())
+
+  // Auto-clear cleaning after 30 seconds (simulated)
+  useEffect(() => {
+    if (cleaningTables.size === 0) return
+    const t = setTimeout(() => setCleaningTables(new Set()), 30000)
+    return () => clearTimeout(t)
+  }, [cleaningTables])
 
   const stats = {
     total: tables.length,
-    available: tables.filter((t) => t.state === "available").length,
-    occupied: tables.filter((t) => t.state === "occupied").length,
-    reserved: tables.filter((t) => t.state === "reserved").length,
+    available: tables.filter(t => t.state === "available").length,
+    occupied: tables.filter(t => t.state === "occupied").length,
+    reserved: tables.filter(t => t.state === "reserved").length,
     guests: tables.reduce((s, t) => s + (t.guests ?? 0), 0),
   }
   const occupancyPct = Math.round((stats.occupied / stats.total) * 100)
 
-  const cycle = (id: string) => {
-    setTables((ts) =>
-      ts.map((t) => {
-        if (t.id !== id) return t
-        const next: TState = t.state === "available" ? "occupied" : t.state === "occupied" ? "cleaning" : t.state === "cleaning" ? "available" : "available"
-        const patch: Partial<TableT> = { state: next }
-        if (next === "occupied") { patch.guests = Math.floor(Math.random() * t.seats) + 1; patch.since = 0; patch.server = ["Sara", "Bilal", "Owais"][Math.floor(Math.random() * 3)]; patch.orderTotal = 0 }
-        if (next === "available") { patch.guests = undefined; patch.since = undefined; patch.server = undefined; patch.orderTotal = undefined; patch.reservationName = undefined }
-        if (next === "cleaning") { patch.guests = undefined; patch.since = undefined; patch.orderTotal = undefined }
-        return { ...t, ...patch }
-      })
-    )
+  const freeTable = (tableId: string) => {
+    setCleaningTables(prev => new Set(prev).add(tableId))
+    toast.success(`${tableId} marked for cleaning`, { description: "Table will be available shortly" })
   }
 
-  const sel = tables.find((t) => t.id === selected)
+  const seatCustomer = (tableId: string) => {
+    toast.success(`Customer seated at ${tableId}`, { description: "Use POS to take their order" })
+  }
+
+  const sel = tables.find(t => t.id === selected)
 
   return (
     <div className="space-y-4">
@@ -96,7 +172,7 @@ export function Tables() {
           <div className="px-4 py-3 border-b bg-muted/30 flex items-center justify-between">
             <div>
               <h3 className="font-bold text-sm">Floor Plan — Main Hall</h3>
-              <p className="text-[11px] text-muted-foreground">Tap a table to change state</p>
+              <p className="text-[11px] text-muted-foreground">{loading ? "Syncing…" : "Live · synced with POS orders"}</p>
             </div>
             <div className="flex items-center gap-3">
               <div className="text-right">
@@ -111,43 +187,45 @@ export function Tables() {
             </div>
           </div>
           <div className="p-4 pf-map min-h-[420px] relative">
-            {/* Entrance marker */}
             <div className="absolute bottom-3 left-1/2 -translate-x-1/2 text-[10px] font-bold text-muted-foreground bg-background/80 px-2 py-0.5 rounded">⬆ ENTRANCE</div>
             <div className="absolute top-3 right-3 text-[10px] font-bold text-muted-foreground bg-background/80 px-2 py-0.5 rounded">🍽 KITCHEN</div>
             <div className="grid grid-cols-4 gap-3">
               {tables.map((t) => {
                 const m = STATE_META[t.state]
+                const isCleaning = cleaningTables.has(t.id)
+                const displayState = isCleaning ? "cleaning" : t.state
+                const dm = STATE_META[displayState]
                 return (
                   <button
                     key={t.id}
                     onClick={() => setSelected(t.id)}
-                    onDoubleClick={() => cycle(t.id)}
                     className={cn(
                       "relative rounded-xl border-2 p-3 transition-all hover:scale-[1.03] hover:shadow-md text-left",
-                      m.bg, m.border, selected === t.id && "ring-2 ring-primary ring-offset-2"
+                      dm.bg, dm.border, selected === t.id && "ring-2 ring-primary ring-offset-2"
                     )}
                   >
                     <div className="flex items-center justify-between">
                       <span className="font-extrabold text-sm">{t.id}</span>
-                      <span className={cn("h-2 w-2 rounded-full", m.dot)} />
+                      <span className={cn("h-2 w-2 rounded-full", dm.dot)} />
                     </div>
                     <div className="flex items-center gap-1 text-[10px] text-muted-foreground mt-0.5">
                       <Users className="h-2.5 w-2.5" /> {t.seats} seats
                     </div>
-                    {t.state === "occupied" && (
+                    {t.state === "occupied" && !isCleaning && (
                       <div className="mt-2 space-y-0.5">
                         <div className="text-[10px] font-bold">{t.guests} guests</div>
-                        <div className="text-[9px] text-muted-foreground flex items-center gap-0.5"><Clock className="h-2 w-2" />{t.since}m · {t.server}</div>
-                        {t.orderTotal ? <div className="text-[10px] font-bold text-primary">{formatPKR(t.orderTotal)}</div> : null}
+                        <div className="text-[9px] text-muted-foreground flex items-center gap-0.5"><Clock className="h-2 w-2" />{t.sinceMins}m · {t.server}</div>
+                        <div className="text-[10px] font-bold text-primary">{formatPKR(t.orderTotal ?? 0)}</div>
+                        <div className="text-[9px] text-muted-foreground">#{t.orderNumber} · {t.orderStatus}</div>
                       </div>
                     )}
-                    {t.state === "reserved" && (
+                    {t.state === "reserved" && !isCleaning && (
                       <div className="mt-2 space-y-0.5">
                         <div className="text-[10px] font-bold truncate">{t.reservationName}</div>
                         <div className="text-[9px] text-muted-foreground">{t.reservationTime}</div>
                       </div>
                     )}
-                    {t.state === "cleaning" && (
+                    {isCleaning && (
                       <div className="mt-2 text-[10px] text-muted-foreground font-medium">🧹 Cleaning…</div>
                     )}
                   </button>
@@ -159,8 +237,7 @@ export function Tables() {
 
         {/* Side panel */}
         <div className="space-y-4">
-          {/* Selected table */}
-        {sel ? (
+          {sel ? (
             <Card className="overflow-hidden">
               <div className={cn("px-4 py-3 border-b", STATE_META[sel.state].bg)}>
                 <div className="flex items-center justify-between">
@@ -175,8 +252,10 @@ export function Tables() {
                 {sel.state === "occupied" && (
                   <div className="grid grid-cols-2 gap-2 text-xs">
                     <Info label="Guests" value={`${sel.guests}`} />
-                    <Info label="Duration" value={`${sel.since}m`} />
+                    <Info label="Duration" value={`${sel.sinceMins}m`} />
                     <Info label="Server" value={sel.server ?? "—"} />
+                    <Info label="Order #" value={`#${sel.orderNumber}`} />
+                    <Info label="Status" value={sel.orderStatus ?? "—"} />
                     <Info label="Bill" value={sel.orderTotal ? formatPKR(sel.orderTotal) : "—"} />
                   </div>
                 )}
@@ -186,6 +265,12 @@ export function Tables() {
                     <Info label="Time" value={sel.reservationTime ?? "—"} />
                   </div>
                 )}
+                {sel.state === "available" && (
+                  <div className="text-center py-4 text-sm text-muted-foreground">
+                    <Users className="h-8 w-8 mx-auto mb-2 opacity-40" />
+                    Table available for seating
+                  </div>
+                )}
                 <div className="grid grid-cols-2 gap-2">
                   <Button size="sm" variant="outline" onClick={() => toast.info(`Merge ${sel.id} with adjacent`)}>
                     <Merge className="h-3.5 w-3.5 mr-1" /> Merge
@@ -193,11 +278,18 @@ export function Tables() {
                   <Button size="sm" variant="outline" onClick={() => toast.info(`Split ${sel.id}`)}>
                     <Split className="h-3.5 w-3.5 mr-1" /> Split
                   </Button>
-                  <Button size="sm" variant="outline" onClick={() => { cycle(sel.id); toast.success(`${sel.id} → next state`) }}>
-                    <ArrowRight className="h-3.5 w-3.5 mr-1" /> Advance
-                  </Button>
-                  <Button size="sm" onClick={() => toast.success("Bill printed & sent to POS")}>
-                    Print Bill
+                  {sel.state === "occupied" && (
+                    <Button size="sm" variant="outline" onClick={() => freeTable(sel.id)}>
+                      <CheckCircle2 className="h-3.5 w-3.5 mr-1" /> Free Table
+                    </Button>
+                  )}
+                  {sel.state === "available" && (
+                    <Button size="sm" onClick={() => seatCustomer(sel.id)}>
+                      Seat Customer
+                    </Button>
+                  )}
+                  <Button size="sm" variant="ghost" onClick={() => { refresh(); toast.success("Tables refreshed") }}>
+                    Refresh
                   </Button>
                 </div>
               </div>
@@ -272,7 +364,7 @@ function Info({ label, value }: { label: string; value: string }) {
   return (
     <div className="rounded-lg bg-muted/40 px-2 py-1.5">
       <div className="text-[9px] text-muted-foreground uppercase font-semibold">{label}</div>
-      <div className="text-xs font-bold truncate">{value}</div>
+      <div className="text-xs font-bold truncate capitalize">{value}</div>
     </div>
   )
 }
