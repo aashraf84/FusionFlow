@@ -14,6 +14,7 @@ export function KpiCard({
   trend,
   accent = "primary",
   loading,
+  className,
 }: {
   label: string
   value: string | number
@@ -21,6 +22,7 @@ export function KpiCard({
   icon: LucideIcon
   trend?: { value: string; up: boolean }
   accent?: "primary" | "chart-2" | "chart-3" | "chart-4" | "chart-5"
+  className?: string
   loading?: boolean
 }) {
   const accentMap: Record<string, string> = {
@@ -32,7 +34,7 @@ export function KpiCard({
   }
   if (loading) {
     return (
-      <Card className="overflow-hidden">
+      <Card className={cn("overflow-hidden", className)}>
         <CardContent className="p-4 space-y-3">
           <Skeleton className="h-4 w-20" />
           <Skeleton className="h-7 w-28" />
@@ -42,7 +44,7 @@ export function KpiCard({
     )
   }
   return (
-    <Card className="overflow-hidden hover:shadow-md transition-shadow">
+    <Card className={cn("overflow-hidden hover:shadow-md transition-shadow", className)}>
       <CardContent className="p-4">
         <div className="flex items-start justify-between gap-2">
           <div className="min-w-0">

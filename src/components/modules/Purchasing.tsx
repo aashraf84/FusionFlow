@@ -120,7 +120,7 @@ export function Purchasing() {
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={spendByVendor} layout="vertical" margin={{ top: 0, right: 16, left: 8, bottom: 0 }}>
                     <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" horizontal={false} />
-                    <XAxis type="number" tick={{ fontSize: 10 }} stroke="var(--muted-foreground)" tickFormatter={v => `${v / 1000}k`} />
+                    <XAxis type="number" tick={{ fontSize: 10 }} stroke="var(--muted-foreground)" tickFormatter={(v) => v >= 1000 ? Math.round(v / 1000) + "k" : String(v)} />
                     <YAxis type="category" dataKey="name" tick={{ fontSize: 11 }} stroke="var(--muted-foreground)" width={80} />
                     <Tooltip contentStyle={{ background: "var(--card)", border: "1px solid var(--border)", borderRadius: 8, fontSize: 12 }} formatter={(v: number) => formatPKR(v)} />
                     <Bar dataKey="spend" radius={[0, 6, 6, 0]} barSize={20}>

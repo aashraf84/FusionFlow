@@ -33,6 +33,7 @@ import {
   CheckCircle2,
   Receipt,
   Printer,
+  MessageCircle,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import {
@@ -153,7 +154,7 @@ export function POS() {
         description: `${cart.length} items · ${formatPKR(total)} · sent to kitchen`,
         action: { label: "Print Invoice", onClick: () => setInvoiceOrder({ ...json.order, items: cart, branchName: "Gulberg III Flagship" }) },
       })
-      setInvoiceOrder({ ...json.order, items: cart.map(l => ({ name: l.name, quantity: l.quantity, price: l.price, customizations: l.customizations })), branchName: "Gulberg III Flagship" })
+      setInvoiceOrder({ ...json.order, items: cart.map(l => ({ name: l.name, quantity: l.quantity, price: l.price, customizations: l.customizations })), branchName: "Gulberg III Flagship", customerName, customerPhone })
       clearCart()
       setPayOpen(false)
       setCustomerName("")
@@ -379,8 +380,16 @@ export function POS() {
           <div className="overflow-y-auto pf-scroll">
             {invoiceOrder && <PosInvoice order={invoiceOrder} />}
           </div>
-          <DialogFooter className="px-4 py-3 border-t gap-2">
+          <DialogFooter className="px-4 py-3 border-t gap-2 flex-wrap">
             <Button variant="outline" onClick={() => setInvoiceOrder(null)} className="h-9">Close</Button>
+            <Button
+              variant="outline"
+              onClick={() => sendWhatsAppReceipt(invoiceOrder)}
+              className="h-9 text-chart-3 border-chart-3/30 hover:bg-chart-3/10"
+              title="Send receipt to customer via WhatsApp"
+            >
+              <MessageCircle className="h-4 w-4 mr-1.5" /> WhatsApp
+            </Button>
             <Button onClick={() => printReceipt(invoiceOrder)} className="h-9">
               <Printer className="h-4 w-4 mr-1.5" /> Print Receipt
             </Button>
@@ -502,6 +511,46 @@ function CartPanel({
 }
 
 // ── Print receipt in a new window (avoids dialog/portal print issues) ──
+// ── Send receipt via WhatsApp to customer ──
+function sendWhatsAppReceipt(order: any) {
+  const items = order.items ?? []
+  const dateStr = new Date(order.createdAt).toLocaleDateString("en-PK", { day: "2-digit", month: "short", year: "numeric" })
+  const timeStr = new Date(order.createdAt).toLocaleTimeString("en-PK", { hour: "2-digit", minute: "2-digit" })
+
+  const itemsText = items.map((item: any) =>
+    `• ${item.name} ×${item.quantity} = ${formatPKR(item.price * item.quantity)}`
+  ).join("\n")
+
+  const message = `🧾 *FusionFlow Receipt*\n` +
+    `Invoice: INV-${order.number}\n` +
+    `Date: ${dateStr} ${timeStr}\n` +
+    `Type: ${order.type.replace("_", " ").toUpperCase()}\n` +
+    (order.table ? `Table: ${order.table}\n` : "") +
+    `\n*Items:*\n${itemsText}\n\n` +
+    `Subtotal: ${formatPKR(order.subtotal)}\n` +
+    `GST (13%): ${formatPKR(order.tax)}\n` +
+    (order.discount > 0 ? `Discount: -${formatPKR(order.discount)}\n` : "") +
+    `*TOTAL: ${formatPKR(order.total)}*\n\n` +
+    `Payment: ${(order.paymentMethod ?? "Cash").toUpperCase()}\n` +
+    `Thank you for dining with us! 🍕\n` +
+    `www.fusionflow.dev`
+
+  // Clean phone number for WhatsApp (remove + and spaces, ensure country code)
+  let phone = order.customerPhone?.replace(/[^\d]/g, "") ?? ""
+  if (phone && !phone.startsWith("92")) {
+    phone = phone.replace(/^0/, "92")
+  }
+
+  if (!phone) {
+    toast.error("No customer phone number", { description: "Add a phone number to send WhatsApp receipt" })
+    return
+  }
+
+  const url = `https://wa.me/${phone}?text=${encodeURIComponent(message)}`
+  window.open(url, "_blank")
+  toast.success("WhatsApp receipt opened", { description: `Sending to ${order.customerPhone}` })
+}
+
 function printReceipt(order: any) {
   const dateStr = new Date(order.createdAt).toLocaleDateString("en-PK", { year: "numeric", month: "short", day: "numeric" })
   const timeStr = new Date(order.createdAt).toLocaleTimeString("en-PK", { hour: "2-digit", minute: "2-digit" })

@@ -87,13 +87,13 @@ export function Dashboard() {
 
   return (
     <div className="space-y-4">
-      {/* KPI Row */}
+      {/* KPI Row — show 3 key KPIs on mobile, all 5 on desktop */}
       <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-3">
         <KpiCard label="Today's Sales" value={formatPKR(d.kpis.todaysSales)} sub={`${d.kpis.todaysOrders} orders`} icon={ArrowRight} accent="primary" trend={{ value: "+12.4%", up: true }} loading={loading} />
-        <KpiCard label="Gross Profit" value={formatPKR(d.kpis.grossProfit)} sub={`Food cost ${formatPKR(d.kpis.foodCost)}`} icon={ArrowRight} accent="chart-3" trend={{ value: "+8.1%", up: true }} loading={loading} />
         <KpiCard label="Active Orders" value={d.kpis.activeOrders} sub="In kitchen & delivery" icon={ArrowRight} accent="chart-4" loading={loading} />
-        <KpiCard label="Avg Order Value" value={formatPKR(d.kpis.avgOrder)} sub={`${d.kpis.totalCustomers} customers`} icon={ArrowRight} accent="chart-2" trend={{ value: "+3.2%", up: true }} loading={loading} />
-        <KpiCard label="Dine-in Occupancy" value={`${d.kpis.occupancyPct}%`} sub={`${d.kpis.presentStaff} staff on shift`} icon={ArrowRight} accent="chart-5" loading={loading} />
+        <KpiCard label="Gross Profit" value={formatPKR(d.kpis.grossProfit)} sub={`Food cost ${formatPKR(d.kpis.foodCost)}`} icon={ArrowRight} accent="chart-3" trend={{ value: "+8.1%", up: true }} loading={loading} />
+        <KpiCard label="Avg Order Value" value={formatPKR(d.kpis.avgOrder)} sub={`${d.kpis.totalCustomers} customers`} icon={ArrowRight} accent="chart-2" trend={{ value: "+3.2%", up: true }} loading={loading} className="hidden md:flex" />
+        <KpiCard label="Dine-in Occupancy" value={`${d.kpis.occupancyPct}%`} sub={`${d.kpis.presentStaff} staff on shift`} icon={ArrowRight} accent="chart-5" loading={loading} className="hidden md:flex" />
       </div>
 
       {/* Charts row */}
@@ -103,7 +103,7 @@ export function Dashboard() {
           title="Hourly Sales & Order Volume"
           description="Last 24 hours · live"
           className="lg:col-span-2"
-          action={<Badge variant="secondary" className="text-[10px]">PKR</Badge>}
+          action={<Badge variant="secondary" className="text-[10px]">Rs</Badge>}
         >
           <div className="h-[260px] p-4">
             <ResponsiveContainer width="100%" height="100%">
@@ -116,7 +116,7 @@ export function Dashboard() {
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" vertical={false} />
                 <XAxis dataKey="hour" tick={{ fontSize: 10 }} stroke="var(--muted-foreground)" interval={2} />
-                <YAxis tick={{ fontSize: 10 }} stroke="var(--muted-foreground)" tickFormatter={(v) => `${v / 1000}k`} />
+                <YAxis tick={{ fontSize: 10 }} stroke="var(--muted-foreground)" tickFormatter={(v) => v >= 1000 ? (v / 1000).toFixed(0) + "k" : String(v)} />
                 <Tooltip
                   contentStyle={{ background: "var(--card)", border: "1px solid var(--border)", borderRadius: 8, fontSize: 12 }}
                   formatter={(v: number, n: string) => (n === "sales" ? formatPKR(v) : v)}
@@ -128,8 +128,8 @@ export function Dashboard() {
           </div>
         </SectionCard>
 
-        {/* Order types */}
-        <SectionCard title="Order Channels" description="Dine-in / takeaway / delivery / drive-thru">
+        {/* Order types — hidden on mobile */}
+        <SectionCard title="Order Channels" description="Dine-in / takeaway / delivery / drive-thru" className="hidden lg:block">
           <div className="h-[260px] p-4 flex items-center">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
@@ -219,8 +219,8 @@ export function Dashboard() {
         </SectionCard>
       </div>
 
-      {/* Top products + AI insight strip + alerts */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+      {/* Top products + AI insight strip + alerts — hidden on mobile */}
+      <div className="hidden lg:grid grid-cols-1 lg:grid-cols-3 gap-4">
         <SectionCard title="Top Sellers" description="Best selling items today">
           <div className="p-2">
             {d.topProducts.length === 0 && <div className="p-6 text-center text-sm text-muted-foreground">No sales yet.</div>}

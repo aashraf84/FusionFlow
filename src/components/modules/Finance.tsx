@@ -253,7 +253,7 @@ export function Finance() {
                     </defs>
                     <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" vertical={false} />
                     <XAxis dataKey="month" tick={{ fontSize: 10 }} stroke="var(--muted-foreground)" />
-                    <YAxis tick={{ fontSize: 10 }} stroke="var(--muted-foreground)" tickFormatter={v => `${v / 1000}k`} />
+                    <YAxis tick={{ fontSize: 10 }} stroke="var(--muted-foreground)" tickFormatter={(v) => v >= 1000 ? Math.round(v / 1000) + "k" : String(v)} />
                     <Tooltip contentStyle={{ background: "var(--card)", border: "1px solid var(--border)", borderRadius: 8, fontSize: 12 }} formatter={(v: number) => formatPKR(v)} />
                     <Area type="monotone" dataKey="revenue" stroke="var(--chart-3)" strokeWidth={2.5} fill="url(#revG)" />
                     <Area type="monotone" dataKey="net" stroke="var(--chart-1)" strokeWidth={2.5} fill="url(#netG)" />
@@ -290,7 +290,7 @@ export function Finance() {
                 <BarChart data={pnl.slice(-6)}>
                   <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" vertical={false} />
                   <XAxis dataKey="month" tick={{ fontSize: 10 }} stroke="var(--muted-foreground)" />
-                  <YAxis tick={{ fontSize: 10 }} stroke="var(--muted-foreground)" tickFormatter={v => `${v / 1000}k`} />
+                  <YAxis tick={{ fontSize: 10 }} stroke="var(--muted-foreground)" tickFormatter={(v) => v >= 1000 ? Math.round(v / 1000) + "k" : String(v)} />
                   <Tooltip contentStyle={{ background: "var(--card)", border: "1px solid var(--border)", borderRadius: 8, fontSize: 12 }} formatter={(v: number) => formatPKR(v)} />
                   <Bar dataKey="revenue" fill="var(--chart-3)" radius={[4, 4, 0, 0]} barSize={14} name="Inflow" />
                   <Bar dataKey="cogs" fill="var(--chart-4)" radius={[4, 4, 0, 0]} barSize={14} name="Outflow" />
@@ -721,7 +721,7 @@ export function Finance() {
                 <LineChart data={["Q1", "Q2", "Q3", "Q4 (Forecast)"].map((q, i) => ({ q, actual: i < 3 ? 2200000 + i * 180000 : null, forecast: 2200000 + i * 180000 }))}>
                   <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" vertical={false} />
                   <XAxis dataKey="q" tick={{ fontSize: 10 }} stroke="var(--muted-foreground)" />
-                  <YAxis tick={{ fontSize: 10 }} stroke="var(--muted-foreground)" tickFormatter={v => `${v / 1000000}M`} />
+                  <YAxis tick={{ fontSize: 10 }} stroke="var(--muted-foreground)" tickFormatter={(v) => v >= 1000000 ? (v / 1000000).toFixed(1) + "M" : v >= 1000 ? Math.round(v / 1000) + "k" : String(v)} />
                   <Tooltip contentStyle={{ background: "var(--card)", border: "1px solid var(--border)", borderRadius: 8, fontSize: 12 }} formatter={(v: number) => formatPKR(v)} />
                   <Line type="monotone" dataKey="actual" stroke="var(--chart-3)" strokeWidth={2.5} dot={{ r: 4 }} name="Actual" />
                   <Line type="monotone" dataKey="forecast" stroke="var(--chart-4)" strokeWidth={2.5} strokeDasharray="6 4" dot={{ r: 4 }} name="Forecast" />

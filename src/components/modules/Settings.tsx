@@ -14,6 +14,7 @@ import {
   Settings as SettingsIcon, Building2, MonitorSmartphone, ChefHat, Percent, Receipt,
   Bell, Plug, Shield, Palette, Database, Globe, Save, Download, Upload, Check,
   CreditCard, MessageCircle, Mail, Smartphone, Printer, Clock, Lock, Eye, EyeOff,
+  Bike, ShieldCheck,
 } from "lucide-react"
 import { toast } from "sonner"
 
@@ -494,6 +495,34 @@ function IntegrationSettings() {
         <IntegrationRow icon={Globe} name="Apple Maps" status="disconnected" desc="iOS navigation" />
         <IntegrationRow icon={Globe} name="Mapbox" status="disconnected" desc="Custom map styling" />
         <Field label="Google Maps API Key"><Input type="password" defaultValue="AIzaSyXXXXXXXXXXXXXXX" /></Field>
+        <SaveBar />
+      </SettingCard>
+
+      <SettingCard title="Rider App & Fleet" desc="Delivery rider management and tracking">
+        <IntegrationRow icon={Bike} name="FusionFlow Rider App" status="connected" desc="Native rider app (Android/iOS)" />
+        <IntegrationRow icon={Globe} name="GPS Tracking" status="connected" desc="Real-time rider location" />
+        <IntegrationRow icon={Globe} name="Route Optimization" status="connected" desc="AI-powered multi-stop routing" />
+        <IntegrationRow icon={CreditCard} name="Rider Wallet" status="connected" desc="Digital earnings wallet" />
+        <IntegrationRow icon={ShieldCheck} name="OTP Verification" status="connected" desc="Delivery confirmation OTP" />
+        <ToggleRow label="Auto-assign nearest rider" desc="Assign based on GPS proximity" defaultOn />
+        <ToggleRow label="Rider self-checkout" desc="Riders mark delivered in-app" defaultOn />
+        <ToggleRow label="Cash collection tracking" desc="Track COD remittance" defaultOn />
+        <Field label="Rider payout frequency">
+          <Select defaultValue="weekly"><SelectTrigger className="h-9"><SelectValue /></SelectTrigger><SelectContent><SelectItem value="daily">Daily</SelectItem><SelectItem value="weekly">Weekly</SelectItem><SelectItem value="monthly">Monthly</SelectItem></SelectContent></Select>
+        </Field>
+        <Field label="Delivery radius (km)"><Input type="number" defaultValue="8" /></Field>
+        <SaveBar />
+      </SettingCard>
+
+      <SettingCard title="WhatsApp & Customer Comms" desc="Automated customer messaging">
+        <IntegrationRow icon={MessageCircle} name="WhatsApp Business API" status="connected" desc="Official WhatsApp BSP" />
+        <ToggleRow label="Send receipt on bill punch" desc="Auto-WhatsApp receipt to customer" defaultOn />
+        <ToggleRow label="Order confirmation SMS" desc="Confirm order receipt" defaultOn />
+        <ToggleRow label="Delivery dispatched alert" desc="Notify on rider dispatch" defaultOn />
+        <ToggleRow label="Delivery arrived alert" desc="Notify 2 min before arrival" defaultOn />
+        <ToggleRow label="Feedback request" desc="Ask for rating after delivery" />
+        <Field label="WhatsApp Business Number"><Input defaultValue="+92 300 0000000" /></Field>
+        <Field label="WhatsApp API Token"><Input type="password" defaultValue="EAAxxxxxxxxxxxxxxxxxx" /></Field>
         <SaveBar />
       </SettingCard>
 

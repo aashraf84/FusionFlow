@@ -118,7 +118,7 @@ export function OwnerPortal() {
                   </linearGradient>
                 </defs>
                 <XAxis dataKey="month" tick={{ fontSize: 10 }} stroke="var(--muted-foreground)" />
-                <YAxis tick={{ fontSize: 10 }} stroke="var(--muted-foreground)" tickFormatter={(v) => `${v / 1000}k`} />
+                <YAxis tick={{ fontSize: 10 }} stroke="var(--muted-foreground)" tickFormatter={(v) => v >= 1000 ? (v / 1000).toFixed(0) + "k" : String(v)} />
                 <Tooltip contentStyle={{ background: "var(--card)", border: "1px solid var(--border)", borderRadius: 8, fontSize: 12 }} formatter={(v: number) => formatPKR(v)} />
                 <Area type="monotone" dataKey="mrr" stroke="var(--chart-3)" strokeWidth={2.5} fill="url(#mrrFill)" />
               </AreaChart>

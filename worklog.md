@@ -159,3 +159,33 @@ Stage Summary:
 - Mobile-native bottom tab bar + More sheet
 - Mobile POS with floating cart bar + bottom sheet (fully usable on phones)
 - Lint clean, verified mobile (375px) + desktop (1440px) with Agent Browser
+
+---
+Task ID: 9
+Agent: Workflow Auditor & Integration Builder
+Task: Fix currency format, audit all module workflows, add WhatsApp receipt + Rider settings, mobile cleanup
+
+Work Log:
+- Fixed formatPKR: changed from Intl.NumberFormat("en-PK", currency:"PKR") to "Rs " + rounded.toLocaleString() — full digits, no decimals, "Rs" prefix not "PKR"
+- Fixed chart axis formatters: replaced ${v/1000}k with conditional full-number format (shows full digits for <1000, k only for larger)
+- Changed Dashboard "PKR" badge to "Rs"
+- Mobile Dashboard: show only 3 key KPIs (Sales, Active Orders, Gross Profit), hide AOV + Occupancy on mobile
+- Hidden Order Channels pie chart, Top Sellers, Inventory Alerts, AI Insight strip on mobile (lg:block)
+- Added className prop to KpiCard for responsive hiding
+- Added WhatsApp receipt integration: sendWhatsAppReceipt() function opens wa.me link with formatted receipt message
+- WhatsApp button added to POS invoice dialog (next to Print Receipt)
+- Auto-formats phone number (strips +, ensures 92 country code), shows error if no customer phone
+- Receipt message includes: invoice #, date/time, items with prices, subtotal, GST, total, payment method
+- Added Rider App & Fleet settings section: FusionFlow Rider App, GPS Tracking, Route Optimization, Rider Wallet, OTP Verification, auto-assign, payout frequency, delivery radius
+- Added WhatsApp & Customer Comms settings section: WhatsApp Business API, send receipt on bill punch, order confirmation SMS, delivery alerts, feedback request, WhatsApp number + API token
+- Verified KDS advance flow (Start→Mark Ready works via PATCH API)
+- Verified Delivery rider assignment flow (assignRider PATCHes status + riderId)
+- All 24 modules smoke tested: 0 errors
+
+Stage Summary:
+- Currency: "Rs 7,119" format (full digits, no decimals, Rs prefix)
+- Mobile Dashboard: clean with only 3 key KPIs + hourly chart + live orders
+- WhatsApp receipt: working (opens wa.me with formatted receipt, handles phone formatting)
+- Rider App + WhatsApp integration settings added to Settings > Integrations
+- All 24 modules verified error-free
+- Lint clean

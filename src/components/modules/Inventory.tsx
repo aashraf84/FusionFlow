@@ -74,7 +74,7 @@ export function Inventory() {
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={catValues} layout="vertical" margin={{ top: 0, right: 12, left: 0, bottom: 0 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" horizontal={false} />
-                <XAxis type="number" tick={{ fontSize: 10 }} stroke="var(--muted-foreground)" tickFormatter={(v) => `${v / 1000}k`} />
+                <XAxis type="number" tick={{ fontSize: 10 }} stroke="var(--muted-foreground)" tickFormatter={(v) => v >= 1000 ? (v / 1000).toFixed(0) + "k" : String(v)} />
                 <YAxis type="category" dataKey="name" tick={{ fontSize: 10, textTransform: "capitalize" }} stroke="var(--muted-foreground)" width={80} />
                 <Tooltip contentStyle={{ background: "var(--card)", border: "1px solid var(--border)", borderRadius: 8, fontSize: 12 }} formatter={(v: number) => formatPKR(v)} />
                 <Bar dataKey="value" radius={[0, 6, 6, 0]} barSize={20}>

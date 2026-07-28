@@ -164,5 +164,7 @@ export const STATIONS = [
   { id: "dessert", label: "Dessert", color: "var(--chart-5)" },
 ] as const
 
-export const formatPKR = (n: number) =>
-  new Intl.NumberFormat("en-PK", { style: "currency", currency: "PKR", maximumFractionDigits: 0 }).format(n)
+export const formatPKR = (n: number) => {
+  const rounded = Math.round(n)
+  return "Rs " + rounded.toLocaleString("en-PK")
+}
