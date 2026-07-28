@@ -28,6 +28,7 @@ import { Purchasing } from "@/components/modules/Purchasing"
 import { Compliance } from "@/components/modules/Compliance"
 import { Reports } from "@/components/modules/Reports"
 import { SettingsModule } from "@/components/modules/Settings"
+import { MobileBottomNav } from "@/components/layout/MobileBottomNav"
 import { LoginScreen } from "@/components/auth/LoginScreen"
 import { AccessDenied } from "@/components/shared/AccessDenied"
 import { useAppStore } from "@/lib/store"
@@ -98,7 +99,7 @@ export default function Home() {
       <Sidebar />
       <div className="flex-1 flex flex-col min-w-0">
         <TopBar />
-        <main className="flex-1 p-4 lg:p-6">
+        <main className="flex-1 p-3 sm:p-4 lg:p-6 pb-20 lg:pb-6">
           {!hasAccess ? (
             <AccessDenied module={activeModule} />
           ) : (
@@ -132,6 +133,7 @@ export default function Home() {
         </main>
         <Footer />
       </div>
+      <MobileBottomNav />
     </div>
   )
 }

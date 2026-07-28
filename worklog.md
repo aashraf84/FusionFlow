@@ -131,3 +131,31 @@ Stage Summary:
 - Reports print also fixed with new-window approach
 - Settings module added (24 total modules) with 10 comprehensive tabs covering all system configuration
 - Lint clean, verified with Agent Browser (all 10 Settings tabs render, receipt dialog works)
+
+---
+Task ID: 8
+Agent: UI/UX Enhancer
+Task: New QSR logo, light sidebar, expandable groups, per-module colors, mobile-native UX, mobile POS
+
+Work Log:
+- New logo: QSR-inspired badge (red rounded container + golden arch forming F + flow dot) inspired by McDonald's arches, KFC container, Cheezious lettering
+- Sidebar: changed from black to light warm cream (oklch 0.97 0.012 60) in light mode, dark mode unchanged
+- Sidebar groups: expandable/collapsible with count badges (Operations 7, Logistics 4, Commerce 4, Insights 9)
+- Per-module color tones: created module-themes.ts with 24 unique colors (dashboard=red, pos=green, kds=amber, delivery=blue, etc.)
+- Active module: colored left accent bar + tinted background + colored icon badge using module's theme color
+- Top color strip below brand header changes to active module's color
+- Mobile bottom nav: native app-style 5-tab bar (Home, POS, Kitchen, Delivery, More) with safe-area padding
+- More sheet: bottom sheet with all 24 modules grouped by department in a 4-column grid
+- Mobile POS: full-width product grid (2 cols), floating cart bar above bottom nav, cart opens as bottom sheet
+- Desktop POS: keeps side cart panel (xl breakpoint), shared CartPanel component
+- Larger touch targets (h-8 qty buttons), active:scale press feedback, horizontal scroll for order types/categories on mobile
+- Main content: pb-20 on mobile for bottom nav clearance
+
+Stage Summary:
+- New QSR-style logo (golden arch + red badge)
+- Light sidebar in light mode (was black)
+- Expandable department groups with count badges
+- 24 unique per-module color tones
+- Mobile-native bottom tab bar + More sheet
+- Mobile POS with floating cart bar + bottom sheet (fully usable on phones)
+- Lint clean, verified mobile (375px) + desktop (1440px) with Agent Browser

@@ -43,6 +43,12 @@ import {
   DialogDescription,
   DialogFooter,
 } from "@/components/ui/dialog"
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet"
 import { motion, AnimatePresence } from "framer-motion"
 
 interface MenuProduct {
@@ -101,6 +107,7 @@ export function POS() {
   const [customerName, setCustomerName] = useState("")
   const [customerPhone, setCustomerPhone] = useState("")
   const [invoiceOrder, setInvoiceOrder] = useState<any | null>(null)
+  const [cartSheetOpen, setCartSheetOpen] = useState(false)
 
   const effectiveCat = activeCat || categories[0] || "pizza"
 
@@ -159,12 +166,13 @@ export function POS() {
   }
 
   return (
-    <div className="grid grid-cols-1 xl:grid-cols-[1fr_380px] gap-4 h-[calc(100vh-9rem)]">
-      {/* LEFT — menu */}
+    <div className="grid grid-cols-1 xl:grid-cols-[1fr_360px] gap-3 xl:gap-4 h-[calc(100vh-9rem)] xl:h-[calc(100vh-9rem)]">
+      {/* LEFT — menu (full width on mobile) */}
       <div className="flex flex-col min-h-0 rounded-xl border bg-card overflow-hidden">
         {/* Order type + search */}
-        <div className="border-b p-3 space-y-3 shrink-0">
-          <div className="flex items-center gap-2 flex-wrap">
+        <div className="border-b p-2.5 sm:p-3 space-y-2.5 shrink-0">
+          {/* Order types — scrollable on mobile */}
+          <div className="flex items-center gap-1.5 overflow-x-auto pf-scroll pb-0.5">
             {ORDER_TYPES.map((t) => {
               const Icon = t.icon
               return (
@@ -172,7 +180,7 @@ export function POS() {
                   key={t.id}
                   onClick={() => setOrderType(t.id)}
                   className={cn(
-                    "flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold transition-all pf-tile",
+                    "flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold transition-all pf-tile whitespace-nowrap shrink-0",
                     orderType === t.id ? "bg-primary text-primary-foreground shadow-sm" : "bg-muted/60 hover:bg-muted"
                   )}
                 >
@@ -181,21 +189,17 @@ export function POS() {
               )
             })}
             {orderType === "dine_in" && (
-              <div className="flex items-center gap-1.5 ml-auto">
-                <Users className="h-3.5 w-3.5 text-muted-foreground" />
+              <div className="flex items-center gap-1.5 shrink-0">
                 <Input value={tableNo} onChange={(e) => setTableNo(e.target.value)} className="h-9 w-20 text-xs font-semibold" placeholder="T-5" />
               </div>
             )}
-            <Button variant="outline" size="sm" className="h-9 ml-auto sm:ml-0" onClick={() => toast.info("Barcode scanner ready")}>
-              <ScanLine className="h-4 w-4" />
-            </Button>
           </div>
           <div className="relative">
             <Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search products…" className="h-10 pl-9" />
             <ClipboardList className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           </div>
-          {/* Category pills */}
-          <div className="flex items-center gap-1.5 overflow-x-auto pf-scroll pb-1">
+          {/* Category pills — sticky horizontal scroll */}
+          <div className="flex items-center gap-1.5 overflow-x-auto pf-scroll pb-1 -mx-0.5 px-0.5">
             {categories.map((c) => {
               const Icon = CATEGORY_ICONS[c] ?? Package
               return (
@@ -203,7 +207,7 @@ export function POS() {
                   key={c}
                   onClick={() => { setActiveCat(c); setSearch("") }}
                   className={cn(
-                    "flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all",
+                    "flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all shrink-0",
                     effectiveCat === c && !search ? "bg-primary text-primary-foreground" : "bg-muted/60 hover:bg-muted"
                   )}
                 >
@@ -214,11 +218,11 @@ export function POS() {
           </div>
         </div>
 
-        {/* Product grid */}
+        {/* Product grid — 2 cols on mobile, more on larger */}
         <ScrollArea className="flex-1">
-          <div className="p-3 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2.5">
+          <div className="p-2.5 sm:p-3 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-2.5">
             {loading && Array.from({ length: 8 }).map((_, i) => (
-              <div key={i} className="h-36 rounded-xl bg-muted/40 animate-pulse" />
+              <div key={i} className="h-32 sm:h-36 rounded-xl bg-muted/40 animate-pulse" />
             ))}
             <AnimatePresence>
               {filtered.map((p) => {
@@ -230,10 +234,10 @@ export function POS() {
                     initial={{ opacity: 0, scale: 0.95 }}
                     animate={{ opacity: 1, scale: 1 }}
                     onClick={() => addToCart({ productId: p.id, name: p.name, price: p.price, quantity: 1, station: p.station })}
-                    className="pf-tile group relative text-left rounded-xl border bg-card overflow-hidden hover:border-primary hover:shadow-md transition-all"
+                    className="pf-tile group relative text-left rounded-xl border bg-card overflow-hidden hover:border-primary hover:shadow-md transition-all active:scale-95"
                   >
                     <div className="aspect-[4/3] bg-gradient-to-br from-primary/10 to-chart-2/10 grid place-items-center relative">
-                      <Icon className="h-9 w-9 text-primary/70 group-hover:scale-110 transition-transform" />
+                      <Icon className="h-8 w-8 sm:h-9 sm:w-9 text-primary/70 group-hover:scale-110 transition-transform" />
                       {p.popular && (
                         <Badge className="absolute top-1.5 left-1.5 h-5 text-[9px] bg-chart-2 text-black">POPULAR</Badge>
                       )}
@@ -241,8 +245,8 @@ export function POS() {
                         <Plus className="h-4 w-4" />
                       </div>
                     </div>
-                    <div className="p-2.5">
-                      <div className="font-semibold text-[13px] leading-tight line-clamp-2 min-h-[34px]">{p.name}</div>
+                    <div className="p-2 sm:p-2.5">
+                      <div className="font-semibold text-[12px] sm:text-[13px] leading-tight line-clamp-2 min-h-[32px] sm:min-h-[34px]">{p.name}</div>
                       <div className="flex items-center justify-between mt-1.5">
                         <span className="font-extrabold text-primary text-sm">{formatPKR(p.price)}</span>
                         <span className="text-[10px] text-muted-foreground">{p.prepTime}m</span>
@@ -256,93 +260,62 @@ export function POS() {
         </ScrollArea>
       </div>
 
-      {/* RIGHT — cart */}
-      <div className="flex flex-col min-h-0 rounded-xl border bg-card overflow-hidden">
-        <div className="border-b p-3 flex items-center justify-between shrink-0">
-          <div>
-            <div className="font-bold text-sm">Current Order</div>
-            <div className="text-[11px] text-muted-foreground capitalize">{orderType.replace("_", "-")}{orderType === "dine_in" ? ` · ${tableNo}` : ""}</div>
-          </div>
-          {cart.length > 0 && (
-            <Button variant="ghost" size="sm" className="h-8 text-xs text-destructive hover:text-destructive" onClick={clearCart}>
-              <Trash2 className="h-3.5 w-3.5 mr-1" /> Clear
-            </Button>
-          )}
-        </div>
-
-        <ScrollArea className="flex-1">
-          <div className="p-2 space-y-1.5">
-            {cart.length === 0 && (
-              <div className="h-full grid place-items-center py-16 text-center">
-                <div>
-                  <ClipboardList className="h-10 w-10 text-muted-foreground/40 mx-auto mb-2" />
-                  <div className="text-sm font-medium text-muted-foreground">Cart is empty</div>
-                  <div className="text-[11px] text-muted-foreground/70">Tap products to add</div>
-                </div>
-              </div>
-            )}
-            <AnimatePresence>
-              {cart.map((l, i) => (
-                <motion.div
-                  key={i}
-                  layout
-                  initial={{ opacity: 0, x: 20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: 20 }}
-                  className="rounded-lg border p-2.5"
-                >
-                  <div className="flex items-start gap-2">
-                    <div className="flex-1 min-w-0">
-                      <div className="font-semibold text-sm leading-tight">{l.name}</div>
-                      {l.customizations && (
-                        <div className="text-[10px] text-muted-foreground mt-0.5 line-clamp-2">{l.customizations}</div>
-                      )}
-                      <div className="text-xs font-bold text-primary mt-1">{formatPKR(l.price)}</div>
-                    </div>
-                    <button onClick={() => removeFromCart(i)} className="text-muted-foreground hover:text-destructive shrink-0">
-                      <X className="h-3.5 w-3.5" />
-                    </button>
-                  </div>
-                  <div className="flex items-center justify-between mt-2">
-                    <div className="flex items-center gap-1">
-                      <button onClick={() => updateCartQty(i, l.quantity - 1)} className="grid place-items-center h-7 w-7 rounded-md bg-muted hover:bg-muted/70">
-                        <Minus className="h-3 w-3" />
-                      </button>
-                      <span className="w-7 text-center text-sm font-bold">{l.quantity}</span>
-                      <button onClick={() => updateCartQty(i, l.quantity + 1)} className="grid place-items-center h-7 w-7 rounded-md bg-muted hover:bg-muted/70">
-                        <Plus className="h-3 w-3" />
-                      </button>
-                    </div>
-                    <span className="font-bold text-sm">{formatPKR(l.price * l.quantity)}</span>
-                  </div>
-                </motion.div>
-              ))}
-            </AnimatePresence>
-          </div>
-        </ScrollArea>
-
-        {/* Totals + checkout */}
-        <div className="border-t p-3 space-y-2 shrink-0 bg-muted/20">
-          <div className="flex items-center justify-between text-xs">
-            <span className="text-muted-foreground">Subtotal</span>
-            <span className="font-semibold">{formatPKR(subtotal)}</span>
-          </div>
-          <div className="flex items-center justify-between text-xs">
-            <span className="text-muted-foreground">Tax (13% GST)</span>
-            <span className="font-semibold">{formatPKR(tax)}</span>
-          </div>
-          <div className="flex items-center justify-between pt-1 border-t">
-            <span className="font-bold">Total</span>
-            <span className="font-extrabold text-lg text-primary">{formatPKR(total)}</span>
-          </div>
-          <Button className="w-full h-11 font-bold" disabled={!cart.length || placing} onClick={() => setPayOpen(true)}>
-            <CreditCard className="h-4 w-4 mr-2" /> Charge {formatPKR(total)}
-          </Button>
-          <Button variant="outline" className="w-full h-9 text-xs" onClick={() => setActiveModule("pizza-builder")}>
-            <Pizza className="h-3.5 w-3.5 mr-1.5" /> Build a Custom Pizza
-          </Button>
-        </div>
+      {/* RIGHT — cart (desktop sidebar, mobile bottom sheet) */}
+      {/* Desktop cart panel */}
+      <div className="hidden xl:flex flex-col min-h-0 rounded-xl border bg-card overflow-hidden">
+        <CartPanel
+          cart={cart} orderType={orderType} tableNo={tableNo}
+          subtotal={subtotal} tax={tax} total={total}
+          onUpdateQty={updateCartQty} onRemove={removeFromCart} onClear={clearCart}
+          onCheckout={() => setPayOpen(true)} onBuildPizza={() => setActiveModule("pizza-builder")}
+          placing={placing}
+        />
       </div>
+
+      {/* Mobile floating cart bar */}
+      {cart.length > 0 && (
+        <div className="xl:hidden fixed bottom-16 left-3 right-3 z-20">
+          <button
+            onClick={() => setCartSheetOpen(true)}
+            className="w-full flex items-center gap-3 rounded-xl bg-primary text-primary-foreground shadow-lg shadow-primary/30 px-4 py-3 active:scale-[0.98] transition-transform"
+          >
+            <div className="grid place-items-center h-8 w-8 rounded-lg bg-primary-foreground/20 font-bold text-sm shrink-0">
+              {cart.reduce((s, l) => s + l.quantity, 0)}
+            </div>
+            <div className="flex-1 text-left">
+              <div className="text-xs font-semibold">View Cart</div>
+              <div className="text-[10px] opacity-80">{cart.length} items</div>
+            </div>
+            <div className="font-extrabold">{formatPKR(total)}</div>
+            <CreditCard className="h-4 w-4" />
+          </button>
+        </div>
+      )}
+
+      {/* Mobile cart bottom sheet */}
+      <Sheet open={cartSheetOpen} onOpenChange={setCartSheetOpen}>
+        <SheetContent side="bottom" className="h-[80vh] p-0 flex flex-col">
+          <SheetHeader className="px-4 pt-4 pb-2 border-b shrink-0">
+            <SheetTitle className="flex items-center justify-between text-sm">
+              <span>Current Order · {cart.length} items</span>
+              {cart.length > 0 && (
+                <button onClick={clearCart} className="text-[11px] font-semibold text-destructive">Clear All</button>
+              )}
+            </SheetTitle>
+          </SheetHeader>
+          <div className="flex-1 overflow-y-auto pf-scroll">
+            <CartPanel
+              cart={cart} orderType={orderType} tableNo={tableNo}
+              subtotal={subtotal} tax={tax} total={total}
+              onUpdateQty={updateCartQty} onRemove={removeFromCart} onClear={clearCart}
+              onCheckout={() => { setCartSheetOpen(false); setPayOpen(true) }}
+              onBuildPizza={() => { setCartSheetOpen(false); setActiveModule("pizza-builder") }}
+              placing={placing}
+              noBorder
+            />
+          </div>
+        </SheetContent>
+      </Sheet>
 
       {/* Payment dialog */}
       <Dialog open={payOpen} onOpenChange={setPayOpen}>
@@ -414,6 +387,116 @@ export function POS() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+    </div>
+  )
+}
+
+// ── Cart panel (shared between desktop sidebar and mobile sheet) ──
+function CartPanel({
+  cart, orderType, tableNo, subtotal, tax, total,
+  onUpdateQty, onRemove, onClear, onCheckout, onBuildPizza, placing, noBorder,
+}: {
+  cart: any[]
+  orderType: string
+  tableNo: string
+  subtotal: number
+  tax: number
+  total: number
+  onUpdateQty: (i: number, qty: number) => void
+  onRemove: (i: number) => void
+  onClear: () => void
+  onCheckout: () => void
+  onBuildPizza: () => void
+  placing: boolean
+  noBorder?: boolean
+}) {
+  return (
+    <div className={cn("flex flex-col h-full bg-card", !noBorder && "overflow-hidden")}>
+      {!noBorder && (
+        <div className="border-b p-3 flex items-center justify-between shrink-0">
+          <div>
+            <div className="font-bold text-sm">Current Order</div>
+            <div className="text-[11px] text-muted-foreground capitalize">{orderType.replace("_", "-")}{orderType === "dine_in" ? ` · ${tableNo}` : ""}</div>
+          </div>
+          {cart.length > 0 && (
+            <Button variant="ghost" size="sm" className="h-8 text-xs text-destructive hover:text-destructive" onClick={onClear}>
+              <Trash2 className="h-3.5 w-3.5 mr-1" /> Clear
+            </Button>
+          )}
+        </div>
+      )}
+      <div className={cn("flex-1 overflow-y-auto pf-scroll", noBorder && "p-3")}>
+        <div className={cn("space-y-1.5", !noBorder && "p-2")}>
+          {cart.length === 0 && (
+            <div className="grid place-items-center py-16 text-center">
+              <div>
+                <ClipboardList className="h-10 w-10 text-muted-foreground/40 mx-auto mb-2" />
+                <div className="text-sm font-medium text-muted-foreground">Cart is empty</div>
+                <div className="text-[11px] text-muted-foreground/70">Tap products to add</div>
+              </div>
+            </div>
+          )}
+          <AnimatePresence>
+            {cart.map((l, i) => (
+              <motion.div
+                key={i}
+                layout
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: 20 }}
+                className="rounded-lg border p-2.5 bg-background"
+              >
+                <div className="flex items-start gap-2">
+                  <div className="flex-1 min-w-0">
+                    <div className="font-semibold text-sm leading-tight">{l.name}</div>
+                    {l.customizations && (
+                      <div className="text-[10px] text-muted-foreground mt-0.5 line-clamp-2">{l.customizations}</div>
+                    )}
+                    <div className="text-xs font-bold text-primary mt-1">{formatPKR(l.price)}</div>
+                  </div>
+                  <button onClick={() => onRemove(i)} className="text-muted-foreground hover:text-destructive shrink-0 p-1">
+                    <X className="h-4 w-4" />
+                  </button>
+                </div>
+                <div className="flex items-center justify-between mt-2">
+                  <div className="flex items-center gap-1">
+                    <button onClick={() => onUpdateQty(i, l.quantity - 1)} className="grid place-items-center h-8 w-8 rounded-md bg-muted hover:bg-muted/70 active:scale-90 transition-transform">
+                      <Minus className="h-3.5 w-3.5" />
+                    </button>
+                    <span className="w-8 text-center text-sm font-bold">{l.quantity}</span>
+                    <button onClick={() => onUpdateQty(i, l.quantity + 1)} className="grid place-items-center h-8 w-8 rounded-md bg-muted hover:bg-muted/70 active:scale-90 transition-transform">
+                      <Plus className="h-3.5 w-3.5" />
+                    </button>
+                  </div>
+                  <span className="font-bold text-sm">{formatPKR(l.price * l.quantity)}</span>
+                </div>
+              </motion.div>
+            ))}
+          </AnimatePresence>
+        </div>
+      </div>
+
+      {/* Totals + checkout */}
+      <div className="border-t p-3 space-y-2 shrink-0 bg-muted/20">
+        <div className="flex items-center justify-between text-xs">
+          <span className="text-muted-foreground">Subtotal</span>
+          <span className="font-semibold">{formatPKR(subtotal)}</span>
+        </div>
+        <div className="flex items-center justify-between text-xs">
+          <span className="text-muted-foreground">Tax (13% GST)</span>
+          <span className="font-semibold">{formatPKR(tax)}</span>
+        </div>
+        <div className="flex items-center justify-between pt-1 border-t">
+          <span className="font-bold">Total</span>
+          <span className="font-extrabold text-lg text-primary">{formatPKR(total)}</span>
+        </div>
+        <Button className="w-full h-12 font-bold text-sm" disabled={!cart.length || placing} onClick={onCheckout}>
+          <CreditCard className="h-4 w-4 mr-2" /> Charge {formatPKR(total)}
+        </Button>
+        <Button variant="outline" className="w-full h-9 text-xs" onClick={onBuildPizza}>
+          <Pizza className="h-3.5 w-3.5 mr-1.5" /> Build a Custom Pizza
+        </Button>
+      </div>
     </div>
   )
 }

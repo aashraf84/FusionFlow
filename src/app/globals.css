@@ -69,14 +69,14 @@
   --chart-3: oklch(0.62 0.15 145);        /* basil green */
   --chart-4: oklch(0.7 0.13 50);          /* cheese orange */
   --chart-5: oklch(0.55 0.09 300);        /* grape for variety */
-  --sidebar: oklch(0.21 0.03 40);         /* dark warm sidebar */
-  --sidebar-foreground: oklch(0.96 0.01 70);
-  --sidebar-primary: oklch(0.58 0.21 28);
+  --sidebar: oklch(0.97 0.012 60);         /* light warm cream sidebar */
+  --sidebar-foreground: oklch(0.2 0.02 40);
+  --sidebar-primary: oklch(0.55 0.2 27);
   --sidebar-primary-foreground: oklch(0.99 0.01 60);
-  --sidebar-accent: oklch(0.28 0.04 40);
-  --sidebar-accent-foreground: oklch(0.96 0.01 70);
-  --sidebar-border: oklch(0.3 0.03 40);
-  --sidebar-ring: oklch(0.58 0.21 28);
+  --sidebar-accent: oklch(0.93 0.02 65);
+  --sidebar-accent-foreground: oklch(0.22 0.03 40);
+  --sidebar-border: oklch(0.9 0.015 60);
+  --sidebar-ring: oklch(0.55 0.2 27);
 }
 
 .dark {
