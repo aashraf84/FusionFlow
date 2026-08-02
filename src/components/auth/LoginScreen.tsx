@@ -11,7 +11,6 @@ import { toast } from "sonner"
 import { motion } from "framer-motion"
 
 const DEMO_ACCOUNTS: { role: Role; email: string; label: string; desc: string }[] = [
-  { role: "owner", email: "owner@fusionflow.dev", label: "Owner", desc: "Full access incl. SaaS portal" },
   { role: "admin", email: "admin@fusionflow.dev", label: "Admin", desc: "Full ERP management" },
   { role: "manager", email: "manager@fusionflow.dev", label: "Manager", desc: "Branch operations" },
   { role: "cashier", email: "cashier@fusionflow.dev", label: "Cashier", desc: "POS & front-of-house" },

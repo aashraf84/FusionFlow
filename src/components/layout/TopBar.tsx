@@ -102,7 +102,7 @@ export function TopBar() {
   const userAvatarColor = user?.avatarColor ?? "var(--primary)"
   const userRoleColor = roleDef.color
   const userRoleLabel = roleDef.label
-  const ROLE_SWITCH = ROLES
+  const ROLE_SWITCH = ROLES.filter(r => r.id !== "owner")
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect -- mount flag + clock init for client-only rendering
