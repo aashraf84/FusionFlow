@@ -5,7 +5,7 @@ import { Bell, Menu, Moon, Search, Sun, ChevronDown, Store, Wifi, Command, Plus,
 import { useTheme } from "next-themes"
 import { useAppStore } from "@/lib/store"
 import { useAuthStore } from "@/lib/auth-store"
-import { ROLES, getRoleDef, type Role } from "@/lib/auth"
+import { ROLES, getRoleDef, canAccess, type Role } from "@/lib/auth"
 import { useFetch } from "@/hooks/use-fetch"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -104,6 +104,12 @@ export function TopBar() {
   const userRoleLabel = roleDef.label
   const ROLE_SWITCH = ROLES.filter(r => r.id !== "owner")
 
+  // Role-based permissions for topbar elements
+  const canUsePOS = user ? canAccess(user.role as Role, "pos") : false
+  const canSwitchBranch = user ? ["admin", "owner", "manager"].includes(user.role) : false
+  const canUseCommand = user ? ["admin", "owner", "manager"].includes(user.role) : false
+  const canSeeLiveClock = user ? ["admin", "owner", "manager"].includes(user.role) : false
+
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect -- mount flag + clock init for client-only rendering
     setMounted(true)
@@ -142,19 +148,22 @@ export function TopBar() {
         <p className="text-[10px] lg:text-[11px] text-muted-foreground truncate hidden sm:block leading-tight">{meta.subtitle}</p>
       </div>
 
-      {/* Command / Search trigger */}
-      <button
-        onClick={() => setCmdOpen(true)}
-        className="hidden md:flex items-center gap-2 h-9 w-44 lg:w-56 rounded-lg bg-muted/60 hover:bg-muted border border-transparent hover:border-border px-3 text-xs text-muted-foreground transition-colors"
-      >
-        <Search className="h-3.5 w-3.5" />
-        <span className="flex-1 text-left">Search or jump to…</span>
-        <kbd className="hidden lg:inline-flex items-center gap-0.5 rounded border bg-background px-1 py-0.5 text-[9px] font-mono font-semibold">
-          <Command className="h-2.5 w-2.5" />K
-        </kbd>
-      </button>
+      {/* Command / Search trigger — only for admin/owner/manager */}
+      {canUseCommand && (
+        <button
+          onClick={() => setCmdOpen(true)}
+          className="hidden md:flex items-center gap-2 h-9 w-44 lg:w-56 rounded-lg bg-muted/60 hover:bg-muted border border-transparent hover:border-border px-3 text-xs text-muted-foreground transition-colors"
+        >
+          <Search className="h-3.5 w-3.5" />
+          <span className="flex-1 text-left">Search or jump to…</span>
+          <kbd className="hidden lg:inline-flex items-center gap-0.5 rounded border bg-background px-1 py-0.5 text-[9px] font-mono font-semibold">
+            <Command className="h-2.5 w-2.5" />K
+          </kbd>
+        </button>
+      )}
 
-      {/* Branch switcher */}
+      {/* Branch switcher — only for admin/owner/manager */}
+      {canSwitchBranch && (
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button variant="outline" className="gap-2 h-9 px-2.5 sm:px-3 max-w-[150px] sm:max-w-[200px] shrink-0">
@@ -198,8 +207,10 @@ export function TopBar() {
           </div>
         </DropdownMenuContent>
       </DropdownMenu>
+      )}
 
-      {/* Live clock */}
+      {/* Live clock — only for admin/owner/manager */}
+      {canSeeLiveClock && (
       <div className="hidden xl:flex items-center gap-2 px-2.5 h-9 rounded-lg bg-muted/50">
         <span className="relative flex h-2 w-2">
           <span className="absolute inline-flex h-full w-full rounded-full bg-chart-3 opacity-75 animate-ping" />
@@ -208,11 +219,14 @@ export function TopBar() {
         <span className="text-[10px] font-bold tracking-wide">LIVE</span>
         <span className="text-[11px] text-muted-foreground font-mono tabular-nums">{timeStr}</span>
       </div>
+      )}
 
-      {/* Quick new */}
+      {/* Quick new — only for roles with POS access */}
+      {canUsePOS && (
       <Button size="sm" className="h-9 hidden sm:flex shrink-0" onClick={() => { setActiveModule("pos"); toast.success("New POS session") }}>
         <Plus className="h-4 w-4 mr-1" /> <span className="hidden lg:inline">New Order</span>
       </Button>
+      )}
 
       {/* Notifications */}
       <Button variant="ghost" size="icon" className="h-9 w-9 relative shrink-0" aria-label="Notifications">
