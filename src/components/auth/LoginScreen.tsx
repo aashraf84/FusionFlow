@@ -49,7 +49,7 @@ export function LoginScreen() {
     setDeviceInfo({ id: fingerprint, name: deviceName })
   }, [])
 
-  // Serial key registration
+  // Serial key registration — validates against API
   const registerDevice = async (e: React.FormEvent) => {
     e.preventDefault()
     if (serialKey.trim().length < 12) {
@@ -57,13 +57,31 @@ export function LoginScreen() {
       return
     }
     setRegistering(true)
-    // Simulate device registration process
-    await new Promise(r => setTimeout(r, 2500))
-    setRegistering(false)
-    setMode("success")
-    toast.success("Device registered successfully!", { description: `Device: ${deviceInfo.name}` })
-    // Auto-transition to login after animation
-    setTimeout(() => setMode("login"), 3000)
+    try {
+      const res = await fetch("/api/device/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          serialKey: serialKey.trim(),
+          deviceName: deviceInfo.name,
+          deviceId: deviceInfo.id,
+        }),
+      })
+      const json = await res.json()
+      if (!res.ok) {
+        toast.error(json.error ?? "Registration failed")
+        setRegistering(false)
+        return
+      }
+      // Success — show animation
+      setRegistering(false)
+      setMode("success")
+      toast.success("Device registered successfully!", { description: `Plan: ${json.plan} · Device: ${deviceInfo.name}` })
+      setTimeout(() => setMode("login"), 3000)
+    } catch {
+      toast.error("Network error during registration")
+      setRegistering(false)
+    }
   }
 
   const submit = async (e: React.FormEvent) => {

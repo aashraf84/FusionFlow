@@ -44,6 +44,19 @@ model TenantUser {
   createdAt   DateTime @default(now())
 }
 
+// Serial keys for device registration / license activation
+model SerialKey {
+  id          String   @id @default(cuid())
+  key         String   @unique
+  plan        String   @default("enterprise") // starter, growth, enterprise
+  status      String   @default("active") // active, used, suspended, expired
+  deviceName  String?
+  deviceId    String?
+  activatedAt DateTime?
+  expiresAt   DateTime?
+  createdAt   DateTime @default(now())
+}
+
 model Branch {
   id          String          @id
   name        String
