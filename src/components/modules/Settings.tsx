@@ -672,7 +672,7 @@ function AppearanceSettings() {
       <SettingCard title="Branding" desc="Custom branding options">
         <Field label="Company Logo">
           <div className="flex items-center gap-3">
-            <div className="grid place-items-center h-12 w-12 rounded-xl text-white font-extrabold text-lg shrink-0" style={{ background: "linear-gradient(135deg, oklch(0.55 0.2 28), oklch(0.58 0.18 45), oklch(0.62 0.15 145))", letterSpacing: "-0.02em" }}>FF</div>
+            <div className="grid place-items-center h-12 w-12 rounded-xl text-white font-extrabold text-lg shrink-0" style={{ background: "linear-gradient(135deg, oklch(0.58 0.25 264), oklch(0.45 0.22 268))", letterSpacing: "-0.04em" }}>F</div>
             <Button variant="outline" size="sm"><Upload className="h-3.5 w-3.5 mr-1.5" /> Upload Logo</Button>
           </div>
         </Field>
