@@ -16,7 +16,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "FusionFlow ERP — Enterprise Restaurant Operating System",
+  title: "FusionFlow ERP — Enterprise Fast Food Operating System",
   description:
     "FusionFlow ERP: the enterprise operating system for pizza brands, burger chains, fried chicken, cafés, cloud kitchens and franchises. POS, KDS, delivery, inventory, CRM, finance, HR, RBAC & AI insights in one unified platform.",
   keywords: [
@@ -36,7 +36,7 @@ export const metadata: Metadata = {
   },
   openGraph: {
     title: "FusionFlow ERP",
-    description: "Enterprise Restaurant Operating System for QSR & Franchise Chains",
+    description: "Enterprise Fast Food Operating System for QSR & Franchise Chains",
     siteName: "FusionFlow ERP",
     type: "website",
   },

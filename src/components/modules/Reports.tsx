@@ -329,7 +329,7 @@ function ReportHeader({ title, dateStr, branchName, dateRange }: { title: string
           <Logo size={48} variant="icon" />
           <div>
             <div className="text-2xl font-extrabold tracking-tight">FusionFlow ERP</div>
-            <div className="text-xs text-gray-500">Enterprise Restaurant Operating System</div>
+            <div className="text-xs text-gray-500">Enterprise Fast Food Operating System</div>
           </div>
         </div>
         <div className="text-right text-xs">

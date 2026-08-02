@@ -22,7 +22,7 @@ export function Logo({ className, size = 40, showWordmark = false, variant = "ic
             FusionFlow
             <span className="text-[8px] font-bold px-1 py-0.5 rounded bg-primary/20 text-primary">ERP</span>
           </div>
-          <div className="text-[10px] text-muted-foreground font-medium">Restaurant Operating System</div>
+          <div className="text-[10px] text-muted-foreground font-medium">Fast Food Operating System</div>
         </div>
       </div>
     )

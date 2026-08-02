@@ -111,7 +111,7 @@ export function Sidebar() {
               FusionFlow
               <span className="text-[8px] font-bold px-1 py-0.5 rounded bg-primary text-primary-foreground">ERP</span>
             </div>
-            <div className="text-[10px] font-medium text-muted-foreground">Restaurant Operating System</div>
+            <div className="text-[10px] font-medium text-muted-foreground">Fast Food Operating System</div>
           </div>
           <button
             className="relative ml-auto lg:hidden p-1.5 rounded-md hover:bg-sidebar-accent text-sidebar-foreground/70"

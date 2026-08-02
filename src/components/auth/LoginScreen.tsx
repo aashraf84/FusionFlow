@@ -16,12 +16,12 @@ import { motion, AnimatePresence } from "framer-motion"
 type LoginMode = "register" | "login" | "success"
 
 const DEMO_ACCOUNTS: { role: Role; email: string; label: string; desc: string }[] = [
-  { role: "admin", email: "admin@fusionflow.dev", label: "Admin", desc: "Full ERP management" },
-  { role: "manager", email: "manager@fusionflow.dev", label: "Manager", desc: "Branch operations" },
-  { role: "cashier", email: "cashier@fusionflow.dev", label: "Cashier", desc: "POS & front-of-house" },
-  { role: "chef", email: "chef@fusionflow.dev", label: "Chef", desc: "Kitchen & production" },
-  { role: "rider", email: "rider@fusionflow.dev", label: "Rider", desc: "Delivery only" },
-  { role: "viewer", email: "viewer@fusionflow.dev", label: "Viewer", desc: "Read-only audits" },
+  { role: "admin", email: "demo.admin@fusionflow.dev", label: "Admin", desc: "Full ERP management" },
+  { role: "manager", email: "demo.manager@fusionflow.dev", label: "Manager", desc: "Branch operations" },
+  { role: "cashier", email: "demo.cashier@fusionflow.dev", label: "Cashier", desc: "POS & front-of-house" },
+  { role: "chef", email: "demo.chef@fusionflow.dev", label: "Chef", desc: "Kitchen & production" },
+  { role: "rider", email: "demo.rider@fusionflow.dev", label: "Rider", desc: "Delivery only" },
+  { role: "viewer", email: "demo.viewer@fusionflow.dev", label: "Viewer", desc: "Read-only audits" },
 ]
 
 export function LoginScreen() {
@@ -32,7 +32,7 @@ export function LoginScreen() {
   const [registering, setRegistering] = useState(false)
   const [deviceInfo, setDeviceInfo] = useState({ id: "", name: "" })
 
-  const [email, setEmail] = useState("admin@fusionflow.dev")
+  const [email, setEmail] = useState("demo.admin@fusionflow.dev")
   const [password, setPassword] = useState("fusionflow123")
   const [showPw, setShowPw] = useState(false)
   const [loading, setLoading] = useState(false)
@@ -121,7 +121,7 @@ export function LoginScreen() {
         <div className="relative">
           <Logo size={56} variant="icon" className="drop-shadow-xl" />
           <h1 className="mt-6 text-4xl font-extrabold tracking-tight leading-tight">FusionFlow ERP</h1>
-          <p className="mt-2 text-white/80 text-lg font-medium">The Enterprise Restaurant Operating System</p>
+          <p className="mt-2 text-white/80 text-lg font-medium">The Enterprise Fast Food Operating System</p>
           <p className="mt-4 text-white/70 text-sm max-w-md leading-relaxed">
             Run pizza chains, burger brands, fried chicken, cafés, cloud kitchens and franchises from one unified platform — POS, KDS, delivery, inventory, CRM, finance, HR & AI insights with role-based access control.
           </p>
