@@ -12,7 +12,7 @@ export function buildTenantDbUrl(dbName: string): string {
   const user = process.env.NEON_USER || "neondb_owner"
   const pass = process.env.NEON_PASS || ""
   const host = process.env.NEON_HOST_POOLER || "localhost"
-  return `postgresql://${user}:${pass}@${host}/${dbName}?sslmode=require`
+  return `postgresql://${user}:${pass}@${host}/${dbName}?sslmode=require&channel_binding=require`
 }
 
 // Get or create a PrismaClient for a specific tenant database
@@ -68,8 +68,13 @@ export async function createTenantDatabase(dbName: string): Promise<boolean> {
 
     // We need to use a raw connection to create the database
     // Prisma doesn't support CREATE DATABASE, so we use pg module
+    // Use sslmode=require without channel_binding for pg module compatibility
+    const cleanUrl = directUrl.replace("&channel_binding=require", "")
     const { Client } = await import("pg")
-    const client = new Client({ connectionString: directUrl })
+    const client = new Client({
+      connectionString: cleanUrl,
+      ssl: { rejectUnauthorized: false },
+    })
     await client.connect()
 
     // Check if database already exists
