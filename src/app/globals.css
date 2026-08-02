@@ -44,74 +44,74 @@
 }
 
 :root {
-  --radius: 0.75rem;
-  /* FusionFlow ERP — electric teal interactive theme */
-  --background: oklch(0.99 0.005 200);
-  --foreground: oklch(0.16 0.02 230);
+  --radius: 0.875rem;
+  /* FusionFlow ERP — macOS Tahoe 27 inspired: frosted glass, deep blue, vibrant accents */
+  --background: oklch(0.98 0.004 250);
+  --foreground: oklch(0.14 0.015 250);
   --card: oklch(1 0 0);
-  --card-foreground: oklch(0.16 0.02 230);
+  --card-foreground: oklch(0.14 0.015 250);
   --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.16 0.02 230);
-  --primary: oklch(0.60 0.19 195);          /* electric teal */
-  --primary-foreground: oklch(0.99 0.01 200);
-  --secondary: oklch(0.96 0.015 200);
-  --secondary-foreground: oklch(0.22 0.03 200);
-  --muted: oklch(0.96 0.008 200);
-  --muted-foreground: oklch(0.48 0.015 210);
-  --accent: oklch(0.92 0.05 190);          /* soft cyan tint */
-  --accent-foreground: oklch(0.26 0.05 195);
-  --destructive: oklch(0.57 0.25 25);
-  --border: oklch(0.91 0.012 200);
-  --input: oklch(0.93 0.012 200);
-  --ring: oklch(0.60 0.19 195);
-  /* Retina-quality vibrant chart colors */
-  --chart-1: oklch(0.60 0.19 195);         /* electric teal */
-  --chart-2: oklch(0.72 0.18 80);          /* golden amber */
-  --chart-3: oklch(0.65 0.17 145);         /* fresh green */
-  --chart-4: oklch(0.70 0.18 40);          /* warm orange */
-  --chart-5: oklch(0.58 0.20 295);         /* vibrant purple */
-  --sidebar: oklch(0.98 0.008 200);        /* light cool sidebar */
-  --sidebar-foreground: oklch(0.18 0.02 230);
-  --sidebar-primary: oklch(0.60 0.19 195);
-  --sidebar-primary-foreground: oklch(0.99 0.01 200);
-  --sidebar-accent: oklch(0.94 0.015 200);
-  --sidebar-accent-foreground: oklch(0.2 0.02 230);
-  --sidebar-border: oklch(0.91 0.012 200);
-  --sidebar-ring: oklch(0.60 0.19 195);
+  --popover-foreground: oklch(0.14 0.015 250);
+  --primary: oklch(0.55 0.25 264);          /* macOS Tahoe accent blue */
+  --primary-foreground: oklch(0.99 0.005 250);
+  --secondary: oklch(0.95 0.008 250);
+  --secondary-foreground: oklch(0.20 0.015 250);
+  --muted: oklch(0.95 0.006 250);
+  --muted-foreground: oklch(0.46 0.012 255);
+  --accent: oklch(0.93 0.03 264);          /* soft blue tint */
+  --accent-foreground: oklch(0.24 0.04 264);
+  --destructive: oklch(0.55 0.24 27);
+  --border: oklch(0.90 0.006 250);
+  --input: oklch(0.93 0.006 250);
+  --ring: oklch(0.55 0.25 264);
+  /* Vibrant macOS-style chart palette */
+  --chart-1: oklch(0.55 0.25 264);         /* system blue */
+  --chart-2: oklch(0.72 0.20 165);         /* system teal */
+  --chart-3: oklch(0.68 0.19 145);         /* system green */
+  --chart-4: oklch(0.75 0.19 70);          /* system yellow */
+  --chart-5: oklch(0.62 0.24 295);         /* system purple */
+  --sidebar: oklch(0.97 0.006 250);
+  --sidebar-foreground: oklch(0.16 0.015 250);
+  --sidebar-primary: oklch(0.55 0.25 264);
+  --sidebar-primary-foreground: oklch(0.99 0.005 250);
+  --sidebar-accent: oklch(0.93 0.01 250);
+  --sidebar-accent-foreground: oklch(0.18 0.015 250);
+  --sidebar-border: oklch(0.90 0.006 250);
+  --sidebar-ring: oklch(0.55 0.25 264);
 }
 
 .dark {
-  --background: oklch(0.15 0.015 220);
-  --foreground: oklch(0.97 0.01 200);
-  --card: oklch(0.20 0.02 220);
-  --card-foreground: oklch(0.97 0.01 200);
-  --popover: oklch(0.20 0.02 220);
-  --popover-foreground: oklch(0.97 0.01 200);
-  --primary: oklch(0.65 0.20 195);
-  --primary-foreground: oklch(0.15 0.02 220);
-  --secondary: oklch(0.25 0.02 220);
-  --secondary-foreground: oklch(0.97 0.01 200);
-  --muted: oklch(0.23 0.02 220);
-  --muted-foreground: oklch(0.68 0.015 210);
-  --accent: oklch(0.28 0.05 190);
-  --accent-foreground: oklch(0.97 0.01 200);
-  --destructive: oklch(0.62 0.22 25);
-  --border: oklch(0.28 0.02 220);
-  --input: oklch(0.28 0.02 220);
-  --ring: oklch(0.65 0.20 195);
-  --chart-1: oklch(0.65 0.20 195);
-  --chart-2: oklch(0.75 0.18 80);
-  --chart-3: oklch(0.68 0.17 145);
-  --chart-4: oklch(0.72 0.15 55);
-  --chart-5: oklch(0.62 0.20 295);
-  --sidebar: oklch(0.13 0.015 220);
-  --sidebar-foreground: oklch(0.97 0.01 200);
-  --sidebar-primary: oklch(0.65 0.20 195);
-  --sidebar-primary-foreground: oklch(0.15 0.02 220);
-  --sidebar-accent: oklch(0.23 0.02 220);
-  --sidebar-accent-foreground: oklch(0.97 0.01 200);
-  --sidebar-border: oklch(0.26 0.02 220);
-  --sidebar-ring: oklch(0.65 0.20 195);
+  --background: oklch(0.14 0.012 250);
+  --foreground: oklch(0.96 0.005 250);
+  --card: oklch(0.18 0.014 250);
+  --card-foreground: oklch(0.96 0.005 250);
+  --popover: oklch(0.18 0.014 250);
+  --popover-foreground: oklch(0.96 0.005 250);
+  --primary: oklch(0.62 0.25 264);
+  --primary-foreground: oklch(0.14 0.012 250);
+  --secondary: oklch(0.22 0.014 250);
+  --secondary-foreground: oklch(0.96 0.005 250);
+  --muted: oklch(0.20 0.012 250);
+  --muted-foreground: oklch(0.66 0.01 255);
+  --accent: oklch(0.25 0.04 264);
+  --accent-foreground: oklch(0.96 0.005 250);
+  --destructive: oklch(0.60 0.24 27);
+  --border: oklch(0.26 0.012 250);
+  --input: oklch(0.26 0.012 250);
+  --ring: oklch(0.62 0.25 264);
+  --chart-1: oklch(0.62 0.25 264);
+  --chart-2: oklch(0.72 0.20 165);
+  --chart-3: oklch(0.68 0.19 145);
+  --chart-4: oklch(0.75 0.19 70);
+  --chart-5: oklch(0.65 0.24 295);
+  --sidebar: oklch(0.12 0.012 250);
+  --sidebar-foreground: oklch(0.96 0.005 250);
+  --sidebar-primary: oklch(0.62 0.25 264);
+  --sidebar-primary-foreground: oklch(0.14 0.012 250);
+  --sidebar-accent: oklch(0.20 0.014 250);
+  --sidebar-accent-foreground: oklch(0.96 0.005 250);
+  --sidebar-border: oklch(0.24 0.012 250);
+  --sidebar-ring: oklch(0.62 0.25 264);
 }
 
 @layer base {
@@ -121,52 +121,74 @@
   body {
     @apply bg-background text-foreground;
     font-feature-settings: "cv11", "ss01";
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
   }
 }
 
-/* Custom scrollbar for long lists */
+/* ── macOS Tahoe 27 frosted glass effect ── */
+.glass {
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  background: color-mix(in oklch, var(--card) 75%, transparent);
+  border: 1px solid color-mix(in oklch, var(--border) 50%, transparent);
+}
+
+.glass-sidebar {
+  backdrop-filter: blur(30px) saturate(180%);
+  -webkit-backdrop-filter: blur(30px) saturate(180%);
+}
+
+.glass-header {
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  background: color-mix(in oklch, var(--background) 72%, transparent);
+}
+
+/* Custom scrollbar — macOS thin overlay style */
 .pf-scroll {
   scrollbar-width: thin;
-  scrollbar-color: oklch(0.55 0.2 27 / 0.4) transparent;
+  scrollbar-color: oklch(0.55 0.25 264 / 0.3) transparent;
 }
 .pf-scroll::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 6px;
+  height: 6px;
 }
 .pf-scroll::-webkit-scrollbar-track {
   background: transparent;
 }
 .pf-scroll::-webkit-scrollbar-thumb {
-  background-color: oklch(0.55 0.2 27 / 0.35);
+  background-color: oklch(0.55 0.25 264 / 0.25);
   border-radius: 9999px;
 }
 .pf-scroll::-webkit-scrollbar-thumb:hover {
-  background-color: oklch(0.55 0.2 27 / 0.6);
+  background-color: oklch(0.55 0.25 264 / 0.5);
 }
 
 /* Subtle dotted "map" background for delivery view */
 .pf-map {
-  background-color: oklch(0.96 0.01 80);
-  background-image: radial-gradient(oklch(0.8 0.02 80) 1px, transparent 1px);
+  background-color: oklch(0.96 0.008 250);
+  background-image: radial-gradient(oklch(0.80 0.015 250) 1px, transparent 1px);
   background-size: 18px 18px;
 }
 
-/* Pulse dot for live indicators */
+/* Pulse dot for live indicators — macOS blue */
 @keyframes pf-pulse-ring {
-  0% { box-shadow: 0 0 0 0 oklch(0.62 0.2 28 / 0.5); }
-  70% { box-shadow: 0 0 0 8px oklch(0.62 0.2 28 / 0); }
-  100% { box-shadow: 0 0 0 0 oklch(0.62 0.2 28 / 0); }
+  0% { box-shadow: 0 0 0 0 oklch(0.55 0.25 264 / 0.5); }
+  70% { box-shadow: 0 0 0 8px oklch(0.55 0.25 264 / 0); }
+  100% { box-shadow: 0 0 0 0 oklch(0.55 0.25 264 / 0); }
 }
 .pf-live-dot {
   animation: pf-pulse-ring 1.8s infinite;
 }
 
-/* POS tile press effect */
+/* POS tile press effect — macOS bounce */
 .pf-tile {
-  transition: transform 0.08s ease, box-shadow 0.15s ease;
+  transition: transform 0.12s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s ease;
 }
 .pf-tile:active {
-  transform: scale(0.96);
+  transform: scale(0.95);
 }
 
 /* Hide number input spinners for cleaner POS qty */
@@ -177,4 +199,18 @@
 }
 .pf-nospin {
   -moz-appearance: textfield;
+}
+
+/* macOS smooth transitions */
+button, a, input, select, textarea {
+  transition: background-color 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease, transform 0.12s ease;
+}
+
+/* macOS card hover lift */
+.card-hover {
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s ease;
+}
+.card-hover:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px oklch(0.14 0.015 250 / 0.08);
 }

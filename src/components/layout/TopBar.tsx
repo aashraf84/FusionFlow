@@ -134,7 +134,7 @@ export function TopBar() {
   const timeStr = now?.toLocaleTimeString("en-PK", { hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: true }) ?? ""
 
   return (
-    <header className="sticky top-0 z-30 h-16 border-b bg-background/85 backdrop-blur-md flex items-center gap-2 sm:gap-3 px-3 sm:px-4 lg:px-6">
+    <header className="sticky top-0 z-30 h-16 border-b glass-header flex items-center gap-2 sm:gap-3 px-3 sm:px-4 lg:px-6">
       <button
         className="lg:hidden grid place-items-center h-10 w-10 rounded-lg hover:bg-accent shrink-0"
         onClick={() => setSidebarOpen(true)}
