@@ -3,7 +3,12 @@ import { getTenantDbFromRequest } from "@/lib/db-manager"
 
 // GET /api/customers
 export async function GET(req: Request) {
-  const tdb = await getTenantDbFromRequest(req)
+  let tdb
+  try {
+    tdb = await getTenantDbFromRequest(req)
+  } catch {
+    return NextResponse.json({ error: "Tenant not configured" }, { status: 403 })
+  }
   const customers = await tdb.customer.findMany({ orderBy: { totalSpent: "desc" } })
   return NextResponse.json({ customers })
 }

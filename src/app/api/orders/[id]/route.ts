@@ -3,7 +3,12 @@ import { getTenantDbFromRequest } from "@/lib/db-manager"
 
 // PATCH /api/orders/[id] — advance / change order status
 export async function PATCH(req: Request, { params }: { params: Promise<{ id: string }> }) {
-  const tdb = await getTenantDbFromRequest(req)
+  let tdb
+  try {
+    tdb = await getTenantDbFromRequest(req)
+  } catch {
+    return NextResponse.json({ error: "Tenant not configured" }, { status: 403 })
+  }
   const { id } = await params
   const body = await req.json()
   const data: Record<string, unknown> = {}
@@ -16,7 +21,12 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
 }
 
 export async function GET(req: Request, { params }: { params: Promise<{ id: string }> }) {
-  const tdb = await getTenantDbFromRequest(req)
+  let tdb
+  try {
+    tdb = await getTenantDbFromRequest(req)
+  } catch {
+    return NextResponse.json({ error: "Tenant not configured" }, { status: 403 })
+  }
   const { id } = await params
   const order = await tdb.order.findUnique({ where: { id }, include: { items: true, branch: true } })
   if (!order) return NextResponse.json({ error: "not found" }, { status: 404 })

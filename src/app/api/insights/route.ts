@@ -5,7 +5,12 @@ import ZAI from "z-ai-web-dev-sdk"
 // GET /api/insights?branchId=
 // Generates AI-powered predictions for the restaurant using the LLM skill.
 export async function GET(req: Request) {
-  const tdb = await getTenantDbFromRequest(req)
+  let tdb
+  try {
+    tdb = await getTenantDbFromRequest(req)
+  } catch {
+    return NextResponse.json({ error: "Tenant not configured" }, { status: 403 })
+  }
   const { searchParams } = new URL(req.url)
   const branchId = searchParams.get("branchId") || undefined
   const rangeHours = 48

@@ -4,7 +4,12 @@ import { getTenantDbFromRequest } from "@/lib/db-manager"
 // GET /api/dashboard?branchId=&range=24h
 // Aggregates everything the frontend dashboards need in one call.
 export async function GET(req: Request) {
-  const tdb = await getTenantDbFromRequest(req)
+  let tdb
+  try {
+    tdb = await getTenantDbFromRequest(req)
+  } catch {
+    return NextResponse.json({ error: "Tenant not configured" }, { status: 403 })
+  }
   const { searchParams } = new URL(req.url)
   const branchId = searchParams.get("branchId") // optional single branch filter
   const rangeHours = Number(searchParams.get("range") ?? 24)

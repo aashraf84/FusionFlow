@@ -82,7 +82,18 @@ export function Dashboard() {
     )
   }
 
-  const d = data!
+  if (!data || !data.kpis) {
+    return (
+      <div className="grid place-items-center min-h-[40vh] text-center">
+        <div className="space-y-2">
+          <div className="text-sm font-semibold text-muted-foreground">Unable to load dashboard data</div>
+          <div className="text-xs text-muted-foreground">The tenant database may not be seeded yet.</div>
+        </div>
+      </div>
+    )
+  }
+
+  const d = data
   const orderTypeColors = ["var(--chart-1)", "var(--chart-2)", "var(--chart-3)", "var(--chart-4)", "var(--chart-5)"]
 
   return (
