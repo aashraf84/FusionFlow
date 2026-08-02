@@ -81,37 +81,37 @@
 }
 
 .dark {
-  --background: oklch(0.14 0.012 250);
-  --foreground: oklch(0.96 0.005 250);
-  --card: oklch(0.18 0.014 250);
-  --card-foreground: oklch(0.96 0.005 250);
-  --popover: oklch(0.18 0.014 250);
-  --popover-foreground: oklch(0.96 0.005 250);
-  --primary: oklch(0.62 0.25 264);
-  --primary-foreground: oklch(0.14 0.012 250);
-  --secondary: oklch(0.22 0.014 250);
-  --secondary-foreground: oklch(0.96 0.005 250);
-  --muted: oklch(0.20 0.012 250);
-  --muted-foreground: oklch(0.66 0.01 255);
-  --accent: oklch(0.25 0.04 264);
-  --accent-foreground: oklch(0.96 0.005 250);
-  --destructive: oklch(0.60 0.24 27);
-  --border: oklch(0.26 0.012 250);
-  --input: oklch(0.26 0.012 250);
-  --ring: oklch(0.62 0.25 264);
-  --chart-1: oklch(0.62 0.25 264);
+  --background: oklch(0.19 0.014 250);
+  --foreground: oklch(0.95 0.006 250);
+  --card: oklch(0.23 0.016 250);
+  --card-foreground: oklch(0.95 0.006 250);
+  --popover: oklch(0.23 0.016 250);
+  --popover-foreground: oklch(0.95 0.006 250);
+  --primary: oklch(0.65 0.25 264);
+  --primary-foreground: oklch(0.12 0.012 250);
+  --secondary: oklch(0.27 0.016 250);
+  --secondary-foreground: oklch(0.95 0.006 250);
+  --muted: oklch(0.25 0.014 250);
+  --muted-foreground: oklch(0.70 0.012 255);
+  --accent: oklch(0.30 0.05 264);
+  --accent-foreground: oklch(0.95 0.006 250);
+  --destructive: oklch(0.62 0.24 27);
+  --border: oklch(0.30 0.014 250);
+  --input: oklch(0.30 0.014 250);
+  --ring: oklch(0.65 0.25 264);
+  --chart-1: oklch(0.65 0.25 264);
   --chart-2: oklch(0.72 0.20 165);
   --chart-3: oklch(0.68 0.19 145);
   --chart-4: oklch(0.75 0.19 70);
   --chart-5: oklch(0.65 0.24 295);
-  --sidebar: oklch(0.12 0.012 250);
-  --sidebar-foreground: oklch(0.96 0.005 250);
-  --sidebar-primary: oklch(0.62 0.25 264);
-  --sidebar-primary-foreground: oklch(0.14 0.012 250);
-  --sidebar-accent: oklch(0.20 0.014 250);
-  --sidebar-accent-foreground: oklch(0.96 0.005 250);
-  --sidebar-border: oklch(0.24 0.012 250);
-  --sidebar-ring: oklch(0.62 0.25 264);
+  --sidebar: oklch(0.17 0.014 250);
+  --sidebar-foreground: oklch(0.95 0.006 250);
+  --sidebar-primary: oklch(0.65 0.25 264);
+  --sidebar-primary-foreground: oklch(0.12 0.012 250);
+  --sidebar-accent: oklch(0.25 0.016 250);
+  --sidebar-accent-foreground: oklch(0.95 0.006 250);
+  --sidebar-border: oklch(0.28 0.014 250);
+  --sidebar-ring: oklch(0.65 0.25 264);
 }
 
 @layer base {
@@ -214,3 +214,49 @@ button, a, input, select, textarea {
   transform: translateY(-2px);
   box-shadow: 0 8px 24px oklch(0.14 0.015 250 / 0.08);
 }
+
+/* ── Mobile native app enhancements ── */
+/* Prevent text selection on buttons for native feel */
+button {
+  -webkit-tap-highlight-color: transparent;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+/* Smooth momentum scrolling on iOS */
+.pf-scroll, nav, main {
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+}
+
+/* Native app: prevent pull-to-refresh on mobile */
+html, body {
+  overscroll-behavior-y: contain;
+}
+
+/* Safe area insets for mobile (notch, bottom bar) */
+body {
+  padding-top: env(safe-area-inset-top);
+}
+
+/* Touch target minimum 44px for native feel */
+@media (max-width: 768px) {
+  button, a {
+    min-height: 36px;
+  }
+  .pf-tile {
+    min-height: 44px;
+  }
+}
+
+/* PWA: hide scrollbars when installed as standalone */
+@media (display-mode: standalone) {
+  body {
+    -webkit-user-select: none;
+    user-select: none;
+  }
+  ::-webkit-scrollbar {
+    display: none;
+  }
+}
+

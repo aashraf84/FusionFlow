@@ -67,7 +67,7 @@ export function MobileBottomNav() {
   return (
     <>
       {/* Bottom tab bar — native mobile app style */}
-      <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-30 bg-background/95 backdrop-blur-lg border-t border-border pb-[env(safe-area-inset-bottom)]">
+      <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-30 glass-header border-t border-border pb-[env(safe-area-inset-bottom)]">
         <div className="flex items-stretch h-14">
           {visiblePrimary.map(tab => {
             const Icon = tab.icon
