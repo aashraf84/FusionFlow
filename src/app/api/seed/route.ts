@@ -1,23 +1,65 @@
 import { NextResponse } from "next/server"
 import { db } from "@/lib/db"
+import { getTenantDb, createTenantDatabase, initTenantSchema, buildTenantDbUrl } from "@/lib/db-manager"
 import { SEED_BRANCHES, SEED_PRODUCTS } from "@/lib/data"
+import { PrismaClient } from "@prisma/client"
 
-// POST /api/seed — populate branches, products, inventory, riders, employees, customers, users & sample orders
-// Uses createMany for bulk inserts to avoid ~650 sequential round-trips.
+// POST /api/seed — Multi-tenant initialization
+// 1. Creates default tenant in master DB (if not exists)
+// 2. Creates tenant database on Neon (if not exists)
+// 3. Seeds tenant DB with branches, products, inventory, riders, employees, customers, users, orders
+// 4. Creates TenantUsers in master DB for auth
 export async function POST() {
-  // Wipe (order matters for FK)
-  await db.orderItem.deleteMany()
-  await db.order.deleteMany()
-  await db.inventoryItem.deleteMany()
-  await db.rider.deleteMany()
-  await db.employee.deleteMany()
-  await db.customer.deleteMany()
-  await db.user.deleteMany()
-  await db.product.deleteMany()
-  await db.branch.deleteMany()
+  const DEFAULT_TENANT_DB = "tenant_fusionflow_default"
+  const DEFAULT_TENANT_NAME = "FusionFlow Restaurant Group"
 
-  // Branches
-  await db.branch.createMany({
+  // ── Step 1: Create or find default tenant in master DB ──
+  let tenant = await db.tenant.findFirst({
+    where: { dbName: DEFAULT_TENANT_DB },
+  })
+
+  if (!tenant) {
+    tenant = await db.tenant.create({
+      data: {
+        name: DEFAULT_TENANT_NAME,
+        dbName: DEFAULT_TENANT_DB,
+        brand: "FusionFlow Restaurant",
+        plan: "enterprise",
+        status: "active",
+        contactName: "Daniyal Khan",
+        contactEmail: "owner@fusionflow.dev",
+        contactPhone: "+923001111111",
+        city: "Lahore",
+      },
+    })
+  }
+
+  // ── Step 2: Create tenant database on Neon (if not exists) ──
+  await createTenantDatabase(DEFAULT_TENANT_DB)
+
+  // ── Step 3: Initialize schema in tenant DB ──
+  await initTenantSchema(DEFAULT_TENANT_DB)
+
+  // ── Step 4: Connect to tenant DB and seed restaurant data ──
+  const tenantDbUrl = buildTenantDbUrl(DEFAULT_TENANT_DB)
+  const tdb = new PrismaClient({
+    datasources: { db: { url: tenantDbUrl } },
+    log: ["error"],
+  })
+
+  // Wipe tenant DB (order matters for FK)
+  await tdb.orderItem.deleteMany()
+  await tdb.order.deleteMany()
+  await tdb.inventoryItem.deleteMany()
+  await tdb.rider.deleteMany()
+  await tdb.employee.deleteMany()
+  await tdb.customer.deleteMany()
+  await tdb.user.deleteMany()
+  await tdb.product.deleteMany()
+  await tdb.branch.deleteMany()
+
+  // ── Branches ──
+  await tdb.branch.createMany({
     data: SEED_BRANCHES.map((b) => ({
       id: b.id, name: b.name, brand: b.brand, type: b.type, city: b.city,
       manager: b.manager ?? null, status: b.status, isOpen: b.isOpen,
@@ -25,8 +67,8 @@ export async function POST() {
     })),
   })
 
-  // Products (catalog + custom pizza placeholder)
-  await db.product.createMany({
+  // ── Products (catalog + custom pizza placeholder) ──
+  await tdb.product.createMany({
     data: [
       {
         id: "P-CUSTOM", name: "Custom Built Pizza", category: "pizza", price: 990, cost: 320,
@@ -42,7 +84,7 @@ export async function POST() {
     ],
   })
 
-  // Inventory per branch (6 branches × 12 items = 72)
+  // ── Inventory per branch ──
   const inv = [
     { name: "Pizza Dough Flour", category: "raw", unit: "kg", qty: 120, min: 40, cost: 95 },
     { name: "Mozzarella Cheese", category: "raw", unit: "kg", qty: 28, min: 25, cost: 1450 },
@@ -70,9 +112,9 @@ export async function POST() {
       })
     })
   })
-  await db.inventoryItem.createMany({ data: invRows })
+  await tdb.inventoryItem.createMany({ data: invRows })
 
-  // Riders (6 branches × 4 = 24)
+  // ── Riders ──
   const riderNames = ["Usman Ali", "Kamran Shah", "Rizwan Ahmed", "Tariq Mehmood", "Imran Sheikh", "Naveed Iqbal", "Asif Raza", "Bilal Hussain"]
   const riderRows: any[] = []
   SEED_BRANCHES.forEach((b, bi) => {
@@ -88,9 +130,9 @@ export async function POST() {
       })
     }
   })
-  await db.rider.createMany({ data: riderRows })
+  await tdb.rider.createMany({ data: riderRows })
 
-  // Employees (6 branches × 6 = 36)
+  // ── Employees ──
   const roles = [
     { role: "manager", salary: 180000 }, { role: "supervisor", salary: 95000 },
     { role: "cashier", salary: 55000 }, { role: "chef", salary: 78000 },
@@ -109,18 +151,18 @@ export async function POST() {
       })
     })
   })
-  await db.employee.createMany({ data: empRows })
+  await tdb.employee.createMany({ data: empRows })
 
-  // Customers
+  // ── Customers ──
   const customers = [
     { id: "C-001", name: "Hamza Sheikh", phone: "+923331234567", email: "hamza@mail.com", tier: "Platinum", points: 4250, spent: 184500, count: 47, bd: "12-Mar" },
     { id: "C-002", name: "Ayesha Khan", phone: "+923331111222", email: "ayesha@mail.com", tier: "Gold", points: 2100, spent: 96800, count: 28, bd: "02-Jul" },
     { id: "C-003", name: "Bilal Ahmed", phone: "+923009988776", tier: "Silver", points: 820, spent: 41200, count: 14, bd: "21-Nov" },
-    { id: "C-004", name: "Mariam Iqbal", phone: "+933215554433".slice(1), email: "mariam@mail.com", tier: "Gold", points: 1850, spent: 88400, count: 24, bd: "30-Jan" },
+    { id: "C-004", name: "Mariam Iqbal", phone: "+923215554433", email: "mariam@mail.com", tier: "Gold", points: 1850, spent: 88400, count: 24, bd: "30-Jan" },
     { id: "C-005", name: "Usman Tariq", phone: "+923457776655", tier: "Bronze", points: 240, spent: 11800, count: 6, bd: "18-Sep" },
     { id: "C-006", name: "Fatima Noor", phone: "+923111223344", email: "fatima@mail.com", tier: "Platinum", points: 5100, spent: 221000, count: 58, bd: "02-Feb" },
   ]
-  await db.customer.createMany({
+  await tdb.customer.createMany({
     data: customers.map((c) => ({
       id: c.id, name: c.name, phone: c.phone, email: c.email ?? null,
       loyaltyPoints: c.points, tier: c.tier, totalSpent: c.spent, ordersCount: c.count,
@@ -128,24 +170,54 @@ export async function POST() {
     })),
   })
 
-  // Users (RBAC) — all share password "fusionflow123" for demo
+  // ── Users in tenant DB (for User Management module) ──
   const demoUsers = [
-    { id: "U-OWNER", name: "Daniyal Khan", email: "owner@fusionflow.dev", role: "owner", branchId: null, color: "var(--chart-5)", phone: "+923001111111" },
-    { id: "U-ADMIN", name: "Ahsan Khan", email: "admin@fusionflow.dev", role: "admin", branchId: null, color: "var(--chart-1)", phone: "+923002222222" },
-    { id: "U-MGR", name: "Sara Malik", email: "manager@fusionflow.dev", role: "manager", branchId: "BR-GUL", color: "var(--chart-3)", phone: "+923003333333" },
-    { id: "U-CASH", name: "Bilal Raza", email: "cashier@fusionflow.dev", role: "cashier", branchId: "BR-GUL", color: "var(--chart-2)", phone: "+923004444444" },
-    { id: "U-CHEF", name: "Imran Sheikh", email: "chef@fusionflow.dev", role: "chef", branchId: "BR-GUL", color: "var(--chart-4)", phone: "+923005555555" },
-    { id: "U-RIDER", name: "Usman Ali", email: "rider@fusionflow.dev", role: "rider", branchId: "BR-GUL", color: "var(--chart-3)", phone: "+923006666666" },
-    { id: "U-VIEW", name: "Nida Yusuf", email: "viewer@fusionflow.dev", role: "viewer", branchId: null, color: "var(--muted-foreground)", phone: "+923007777777" },
+    { id: "U-OWNER", name: "Daniyal Khan", email: "owner@fusionflow.dev", role: "owner", color: "var(--chart-5)", phone: "+923001111111" },
+    { id: "U-ADMIN", name: "Ahsan Khan", email: "admin@fusionflow.dev", role: "admin", color: "var(--chart-1)", phone: "+923002222222" },
+    { id: "U-MGR", name: "Sara Malik", email: "manager@fusionflow.dev", role: "manager", color: "var(--chart-3)", phone: "+923003333333" },
+    { id: "U-CASH", name: "Bilal Raza", email: "cashier@fusionflow.dev", role: "cashier", color: "var(--chart-2)", phone: "+923004444444" },
+    { id: "U-CHEF", name: "Imran Sheikh", email: "chef@fusionflow.dev", role: "chef", color: "var(--chart-4)", phone: "+923005555555" },
+    { id: "U-RIDER", name: "Usman Ali", email: "rider@fusionflow.dev", role: "rider", color: "var(--chart-3)", phone: "+923006666666" },
+    { id: "U-VIEW", name: "Nida Yusuf", email: "viewer@fusionflow.dev", role: "viewer", color: "var(--muted-foreground)", phone: "+923007777777" },
   ]
-  await db.user.createMany({
+  await tdb.user.createMany({
     data: demoUsers.map((u) => ({
       id: u.id, name: u.name, email: u.email, password: "fusionflow123", role: u.role,
-      branchId: u.branchId, active: true, avatarColor: u.color, phone: u.phone,
+      branchId: ["U-MGR", "U-CASH", "U-CHEF", "U-RIDER"].includes(u.id) ? "BR-GUL" : null,
+      active: true, avatarColor: u.color, phone: u.phone,
     })),
   })
 
-  // Sample orders: active + last 24h history (uses createMany then links order items)
+  // ── Step 5: Create TenantUsers in master DB for auth ──
+  // Wipe existing tenant users for this tenant
+  await db.tenantUser.deleteMany({ where: { tenantId: tenant.id } })
+
+  for (const u of demoUsers) {
+    await db.tenantUser.upsert({
+      where: { email: u.email },
+      create: {
+        email: u.email,
+        password: "fusionflow123",
+        name: u.name,
+        role: u.role,
+        tenantId: tenant.id,
+        active: true,
+        avatarColor: u.color,
+        phone: u.phone,
+      },
+      update: {
+        password: "fusionflow123",
+        name: u.name,
+        role: u.role,
+        tenantId: tenant.id,
+        active: true,
+        avatarColor: u.color,
+        phone: u.phone,
+      },
+    })
+  }
+
+  // ── Sample orders ──
   let orderNo = 1001
   const orderTypes = ["dine_in", "takeaway", "delivery", "drive_thru"] as const
   const payMethods = ["cash", "card", "wallet"] as const
@@ -156,7 +228,7 @@ export async function POST() {
 
   for (const b of SEED_BRANCHES) {
     if (!b.isOpen) continue
-    // active orders
+    // Active orders
     const activeCount = 3 + Math.floor(Math.random() * 4)
     for (let i = 0; i < activeCount; i++) {
       const product = SEED_PRODUCTS[Math.floor(Math.random() * 12)]
@@ -181,7 +253,7 @@ export async function POST() {
       })
       orderNo++
     }
-    // delivered history (last 24h)
+    // Delivered history
     const histCount = 28 + Math.floor(Math.random() * 20)
     for (let i = 0; i < histCount; i++) {
       const product = SEED_PRODUCTS[Math.floor(Math.random() * SEED_PRODUCTS.length)]
@@ -205,29 +277,32 @@ export async function POST() {
       orderNo++
     }
   }
-  await db.order.createMany({ data: orderRows })
-  await db.orderItem.createMany({ data: orderItemRows })
+  await tdb.order.createMany({ data: orderRows })
+  await tdb.orderItem.createMany({ data: orderItemRows })
+
+  // Disconnect tenant client
+  await tdb.$disconnect()
 
   return NextResponse.json({
     ok: true,
+    tenant: tenant.name,
+    tenantId: tenant.id,
+    tenantDb: DEFAULT_TENANT_DB,
     branches: SEED_BRANCHES.length,
     products: SEED_PRODUCTS.length + 1,
     users: demoUsers.length,
     orders: orderRows.length,
-    message: "Database seeded successfully",
+    message: "Multi-tenant database seeded successfully",
   })
 }
 
 export async function GET() {
-  const counts = {
-    branches: await db.branch.count(),
-    products: await db.product.count(),
-    orders: await db.order.count(),
-    customers: await db.customer.count(),
-    riders: await db.rider.count(),
-    inventory: await db.inventoryItem.count(),
-    employees: await db.employee.count(),
-    users: await db.user.count(),
-  }
-  return NextResponse.json(counts)
+  const tenantCount = await db.tenant.count()
+  const userCount = await db.tenantUser.count()
+  return NextResponse.json({
+    tenants: tenantCount,
+    tenantUsers: userCount,
+    multiTenant: true,
+    database: "neon-postgresql",
+  })
 }

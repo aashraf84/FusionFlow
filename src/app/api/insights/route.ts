@@ -1,10 +1,11 @@
 import { NextResponse } from "next/server"
-import { db } from "@/lib/db"
+import { getTenantDbFromRequest } from "@/lib/db-manager"
 import ZAI from "z-ai-web-dev-sdk"
 
 // GET /api/insights?branchId=
 // Generates AI-powered predictions for the restaurant using the LLM skill.
 export async function GET(req: Request) {
+  const tdb = await getTenantDbFromRequest(req)
   const { searchParams } = new URL(req.url)
   const branchId = searchParams.get("branchId") || undefined
   const rangeHours = 48
@@ -13,11 +14,11 @@ export async function GET(req: Request) {
   const branchWhere = branchId ? { branchId } : {}
 
   // Gather context for the model
-  const recentOrders = await db.order.findMany({
+  const recentOrders = await tdb.order.findMany({
     where: { ...branchWhere, createdAt: { gte: since } },
     include: { items: true },
   })
-  const branch = branchId ? await db.branch.findUnique({ where: { id: branchId } }) : null
+  const branch = branchId ? await tdb.branch.findUnique({ where: { id: branchId } }) : null
 
   // Product performance
   const productStats: Record<string, { name: string; qty: number; revenue: number }> = {}
@@ -35,10 +36,10 @@ export async function GET(req: Request) {
   const slowProducts = Object.values(productStats).sort((a, b) => a.qty - b.qty).slice(0, 5)
   const peakHour = Object.entries(hourlyOrders).sort((a, b) => b[1] - a[1])[0]?.[0] ?? "19"
 
-  const inventory = await db.inventoryItem.findMany({ where: branchWhere })
+  const inventory = await tdb.inventoryItem.findMany({ where: branchWhere })
   const lowStock = inventory.filter((i) => i.quantity <= i.minStock).map((i) => `${i.name} (${i.quantity}${i.unit})`)
 
-  const customers = await db.customer.findMany({ orderBy: { totalSpent: "desc" }, take: 10 })
+  const customers = await tdb.customer.findMany({ orderBy: { totalSpent: "desc" }, take: 10 })
   const churnRisk = customers.filter((c) => c.lastOrderAt && Date.now() - c.lastOrderAt.getTime() > 14 * 86400000).slice(0, 4)
 
   const delivered = recentOrders.filter((o) => o.status === "delivered")

@@ -1,5 +1,7 @@
 "use client"
 
+import { tenantFetch } from "@/lib/tenant-fetch"
+
 import { useMemo, useState } from "react"
 import { useAppStore } from "@/lib/store"
 import { useFetch } from "@/hooks/use-fetch"
@@ -129,7 +131,7 @@ export function POS() {
     const branchId = activeBranchId === "__ALL__" ? "BR-GUL" : activeBranchId
     setPlacing(true)
     try {
-      const res = await fetch("/api/orders", {
+      const res = await tenantFetch("/api/orders", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

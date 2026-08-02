@@ -1,13 +1,47 @@
-// Savora ERP — Prisma schema
-// Enterprise restaurant operating system data model
+// FusionFlow ERP — Prisma schema (PostgreSQL on Neon)
+// Multi-tenant: master DB stores tenant registry, each tenant gets a separate DB
 
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
+}
+
+// ── Master DB models (only in neondb master) ──
+// Tracks all tenant databases and their connection info
+model Tenant {
+  id            String   @id @default(cuid())
+  name          String
+  dbName        String   @unique  // e.g. "tenant_gulberg"
+  brand         String   @default("FusionFlow Restaurant")
+  plan          String   @default("enterprise") // starter, growth, enterprise
+  status        String   @default("active") // active, suspended, trial, expired
+  contactName   String?
+  contactEmail  String?
+  contactPhone  String?
+  city          String?
+  createdAt     DateTime @default(now())
+  TenantUser    TenantUser[]
+}
+
+// Users stored in master DB for authentication routing
+// After login, the tenantId determines which tenant DB to connect to
+model TenantUser {
+  id          String   @id @default(cuid())
+  email       String   @unique
+  password    String
+  name        String
+  role        String   @default("admin") // owner, admin, manager, cashier, chef, rider, viewer
+  tenantId    String
+  tenant      Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  active      Boolean  @default(true)
+  avatarColor String   @default("var(--primary)")
+  phone       String?
+  lastLoginAt DateTime?
+  createdAt   DateTime @default(now())
 }
 
 model Branch {

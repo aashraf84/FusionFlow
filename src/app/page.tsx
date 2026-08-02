@@ -45,9 +45,9 @@ export default function Home() {
   const user = useAuthStore((s) => s.user)
 
   // Check DB count; auto-seed if empty (first run)
-  const { data: counts, refresh } = useFetch<{ orders: number; users: number }>("/api/seed", {})
+  const { data: counts, refresh } = useFetch<{ tenants: number; tenantUsers: number; multiTenant: boolean }>("/api/seed", {})
   const startedRef = useRef(false)
-  const needsSeed = !!counts && counts.orders === 0 && !seeded
+  const needsSeed = !!counts && counts.tenantUsers === 0 && !seeded
   const seeding = needsSeed
 
   useEffect(() => {

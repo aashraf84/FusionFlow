@@ -6,9 +6,20 @@ import type { AppUser, Role } from "@/lib/auth"
 import { canAccess } from "@/lib/auth"
 import type { ModuleId } from "@/lib/data"
 
+export interface TenantInfo {
+  id: string
+  name: string
+  dbName: string
+  brand: string
+  plan: string
+  status: string
+}
+
 interface AuthState {
   user: AppUser | null
+  tenant: TenantInfo | null
   setUser: (u: AppUser | null) => void
+  setTenant: (t: TenantInfo | null) => void
   login: (email: string, password: string) => Promise<{ ok: boolean; error?: string }>
   logout: () => void
   switchRole: (role: Role) => Promise<void>
@@ -18,7 +29,9 @@ export const useAuthStore = create<AuthState>()(
   persist(
     (set, get) => ({
       user: null,
+      tenant: null,
       setUser: (u) => set({ user: u }),
+      setTenant: (t) => set({ tenant: t }),
       login: async (email, password) => {
         try {
           const res = await fetch("/api/auth/login", {
@@ -28,7 +41,7 @@ export const useAuthStore = create<AuthState>()(
           })
           const json = await res.json()
           if (!res.ok || !json.user) return { ok: false, error: json.error ?? "Login failed" }
-          set({ user: json.user })
+          set({ user: json.user, tenant: json.tenant ?? null })
           return { ok: true }
         } catch {
           return { ok: false, error: "Network error" }
@@ -36,14 +49,15 @@ export const useAuthStore = create<AuthState>()(
       },
       logout: () => {
         fetch("/api/auth/logout", { method: "POST" }).catch(() => {})
-        set({ user: null })
+        set({ user: null, tenant: null })
       },
       switchRole: async (role) => {
-        // Demo helper: fetch a user with the given role and set as current
         try {
           const res = await fetch(`/api/auth/switch?role=${role}`)
           const json = await res.json()
-          if (json.user) set({ user: json.user })
+          if (json.user) {
+            set({ user: json.user, tenant: json.tenant ?? get().tenant })
+          }
         } catch {
           /* ignore */
         }
@@ -51,7 +65,7 @@ export const useAuthStore = create<AuthState>()(
     }),
     {
       name: "fusionflow-auth",
-      partialize: (s) => ({ user: s.user }),
+      partialize: (s) => ({ user: s.user, tenant: s.tenant }),
     }
   )
 )
@@ -61,4 +75,10 @@ export function useCanAccess(module: ModuleId): boolean {
   const user = useAuthStore((s) => s.user)
   if (!user) return false
   return canAccess(user.role as Role, module)
+}
+
+// Get the current tenant ID for API headers
+export function useTenantId(): string | null {
+  const tenant = useAuthStore((s) => s.tenant)
+  return tenant?.id ?? null
 }

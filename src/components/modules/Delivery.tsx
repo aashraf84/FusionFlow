@@ -1,5 +1,7 @@
 "use client"
 
+import { tenantFetch } from "@/lib/tenant-fetch"
+
 import { useAppStore } from "@/lib/store"
 import { useFetch } from "@/hooks/use-fetch"
 import { Card, CardContent } from "@/components/ui/card"
@@ -40,7 +42,7 @@ export function Delivery() {
 
   const assignRider = async (orderId: string, rider: any) => {
     try {
-      await fetch(`/api/orders/${orderId}`, {
+      await tenantFetch(`/api/orders/${orderId}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ status: "dispatched", riderId: rider.id }),

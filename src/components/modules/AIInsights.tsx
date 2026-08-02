@@ -1,5 +1,7 @@
 "use client"
 
+import { tenantFetch } from "@/lib/tenant-fetch"
+
 import { useState } from "react"
 import { useAppStore } from "@/lib/store"
 import { useFetch } from "@/hooks/use-fetch"
@@ -45,7 +47,7 @@ export function AIInsights() {
   const regenerate = async () => {
     setRegenerating(true)
     try {
-      const res = await fetch(`/api/insights${branchParam}`, { cache: "no-store" })
+      const res = await tenantFetch(`/api/insights${branchParam}`, { cache: "no-store" })
       if (!res.ok) throw new Error("Failed")
       refresh()
       toast.success("AI insights regenerated", { description: "Fresh predictions generated" })

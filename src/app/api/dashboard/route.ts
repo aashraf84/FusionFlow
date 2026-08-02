@@ -1,9 +1,10 @@
 import { NextResponse } from "next/server"
-import { db } from "@/lib/db"
+import { getTenantDbFromRequest } from "@/lib/db-manager"
 
 // GET /api/dashboard?branchId=&range=24h
 // Aggregates everything the frontend dashboards need in one call.
 export async function GET(req: Request) {
+  const tdb = await getTenantDbFromRequest(req)
   const { searchParams } = new URL(req.url)
   const branchId = searchParams.get("branchId") // optional single branch filter
   const rangeHours = Number(searchParams.get("range") ?? 24)
@@ -12,7 +13,7 @@ export async function GET(req: Request) {
   const branchWhere = branchId ? { branchId } : {}
 
   // ── KPIs ──
-  const todayOrders = await db.order.findMany({
+  const todayOrders = await tdb.order.findMany({
     where: { ...branchWhere, createdAt: { gte: since } },
     include: { items: true },
   })
@@ -41,7 +42,7 @@ export async function GET(req: Request) {
   }
 
   // ── Active/live orders ──
-  const activeOrders = await db.order.findMany({
+  const activeOrders = await tdb.order.findMany({
     where: { ...branchWhere, status: { in: ["pending", "preparing", "ready", "dispatched"] } },
     include: { items: true, branch: true },
     orderBy: { createdAt: "asc" },
@@ -67,10 +68,10 @@ export async function GET(req: Request) {
   for (const o of todayOrders) typeMap[o.type] = (typeMap[o.type] ?? 0) + 1
 
   // ── Branch comparison (franchise view) ──
-  const allBranches = await db.branch.findMany()
+  const allBranches = await tdb.branch.findMany()
   const branchStats = []
   for (const b of allBranches) {
-    const orders = await db.order.findMany({ where: { branchId: b.id, createdAt: { gte: since } } })
+    const orders = await tdb.order.findMany({ where: { branchId: b.id, createdAt: { gte: since } } })
     const sales = orders.filter((o) => o.status === "delivered").reduce((s, o) => s + o.total, 0)
     branchStats.push({
       id: b.id,
@@ -91,13 +92,13 @@ export async function GET(req: Request) {
   branchStats.sort((a, b) => b.sales - a.sales)
 
   // ── Riders ──
-  const riders = await db.rider.findMany({
+  const riders = await tdb.rider.findMany({
     where: branchId ? { branchId } : {},
     include: { branch: true },
   })
 
   // ── Inventory alerts ──
-  const inventory = await db.inventoryItem.findMany({
+  const inventory = await tdb.inventoryItem.findMany({
     where: branchId ? { branchId } : {},
     include: { branch: true },
   })
@@ -105,11 +106,11 @@ export async function GET(req: Request) {
   const expiringSoon = inventory.filter((i) => i.expiry && new Date(i.expiry).getTime() - Date.now() < 4 * 86400000)
 
   // ── Customers summary ──
-  const customers = await db.customer.findMany({ orderBy: { totalSpent: "desc" }, take: 6 })
-  const totalCustomers = await db.customer.count()
+  const customers = await tdb.customer.findMany({ orderBy: { totalSpent: "desc" }, take: 6 })
+  const totalCustomers = await tdb.customer.count()
 
   // ── Employees present ──
-  const employees = await db.employee.findMany({ where: branchId ? { branchId } : {} })
+  const employees = await tdb.employee.findMany({ where: branchId ? { branchId } : {} })
   const presentCount = employees.filter((e) => e.attendance === "present" || e.attendance === "late").length
 
   // ── Dine-in occupancy (mock from active dine_in orders) ──

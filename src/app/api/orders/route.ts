@@ -1,8 +1,9 @@
 import { NextResponse } from "next/server"
-import { db } from "@/lib/db"
+import { getTenantDbFromRequest } from "@/lib/db-manager"
 
 // GET /api/orders?status=&branchId=&active=true
 export async function GET(req: Request) {
+  const tdb = await getTenantDbFromRequest(req)
   const { searchParams } = new URL(req.url)
   const status = searchParams.get("status")
   const branchId = searchParams.get("branchId")
@@ -14,7 +15,7 @@ export async function GET(req: Request) {
   if (branchId) where.branchId = branchId
   if (active) where.status = { in: ["pending", "preparing", "ready", "dispatched"] }
 
-  const orders = await db.order.findMany({
+  const orders = await tdb.order.findMany({
     where,
     include: { items: true, branch: true },
     orderBy: { createdAt: "desc" },
@@ -23,8 +24,9 @@ export async function GET(req: Request) {
   return NextResponse.json({ orders })
 }
 
-// POST /api/orders — create a new order (POS checkout)
+// POST /api/orders — create a new order
 export async function POST(req: Request) {
+  const tdb = await getTenantDbFromRequest(req)
   const body = await req.json()
   const { branchId, type, table, customerName, customerPhone, customerAddress, items, paymentMethod, notes } = body as {
     branchId: string
@@ -42,19 +44,17 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "branchId and items are required" }, { status: 400 })
   }
 
-  // derive station from first item
-  const firstProduct = await db.product.findUnique({ where: { id: items[0].productId } })
+  const firstProduct = await tdb.product.findUnique({ where: { id: items[0].productId } })
   const station = firstProduct?.station ?? "pizza"
 
   const subtotal = items.reduce((s, i) => s + i.price * i.quantity, 0)
   const tax = Math.round(subtotal * 0.13)
   const total = subtotal + tax
 
-  // next order number
-  const lastOrder = await db.order.findFirst({ orderBy: { number: "desc" } })
+  const lastOrder = await tdb.order.findFirst({ orderBy: { number: "desc" } })
   const number = (lastOrder?.number ?? 1000) + 1
 
-  const order = await db.order.create({
+  const order = await tdb.order.create({
     data: {
       id: `O-${branchId}-${number}`,
       number,

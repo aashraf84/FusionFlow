@@ -1,5 +1,7 @@
 "use client"
 
+import { tenantFetch } from "@/lib/tenant-fetch"
+
 import { useEffect, useState } from "react"
 import { useAppStore } from "@/lib/store"
 import { useFetch } from "@/hooks/use-fetch"
@@ -56,7 +58,7 @@ export function KDS() {
     if (!flow) return
     // optimistic: refresh handled by polling
     try {
-      await fetch(`/api/orders/${order.id}`, {
+      await tenantFetch(`/api/orders/${order.id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ status: flow.next }),

@@ -1,8 +1,9 @@
 import { NextResponse } from "next/server"
-import { db } from "@/lib/db"
+import { getTenantDbFromRequest } from "@/lib/db-manager"
 
 // GET /api/customers
-export async function GET() {
-  const customers = await db.customer.findMany({ orderBy: { totalSpent: "desc" } })
+export async function GET(req: Request) {
+  const tdb = await getTenantDbFromRequest(req)
+  const customers = await tdb.customer.findMany({ orderBy: { totalSpent: "desc" } })
   return NextResponse.json({ customers })
 }

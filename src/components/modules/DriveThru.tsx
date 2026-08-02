@@ -1,5 +1,7 @@
 "use client"
 
+import { tenantFetch } from "@/lib/tenant-fetch"
+
 import { useCallback, useEffect, useState } from "react"
 import { useAppStore } from "@/lib/store"
 import { useFetch } from "@/hooks/use-fetch"
@@ -93,7 +95,7 @@ export function DriveThru() {
     const nextStatus = NEXT_STATUS[order.status]
     if (!nextStatus) return
     try {
-      await fetch(`/api/orders/${order.id}`, {
+      await tenantFetch(`/api/orders/${order.id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -338,7 +340,7 @@ function NewDriveThruOrder({
     if (!cartItems.length) { toast.error("Add at least one item"); return }
     setPlacing(true)
     try {
-      const res = await fetch("/api/orders", {
+      const res = await tenantFetch("/api/orders", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -467,7 +469,7 @@ function VoiceOrderDialog({
   const submit = async () => {
     setPlacing(true)
     try {
-      const res = await fetch("/api/orders", {
+      const res = await tenantFetch("/api/orders", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

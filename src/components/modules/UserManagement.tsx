@@ -1,5 +1,7 @@
 "use client"
 
+import { tenantFetch } from "@/lib/tenant-fetch"
+
 import { useState } from "react"
 import { useFetch } from "@/hooks/use-fetch"
 import { useAuthStore } from "@/lib/auth-store"
@@ -68,7 +70,7 @@ export function UserManagement() {
   const toggleActive = async (u: AppUser) => {
     if (u.id === currentUser?.id) { toast.error("You cannot disable your own account"); return }
     try {
-      await fetch(`/api/users/${u.id}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ active: !u.active }) })
+      await tenantFetch(`/api/users/${u.id}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ active: !u.active }) })
       toast.success(`${u.name} ${u.active ? "disabled" : "enabled"}`)
       refresh()
     } catch { toast.error("Update failed") }
@@ -76,7 +78,7 @@ export function UserManagement() {
 
   const changeRole = async (u: AppUser, role: Role) => {
     try {
-      await fetch(`/api/users/${u.id}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ role }) })
+      await tenantFetch(`/api/users/${u.id}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ role }) })
       toast.success(`${u.name} → ${role}`)
       refresh()
     } catch { toast.error("Role change failed") }
@@ -85,7 +87,7 @@ export function UserManagement() {
   const deleteUser = async (u: AppUser) => {
     if (u.id === currentUser?.id) { toast.error("You cannot delete your own account"); return }
     try {
-      await fetch(`/api/users/${u.id}`, { method: "DELETE" })
+      await tenantFetch(`/api/users/${u.id}`, { method: "DELETE" })
       toast.success(`${u.name} removed`)
       refresh()
     } catch { toast.error("Delete failed") }
@@ -276,7 +278,7 @@ function AddUserDialog({ open, onOpenChange, onCreated }: { open: boolean; onOpe
     if (!name || !email || !password) { toast.error("Fill all required fields"); return }
     setSaving(true)
     try {
-      const res = await fetch("/api/users", {
+      const res = await tenantFetch("/api/users", {
         method: "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name, email, password, role, phone: phone || undefined }),
       })
