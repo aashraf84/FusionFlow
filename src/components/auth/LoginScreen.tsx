@@ -112,10 +112,10 @@ export function LoginScreen() {
       {/* Left — brand panel */}
       <div
         className="hidden lg:flex lg:w-[44%] relative overflow-hidden flex-col justify-between p-10 text-white"
-        style={{ background: "linear-gradient(135deg, oklch(0.5 0.2 28) 0%, oklch(0.42 0.16 38) 50%, oklch(0.35 0.12 50) 100%)" }}
+        style={{ background: "linear-gradient(135deg, oklch(0.55 0.19 195) 0%, oklch(0.45 0.17 200) 50%, oklch(0.35 0.14 205) 100%)" }}
       >
-        <div className="absolute -top-20 -right-20 h-80 w-80 rounded-full opacity-25" style={{ background: "oklch(0.7 0.16 75)" }} />
-        <div className="absolute bottom-10 -left-10 h-60 w-60 rounded-full opacity-20" style={{ background: "oklch(0.6 0.15 145)" }} />
+        <div className="absolute -top-20 -right-20 h-80 w-80 rounded-full opacity-25" style={{ background: "oklch(0.72 0.18 80)" }} />
+        <div className="absolute bottom-10 -left-10 h-60 w-60 rounded-full opacity-20" style={{ background: "oklch(0.65 0.17 145)" }} />
         <div className="absolute inset-0 opacity-[0.06]" style={{ backgroundImage: "radial-gradient(circle, white 1px, transparent 1px)", backgroundSize: "22px 22px" }} />
 
         <div className="relative">

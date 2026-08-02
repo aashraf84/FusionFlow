@@ -43,11 +43,11 @@ function LogoIcon({ size = 40, className }: { size?: number; className?: string 
       aria-label="FusionFlow ERP"
     >
       <defs>
-        {/* Primary gradient — warm tomato to deep red */}
+        {/* Primary gradient — electric teal to deep cyan */}
         <linearGradient id="ffBadgeGrad" x1="6" y1="4" x2="42" y2="44" gradientUnits="userSpaceOnUse">
-          <stop stopColor="oklch(0.56 0.21 28)" />
-          <stop offset="0.6" stopColor="oklch(0.48 0.22 32)" />
-          <stop offset="1" stopColor="oklch(0.40 0.18 35)" />
+          <stop stopColor="oklch(0.62 0.19 195)" />
+          <stop offset="0.6" stopColor="oklch(0.52 0.20 200)" />
+          <stop offset="1" stopColor="oklch(0.42 0.16 205)" />
         </linearGradient>
         {/* Gold gradient for utensils */}
         <linearGradient id="ffGold" x1="14" y1="10" x2="34" y2="38" gradientUnits="userSpaceOnUse">
