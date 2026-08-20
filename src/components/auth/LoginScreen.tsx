@@ -102,9 +102,15 @@ export function LoginScreen() {
     setLoading(true)
     setError("")
     setEmail(accEmail)
-    await switchRole(role)
+    // Use login() instead of switchRole() to get the correct tenant
+    const res = await login(accEmail, "fusionflow123")
     setLoading(false)
-    toast.success(`Signed in as ${role}`)
+    if (!res.ok) {
+      setError(res.error ?? "Login failed")
+      toast.error(res.error ?? "Login failed")
+    } else {
+      toast.success(`Signed in as ${role}`)
+    }
   }
 
   return (
