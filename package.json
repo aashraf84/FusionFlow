@@ -5,12 +5,12 @@
   "scripts": {
     "dev": "DATABASE_URL='postgresql://neondb_owner:npg_UN3xrIYVPhE5@ep-purple-recipe-awvh2gwy-pooler.c-12.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require' NEON_DIRECT_URL='postgresql://neondb_owner:npg_UN3xrIYVPhE5@ep-purple-recipe-awvh2gwy.c-12.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require' NEON_HOST_POOLER='ep-purple-recipe-awvh2gwy-pooler.c-12.us-east-1.aws.neon.tech' NEON_HOST_DIRECT='ep-purple-recipe-awvh2gwy.c-12.us-east-1.aws.neon.tech' NEON_USER='neondb_owner' NEON_PASS='npg_UN3xrIYVPhE5' NODE_OPTIONS='--max-old-space-size=3072' next dev -p 3000 2>&1 | tee dev.log",
     "build": "DATABASE_URL='postgresql://neondb_owner:npg_UN3xrIYVPhE5@ep-purple-recipe-awvh2gwy-pooler.c-12.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require' NEON_DIRECT_URL='postgresql://neondb_owner:npg_UN3xrIYVPhE5@ep-purple-recipe-awvh2gwy.c-12.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require' NEON_HOST_POOLER='ep-purple-recipe-awvh2gwy-pooler.c-12.us-east-1.aws.neon.tech' NEON_HOST_DIRECT='ep-purple-recipe-awvh2gwy.c-12.us-east-1.aws.neon.tech' NEON_USER='neondb_owner' NEON_PASS='npg_UN3xrIYVPhE5' NODE_OPTIONS='--max-old-space-size=3072' next build && cp -r .next/static .next/standalone/.next/ && cp -r public .next/standalone/",
-    "start": "NODE_ENV=production bun .next/standalone/server.js 2>&1 | tee server.log",
+    "start": "DATABASE_URL='postgresql://neondb_owner:npg_UN3xrIYVPhE5@ep-purple-recipe-awvh2gwy-pooler.c-12.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require' NEON_DIRECT_URL='postgresql://neondb_owner:npg_UN3xrIYVPhE5@ep-purple-recipe-awvh2gwy.c-12.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require' NEON_HOST_POOLER='ep-purple-recipe-awvh2gwy-pooler.c-12.us-east-1.aws.neon.tech' NEON_HOST_DIRECT='ep-purple-recipe-awvh2gwy.c-12.us-east-1.aws.neon.tech' NEON_USER='neondb_owner' NEON_PASS='npg_UN3xrIYVPhE5' NODE_ENV=production bun .next/standalone/server.js 2>&1 | tee server.log",
     "lint": "eslint .",
     "db:push": "DATABASE_URL='postgresql://neondb_owner:npg_UN3xrIYVPhE5@ep-purple-recipe-awvh2gwy-pooler.c-12.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require' prisma db push --accept-data-loss",
-    "db:generate": "prisma generate",
-    "db:migrate": "prisma migrate dev",
-    "db:reset": "prisma migrate reset"
+    "db:generate": "DATABASE_URL='postgresql://neondb_owner:npg_UN3xrIYVPhE5@ep-purple-recipe-awvh2gwy-pooler.c-12.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require' prisma generate",
+    "db:migrate": "DATABASE_URL='postgresql://neondb_owner:npg_UN3xrIYVPhE5@ep-purple-recipe-awvh2gwy-pooler.c-12.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require' prisma migrate dev",
+    "db:reset": "DATABASE_URL='postgresql://neondb_owner:npg_UN3xrIYVPhE5@ep-purple-recipe-awvh2gwy-pooler.c-12.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require' prisma migrate reset"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",
