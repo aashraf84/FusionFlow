@@ -78,6 +78,26 @@ export function PizzaBuilder() {
     setToppings({}); setHalfHalf(false); setNotes(""); setCooking("regular")
   }
 
+  // Select real pizza photo based on selected toppings
+  const pizzaImage = useMemo(() => {
+    const selectedToppings = Object.keys(toppings)
+    const hasPepperoni = selectedToppings.includes("pepperoni")
+    const hasChicken = selectedToppings.includes("chicken")
+    const hasBeef = selectedToppings.includes("beef")
+    const hasVeggie = selectedToppings.includes("mushroom") || selectedToppings.includes("capsicum") || selectedToppings.includes("onion") || selectedToppings.includes("olive") || selectedToppings.includes("spinach")
+    const isExtraCheese = cheese.id === "extra" || cheese.id === "double"
+    const hasManyToppings = selectedToppings.length >= 3
+
+    // Pick the best matching real pizza photo
+    if (hasPepperoni && hasManyToppings) return "/pizza/pepperoni.png"
+    if (hasChicken || hasBeef) return "/pizza/bbq-chicken.png"
+    if (hasVeggie && !hasPepperoni && !hasChicken) return "/pizza/veggie.png"
+    if (isExtraCheese && !hasPepperoni && !hasChicken) return "/pizza/extra-cheese.png"
+    if (hasPepperoni) return "/pizza/pepperoni.png"
+    if (selectedToppings.length === 0 && cheese.id === "regular") return "/pizza/base-margherita.png"
+    return "/pizza/base-plain.png"
+  }, [toppings, cheese])
+
   const addPizza = () => {
     const customSummary = [
       size.label,
@@ -107,164 +127,36 @@ export function PizzaBuilder() {
     <div className="grid grid-cols-1 xl:grid-cols-[1fr_360px] gap-4">
       {/* LEFT — configurator */}
       <div className="space-y-4">
-        {/* Visual pizza — realistic with smoke effect */}
+        {/* Visual pizza — real AI-generated photography */}
         <Card className="overflow-hidden">
-          <div className="relative grid place-items-center py-10" style={{ background: "radial-gradient(ellipse at center, oklch(0.96 0.02 50), oklch(0.88 0.03 45))" }}>
+          <div className="relative grid place-items-center py-6" style={{ background: "radial-gradient(ellipse at center, oklch(0.96 0.02 50), oklch(0.88 0.03 45))" }}>
             {/* Smoke effect */}
             <SmokeEffect />
 
-            {/* Pizza */}
+            {/* Real pizza photo */}
             <motion.div
-              key={size.id + crust.id + sauce.id + cheese.id + JSON.stringify(toppings)}
-              initial={{ scale: 0.7, opacity: 0, rotateY: -30 }}
-              animate={{ scale: 1, opacity: 1, rotateY: 0 }}
+              key={pizzaImage}
+              initial={{ scale: 0.6, opacity: 0, rotateZ: -5 }}
+              animate={{ scale: 1, opacity: 1, rotateZ: 0 }}
               transition={{ type: "spring", stiffness: 120, damping: 14 }}
-              className="relative"
+              className="relative rounded-full overflow-hidden shadow-2xl"
               style={{
-                width: size.id === "xlarge" ? 240 : size.id === "large" ? 200 : size.id === "medium" ? 170 : 140,
-                height: size.id === "xlarge" ? 240 : size.id === "large" ? 200 : size.id === "medium" ? 170 : 140,
+                width: size.id === "xlarge" ? 260 : size.id === "large" ? 220 : size.id === "medium" ? 180 : 150,
+                height: size.id === "xlarge" ? 260 : size.id === "large" ? 220 : size.id === "medium" ? 180 : 150,
+                boxShadow: "0 16px 48px rgba(0,0,0,0.25), 0 4px 12px rgba(0,0,0,0.15)",
               }}
             >
-              {/* Crust ring (outer) */}
-              <div
-                className="absolute inset-0 rounded-full"
-                style={{
-                  background: crust.id === "stuffed"
-                    ? "linear-gradient(135deg, oklch(0.72 0.14 65), oklch(0.65 0.12 60), oklch(0.55 0.10 55))"
-                    : crust.id === "pan"
-                      ? "linear-gradient(135deg, oklch(0.68 0.12 55), oklch(0.55 0.10 50))"
-                      : crust.id === "sicilian"
-                        ? "linear-gradient(135deg, oklch(0.70 0.13 60), oklch(0.58 0.10 55))"
-                        : "linear-gradient(135deg, oklch(0.75 0.14 70), oklch(0.65 0.12 65), oklch(0.55 0.10 60))",
-                  boxShadow: "0 12px 32px rgba(0,0,0,0.2), inset 0 -4px 12px rgba(0,0,0,0.15), inset 0 2px 4px rgba(255,255,255,0.3)",
-                }}
+              <img
+                src={pizzaImage}
+                alt="Your custom pizza"
+                className="w-full h-full object-cover rounded-full"
+                style={{ filter: "saturate(1.1) contrast(1.05)" }}
               />
-
-              {/* Stuffed crust cheese pockets */}
-              {crust.id === "stuffed" && (
-                <div className="absolute inset-0 rounded-full">
-                  {Array.from({ length: 16 }).map((_, i) => {
-                    const angle = (i / 16) * 360
-                    return (
-                      <div
-                        key={i}
-                        className="absolute rounded-full"
-                        style={{
-                          width: "8%",
-                          height: "8%",
-                          top: "50%",
-                          left: "50%",
-                          background: "radial-gradient(circle, oklch(0.90 0.12 80), oklch(0.78 0.10 65))",
-                          transform: `rotate(${angle}deg) translateY(-46%) rotate(-${angle}deg)`,
-                          transformOrigin: "center",
-                          boxShadow: "inset 0 -1px 2px rgba(0,0,0,0.1)",
-                        }}
-                      />
-                    )
-                  })}
-                </div>
-              )}
-
-              {/* Sauce layer */}
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.2 }}
-                className="absolute rounded-full overflow-hidden"
-                style={{
-                  inset: "8%",
-                  background: sauce.id === "tomato"
-                    ? "radial-gradient(circle, oklch(0.48 0.18 28), oklch(0.42 0.16 25))"
-                    : sauce.id === "bbq"
-                      ? "radial-gradient(circle, oklch(0.35 0.06 40), oklch(0.28 0.05 35))"
-                      : sauce.id === "white"
-                        ? "radial-gradient(circle, oklch(0.88 0.04 80), oklch(0.82 0.03 75))"
-                        : sauce.id === "pesto"
-                          ? "radial-gradient(circle, oklch(0.45 0.08 145), oklch(0.38 0.07 140))"
-                          : "radial-gradient(circle, oklch(0.42 0.15 20), oklch(0.36 0.13 18))",
-                  boxShadow: "inset 0 2px 8px rgba(0,0,0,0.2)",
-                }}
-              >
-                {/* Sauce texture — subtle swirls */}
-                <div
-                  className="absolute inset-0 opacity-30"
-                  style={{
-                    background: `repeating-conic-gradient(from 0deg, transparent 0deg, ${sauce.id === "tomato" ? "oklch(0.55 0.16 25)" : sauce.id === "bbq" ? "oklch(0.40 0.05 40)" : "oklch(0.50 0.12 25)"} 15deg, transparent 30deg)`,
-                  }}
-                />
-              </motion.div>
-
-              {/* Cheese layer */}
-              {cheese.id !== "light" && (
-                <motion.div
-                  key={cheese.id}
-                  initial={{ opacity: 0, scale: 0.8 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ delay: 0.4, type: "spring" }}
-                  className="absolute rounded-full overflow-hidden"
-                  style={{
-                    inset: "10%",
-                    background: cheese.id === "double"
-                      ? "radial-gradient(circle, oklch(0.88 0.10 75 / 0.7), oklch(0.82 0.08 70 / 0.5))"
-                      : cheese.id === "extra"
-                        ? "radial-gradient(circle, oklch(0.90 0.09 78 / 0.5), oklch(0.85 0.07 72 / 0.3))"
-                        : "radial-gradient(circle, oklch(0.92 0.06 80 / 0.3), transparent)",
-                  }}
-                >
-                  {/* Cheese melt blobs */}
-                  {cheese.id !== "regular" && Array.from({ length: cheese.id === "double" ? 14 : 8 }).map((_, i) => (
-                    <div
-                      key={i}
-                      className="absolute rounded-full"
-                      style={{
-                        width: `${12 + (i % 3) * 6}%`,
-                        height: `${12 + (i % 3) * 6}%`,
-                        top: `${(i * 23) % 75}%`,
-                        left: `${(i * 37) % 75}%`,
-                        background: "radial-gradient(circle at 30% 30%, oklch(0.92 0.10 78), oklch(0.82 0.08 72))",
-                        opacity: 0.8,
-                        filter: "blur(1px)",
-                      }}
-                    />
-                  ))}
-                  {/* Golden cheese spots (baked) */}
-                  {cheese.id !== "regular" && Array.from({ length: cheese.id === "double" ? 8 : 5 }).map((_, i) => (
-                    <div
-                      key={`spot-${i}`}
-                      className="absolute rounded-full"
-                      style={{
-                        width: "6%",
-                        height: "6%",
-                        top: `${10 + (i * 19) % 70}%`,
-                        left: `${15 + (i * 29) % 65}%`,
-                        background: "oklch(0.72 0.10 60)",
-                        opacity: 0.6,
-                      }}
-                    />
-                  ))}
-                </motion.div>
-              )}
-
-              {/* Toppings — realistic shapes */}
-              <div className="absolute rounded-full overflow-hidden" style={{ inset: "10%" }}>
-                {Object.entries(toppings).map(([id, t]) => (
-                  <ToppingVisual key={id} id={id} qty={t.qty} />
-                ))}
-              </div>
-
-              {/* Half & half divider */}
-              {halfHalf && (
-                <div className="absolute inset-0 grid place-items-center pointer-events-none">
-                  <div className="h-full w-0.5 bg-black/30" style={{ boxShadow: "0 0 4px rgba(0,0,0,0.3)" }} />
-                </div>
-              )}
-
-              {/* Glossy highlight */}
+              {/* Steam/gloss overlay */}
               <div
-                className="absolute rounded-full pointer-events-none"
+                className="absolute inset-0 rounded-full pointer-events-none"
                 style={{
-                  inset: "5%",
-                  background: "linear-gradient(135deg, rgba(255,255,255,0.15) 0%, transparent 40%, transparent 60%, rgba(0,0,0,0.05) 100%)",
+                  background: "linear-gradient(135deg, rgba(255,255,255,0.12) 0%, transparent 30%, transparent 70%, rgba(0,0,0,0.08) 100%)",
                 }}
               />
             </motion.div>
@@ -297,7 +189,7 @@ export function PizzaBuilder() {
                   transition={{ duration: 1.5, repeat: Infinity }}
                   className="h-1.5 w-1.5 rounded-full bg-chart-4"
                 />
-                Freshly prepared · Ready to bake
+                Freshly baked · Real preview
               </div>
             </motion.div>
           </div>
