@@ -1,6 +1,6 @@
 "use client"
 
-import { useMemo, useState, useEffect, useRef } from "react"
+import { useMemo, useState, useEffect } from "react"
 import { useAppStore } from "@/lib/store"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
@@ -10,7 +10,6 @@ import { formatPKR, PIZZA_SIZES, PIZZA_CRUSTS, CHEESE_LEVELS, SAUCES, TOPPINGS }
 import { cn } from "@/lib/utils"
 import { Pizza, Plus, Minus, ShoppingCart, Flame, Leaf, Wheat, Snowflake, RotateCcw } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
-import { useEffect, useState as useStateReact } from "react"
 
 export function PizzaBuilder() {
   const addToCart = useAppStore((s) => s.addToCart)
