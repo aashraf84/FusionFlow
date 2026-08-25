@@ -67,19 +67,35 @@ export function LoginScreen() {
           deviceId: deviceInfo.id,
         }),
       })
-      const json = await res.json()
+      // Handle non-OK responses with proper error display
       if (!res.ok) {
-        toast.error(json.error ?? "Registration failed")
+        let errorMsg = "Registration failed"
+        try {
+          const errorJson = await res.json()
+          errorMsg = errorJson.error || errorMsg
+        } catch {
+          // response body not JSON
+        }
+        toast.error(errorMsg, { duration: 5000 })
         setRegistering(false)
         return
       }
+      const json = await res.json()
       // Success — show animation
       setRegistering(false)
       setMode("success")
-      toast.success("Device registered successfully!", { description: `Plan: ${json.plan} · Device: ${deviceInfo.name}` })
+      toast.success("Device registered successfully!", {
+        description: `Plan: ${json.plan} · Device: ${deviceInfo.name}`,
+        duration: 4000,
+      })
       setTimeout(() => setMode("login"), 3000)
-    } catch {
-      toast.error("Network error during registration")
+    } catch (err) {
+      // Only show "network error" if it's actually a network failure (not an API error)
+      const msg = err instanceof Error ? err.message : "Unknown error"
+      toast.error("Connection failed", {
+        description: msg.includes("fetch") || msg.includes("network") ? "Cannot connect to server. Check your internet." : msg,
+        duration: 6000,
+      })
       setRegistering(false)
     }
   }
@@ -102,14 +118,20 @@ export function LoginScreen() {
     setLoading(true)
     setError("")
     setEmail(accEmail)
-    // Use login() instead of switchRole() to get the correct tenant
-    const res = await login(accEmail, "fusionflow123")
-    setLoading(false)
-    if (!res.ok) {
-      setError(res.error ?? "Login failed")
-      toast.error(res.error ?? "Login failed")
-    } else {
-      toast.success(`Signed in as ${role}`)
+    try {
+      // Use login() instead of switchRole() to get the correct tenant
+      const res = await login(accEmail, "fusionflow123")
+      setLoading(false)
+      if (!res.ok) {
+        setError(res.error ?? "Login failed")
+        toast.error(res.error ?? "Login failed", { duration: 5000 })
+      } else {
+        toast.success(`Signed in as ${role}`)
+      }
+    } catch (err) {
+      setLoading(false)
+      const msg = err instanceof Error ? err.message : "Connection failed"
+      toast.error("Login failed", { description: msg, duration: 5000 })
     }
   }
 

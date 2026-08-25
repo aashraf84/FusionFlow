@@ -39,12 +39,22 @@ export const useAuthStore = create<AuthState>()(
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ email, password }),
           })
+          // Handle non-OK response
+          if (!res.ok) {
+            try {
+              const errorJson = await res.json()
+              return { ok: false, error: errorJson.error ?? `Login failed (${res.status})` }
+            } catch {
+              return { ok: false, error: `Login failed (${res.status})` }
+            }
+          }
           const json = await res.json()
-          if (!res.ok || !json.user) return { ok: false, error: json.error ?? "Login failed" }
+          if (!json.user) return { ok: false, error: "Invalid response from server" }
           set({ user: json.user, tenant: json.tenant ?? null })
           return { ok: true }
-        } catch {
-          return { ok: false, error: "Network error" }
+        } catch (err) {
+          const msg = err instanceof Error ? err.message : "Connection failed"
+          return { ok: false, error: msg.includes("fetch") || msg.includes("network") ? "Cannot connect to server" : msg }
         }
       },
       logout: () => {
