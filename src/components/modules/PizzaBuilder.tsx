@@ -1,6 +1,6 @@
 "use client"
 
-import { useMemo, useState } from "react"
+import { useMemo, useState, useEffect, useRef } from "react"
 import { useAppStore } from "@/lib/store"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
@@ -88,14 +88,12 @@ export function PizzaBuilder() {
     const isExtraCheese = cheese.id === "extra" || cheese.id === "double"
     const hasManyToppings = selectedToppings.length >= 3
 
-    // Pick the best matching real pizza photo
-    if (hasPepperoni && hasManyToppings) return "/pizza/pepperoni.png"
-    if (hasChicken || hasBeef) return "/pizza/bbq-chicken.png"
-    if (hasVeggie && !hasPepperoni && !hasChicken) return "/pizza/veggie.png"
-    if (isExtraCheese && !hasPepperoni && !hasChicken) return "/pizza/extra-cheese.png"
-    if (hasPepperoni) return "/pizza/pepperoni.png"
-    if (selectedToppings.length === 0 && cheese.id === "regular") return "/pizza/base-margherita.png"
-    return "/pizza/base-plain.png"
+    if (hasPepperoni && hasManyToppings) return "/pizza/pepperoni-real2.jpg"
+    if (hasChicken || hasBeef) return "/pizza/bbq-chicken-real.jpg"
+    if (hasVeggie && !hasPepperoni && !hasChicken) return "/pizza/veggie-real.jpg"
+    if (hasPepperoni) return "/pizza/pepperoni-real.jpg"
+    if (selectedToppings.length === 0 && cheese.id === "regular") return "/pizza/margherita-real.jpg"
+    return "/pizza/margherita-real.jpg"
   }, [toppings, cheese])
 
   const addPizza = () => {
@@ -127,52 +125,112 @@ export function PizzaBuilder() {
     <div className="grid grid-cols-1 xl:grid-cols-[1fr_360px] gap-4">
       {/* LEFT — configurator */}
       <div className="space-y-4">
-        {/* Visual pizza — real AI-generated photography */}
+        {/* Visual pizza — 3D animated with real photography */}
         <Card className="overflow-hidden">
-          <div className="relative grid place-items-center py-6" style={{ background: "radial-gradient(ellipse at center, oklch(0.96 0.02 50), oklch(0.88 0.03 45))" }}>
+          <div
+            className="relative grid place-items-center py-12 overflow-hidden"
+            style={{
+              background: "radial-gradient(ellipse at center 60%, oklch(0.93 0.03 50), oklch(0.85 0.04 45))",
+              perspective: "1200px",
+              perspectiveOrigin: "center 40%",
+            }}
+          >
             {/* Smoke effect */}
             <SmokeEffect />
 
-            {/* Real pizza photo */}
+            {/* Dynamic shadow under pizza */}
+            <motion.div
+              animate={{
+                scale: [1, 1.05, 1],
+                opacity: [0.3, 0.25, 0.3],
+              }}
+              transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+              className="absolute"
+              style={{
+                width: size.id === "xlarge" ? 220 : size.id === "large" ? 190 : size.id === "medium" ? 160 : 130,
+                height: 30,
+                bottom: "15%",
+                borderRadius: "50%",
+                background: "radial-gradient(ellipse, rgba(0,0,0,0.4), transparent 70%)",
+                filter: "blur(8px)",
+              }}
+            />
+
+            {/* 3D Pizza container */}
             <motion.div
               key={pizzaImage}
-              initial={{ scale: 0.6, opacity: 0, rotateZ: -5 }}
-              animate={{ scale: 1, opacity: 1, rotateZ: 0 }}
-              transition={{ type: "spring", stiffness: 120, damping: 14 }}
-              className="relative rounded-full overflow-hidden shadow-2xl"
+              initial={{ scale: 0.5, opacity: 0, rotateY: -45 }}
+              animate={{ scale: 1, opacity: 1, rotateY: 0 }}
+              transition={{ type: "spring", stiffness: 80, damping: 12 }}
+              className="relative"
               style={{
+                transformStyle: "preserve-3d",
                 width: size.id === "xlarge" ? 260 : size.id === "large" ? 220 : size.id === "medium" ? 180 : 150,
                 height: size.id === "xlarge" ? 260 : size.id === "large" ? 220 : size.id === "medium" ? 180 : 150,
-                boxShadow: "0 16px 48px rgba(0,0,0,0.25), 0 4px 12px rgba(0,0,0,0.15)",
               }}
             >
-              <img
-                src={pizzaImage}
-                alt="Your custom pizza"
-                className="w-full h-full object-cover rounded-full"
-                style={{ filter: "saturate(1.1) contrast(1.05)" }}
-              />
-              {/* Steam/gloss overlay */}
-              <div
-                className="absolute inset-0 rounded-full pointer-events-none"
-                style={{
-                  background: "linear-gradient(135deg, rgba(255,255,255,0.12) 0%, transparent 30%, transparent 70%, rgba(0,0,0,0.08) 100%)",
+              {/* Floating + rotating animation wrapper */}
+              <motion.div
+                animate={{
+                  y: [0, -8, 0],
+                  rotateZ: [-2, 2, -2],
                 }}
-              />
+                transition={{
+                  duration: 6,
+                  repeat: Infinity,
+                  ease: "easeInOut",
+                }}
+                className="w-full h-full"
+                style={{ transformStyle: "preserve-3d" }}
+              >
+                {/* 3D tilt */}
+                <div
+                  className="w-full h-full relative"
+                  style={{
+                    transform: "rotateX(18deg)",
+                    transformStyle: "preserve-3d",
+                  }}
+                >
+                  {/* Real pizza photo */}
+                  <div
+                    className="absolute inset-0 rounded-full overflow-hidden"
+                    style={{
+                      boxShadow: "0 20px 50px rgba(0,0,0,0.3), inset 0 -6px 20px rgba(0,0,0,0.2), inset 0 4px 8px rgba(255,255,255,0.15)",
+                    }}
+                  >
+                    <img
+                      src={pizzaImage}
+                      alt="Your custom pizza"
+                      className="w-full h-full object-cover rounded-full"
+                      style={{ filter: "saturate(1.15) contrast(1.08) brightness(1.02)" }}
+                    />
+                    {/* Glossy overlay */}
+                    <div
+                      className="absolute inset-0 rounded-full pointer-events-none"
+                      style={{
+                        background: "linear-gradient(135deg, rgba(255,255,255,0.18) 0%, transparent 35%, transparent 65%, rgba(0,0,0,0.1) 100%)",
+                      }}
+                    />
+                  </div>
+
+                  {/* Falling toppings animation overlay */}
+                  <FallingToppings toppings={toppings} />
+                </div>
+              </motion.div>
             </motion.div>
 
             {/* Info badges */}
             <div className="absolute top-3 left-3 flex flex-col gap-1.5">
               <motion.div initial={{ x: -20, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ delay: 0.3 }}>
-                <Badge className="bg-chart-1 text-white shadow-sm"><Flame className="h-3 w-3 mr-1" />{calories} cal</Badge>
+                <Badge className="bg-chart-1 text-white shadow-md"><Flame className="h-3 w-3 mr-1" />{calories} cal</Badge>
               </motion.div>
               <motion.div initial={{ x: -20, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ delay: 0.4 }}>
-                <Badge variant="secondary" className="shadow-sm"><Leaf className="h-3 w-3 mr-1" />{size.slices} slices</Badge>
+                <Badge variant="secondary" className="shadow-md"><Leaf className="h-3 w-3 mr-1" />{size.slices} slices</Badge>
               </motion.div>
             </div>
             <div className="absolute top-3 right-3">
               <motion.div initial={{ x: 20, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ delay: 0.5 }}>
-                <Badge variant="outline" className="bg-background shadow-sm"><Wheat className="h-3 w-3 mr-1" />{crust.label.split(" ")[0]}</Badge>
+                <Badge variant="outline" className="bg-background shadow-md"><Wheat className="h-3 w-3 mr-1" />{crust.label.split(" ")[0]}</Badge>
               </motion.div>
             </div>
 
@@ -183,13 +241,13 @@ export function PizzaBuilder() {
               transition={{ delay: 0.6 }}
               className="absolute bottom-3 left-1/2 -translate-x-1/2"
             >
-              <div className="flex items-center gap-1.5 rounded-full bg-background/80 backdrop-blur px-3 py-1 text-[10px] font-semibold text-muted-foreground shadow-sm">
+              <div className="flex items-center gap-1.5 rounded-full bg-background/80 backdrop-blur px-3 py-1 text-[10px] font-semibold text-muted-foreground shadow-md">
                 <motion.span
-                  animate={{ scale: [1, 1.2, 1] }}
+                  animate={{ scale: [1, 1.3, 1], opacity: [1, 0.5, 1] }}
                   transition={{ duration: 1.5, repeat: Infinity }}
-                  className="h-1.5 w-1.5 rounded-full bg-chart-4"
+                  className="h-2 w-2 rounded-full bg-chart-4"
                 />
-                Freshly baked · Real preview
+                🔥 Baking in 3D · Live Preview
               </div>
             </motion.div>
           </div>
@@ -421,6 +479,90 @@ export function PizzaBuilder() {
           </CardContent>
         </Card>
       </div>
+    </div>
+  )
+}
+
+// ── Falling toppings — physics animation when toppings are added ──
+function FallingToppings({ toppings }: { toppings: Record<string, { qty: number; half?: "left" | "right" }> }) {
+  const toppingVisuals: Record<string, { color: string; shape: string; size: number }> = {
+    pepperoni: { color: "oklch(0.52 0.18 28)", shape: "circle", size: 14 },
+    chicken: { color: "oklch(0.75 0.08 60)", shape: "blob", size: 12 },
+    beef: { color: "oklch(0.35 0.06 25)", shape: "blob", size: 12 },
+    mushroom: { color: "oklch(0.80 0.02 0)", shape: "circle", size: 10 },
+    capsicum: { color: "oklch(0.55 0.16 145)", shape: "strip", size: 14 },
+    onion: { color: "oklch(0.85 0.02 290)", shape: "ring", size: 10 },
+    olive: { color: "oklch(0.15 0.01 0)", shape: "circle", size: 6 },
+    jalapeno: { color: "oklch(0.50 0.14 145)", shape: "oval", size: 10 },
+    pineapple: { color: "oklch(0.82 0.14 90)", shape: "square", size: 10 },
+    corn: { color: "oklch(0.80 0.14 85)", shape: "circle", size: 5 },
+    tomato: { color: "oklch(0.55 0.18 25)", shape: "circle", size: 10 },
+    bacon: { color: "oklch(0.45 0.12 25)", shape: "strip", size: 16 },
+    feta: { color: "oklch(0.92 0.02 0)", shape: "square", size: 8 },
+    spinach: { color: "oklch(0.48 0.12 145)", shape: "leaf", size: 12 },
+  }
+
+  const items: { id: string; key: string; visual: typeof toppingVisuals[string]; x: number; delay: number }[] = []
+
+  Object.entries(toppings).forEach(([id, t]) => {
+    const visual = toppingVisuals[id]
+    if (!visual) return
+    // Create one falling particle per qty (max 3 for performance)
+    const count = Math.min(t.qty, 3)
+    for (let i = 0; i < count; i++) {
+      items.push({
+        id,
+        key: `${id}-${i}`,
+        visual,
+        x: 20 + (i * 30 + id.charCodeAt(0) * 7) % 60, // spread across pizza
+        delay: i * 0.15,
+      })
+    }
+  })
+
+  return (
+    <div className="absolute inset-0 rounded-full overflow-visible pointer-events-none" style={{ zIndex: 10 }}>
+      <AnimatePresence>
+        {items.map((item) => (
+          <motion.div
+            key={item.key}
+            initial={{ y: -120, x: `${item.x}%`, opacity: 0, scale: 0.5, rotate: 0 }}
+            animate={{ y: 0, opacity: 1, scale: 1, rotate: 360 }}
+            exit={{ opacity: 0, scale: 0 }}
+            transition={{
+              y: { type: "spring", stiffness: 200, damping: 8, delay: item.delay },
+              opacity: { delay: item.delay, duration: 0.3 },
+              scale: { delay: item.delay, type: "spring" },
+              rotate: { duration: 0.8, ease: "easeOut" },
+            }}
+            className="absolute"
+            style={{
+              width: item.visual.size,
+              height: item.visual.size,
+              left: `${item.x}%`,
+              top: 0,
+            }}
+          >
+            <div
+              className={cn(
+                "w-full h-full",
+                item.visual.shape === "circle" && "rounded-full",
+                item.visual.shape === "square" && "rounded-sm",
+                item.visual.shape === "blob" && "rounded-[40%_60%_50%_50%]",
+                item.visual.shape === "strip" && "rounded-full",
+                item.visual.shape === "ring" && "rounded-full border-2",
+                item.visual.shape === "oval" && "rounded-full",
+                item.visual.shape === "leaf" && "rounded-[50%_10%_50%_10%]",
+              )}
+              style={{
+                background: item.visual.color,
+                boxShadow: "0 2px 4px rgba(0,0,0,0.3), inset 0 -1px 2px rgba(0,0,0,0.2), inset 0 1px 1px rgba(255,255,255,0.2)",
+                border: item.visual.shape === "ring" ? `2px solid ${item.visual.color}` : undefined,
+              }}
+            />
+          </motion.div>
+        ))}
+      </AnimatePresence>
     </div>
   )
 }
