@@ -1,6 +1,7 @@
 import { PrismaClient } from "@prisma/client"
 
-// ── Master DB client (for Tenant + TenantUser queries) ──
+// ── Master DB client (for Tenant + TenantUser + SerialKey queries) ──
+// Singleton pattern: reuse the same PrismaClient across hot reloads
 const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined
 }
@@ -8,7 +9,7 @@ const globalForPrisma = globalThis as unknown as {
 export const db =
   globalForPrisma.prisma ??
   new PrismaClient({
-    log: ["error", "warn"],
+    log: ["error"],
   })
 
 if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = db
