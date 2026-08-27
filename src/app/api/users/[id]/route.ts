@@ -6,7 +6,7 @@ import { ROLES, type Role } from "@/lib/auth"
 export async function PATCH(req: Request, { params }: { params: Promise<{ id: string }> }) {
   const tenantId = req.headers.get("x-tenant-id")
   if (!tenantId) {
-    return NextResponse.json({ error: "Missing tenant ID" }, { status: 400 })
+    return NextResponse.json({ error: "Authentication required", code: "MISSING_TENANT" }, { status: 401 })
   }
 
   const { id } = await params
@@ -19,7 +19,14 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
   }
 
   // Verify user belongs to this tenant
-  const existing = await db.tenantUser.findFirst({ where: { id, tenantId } })
+  let existing
+  try {
+    existing = await db.tenantUser.findFirst({ where: { id, tenantId } })
+  } catch (err) {
+    console.error("[users/[id]] DB error:", err)
+    return NextResponse.json({ error: "Database temporarily unavailable", code: "DB_ERROR" }, { status: 503, headers: { "Retry-After": "2" } })
+  }
+
   if (!existing) {
     return NextResponse.json({ error: "User not found" }, { status: 404 })
   }
@@ -34,27 +41,43 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
   if (body.phone !== undefined) data.phone = body.phone
   if (body.password) data.password = body.password
 
-  const user = await db.tenantUser.update({ where: { id }, data })
-  return NextResponse.json({
-    ok: true,
-    user: { id: user.id, name: user.name, email: user.email, role: user.role, active: user.active },
-  })
+  try {
+    const user = await db.tenantUser.update({ where: { id }, data })
+    return NextResponse.json({
+      ok: true,
+      user: { id: user.id, name: user.name, email: user.email, role: user.role, active: user.active },
+    })
+  } catch (err) {
+    console.error("[users/[id]] DB error:", err)
+    return NextResponse.json({ error: "Database temporarily unavailable", code: "DB_ERROR" }, { status: 503, headers: { "Retry-After": "2" } })
+  }
 }
 
 // DELETE /api/users/[id]
 export async function DELETE(req: Request, { params }: { params: Promise<{ id: string }> }) {
   const tenantId = req.headers.get("x-tenant-id")
   if (!tenantId) {
-    return NextResponse.json({ error: "Missing tenant ID" }, { status: 400 })
+    return NextResponse.json({ error: "Authentication required", code: "MISSING_TENANT" }, { status: 401 })
   }
 
   const { id } = await params
   // Verify user belongs to this tenant
-  const existing = await db.tenantUser.findFirst({ where: { id, tenantId } })
+  let existing
+  try {
+    existing = await db.tenantUser.findFirst({ where: { id, tenantId } })
+  } catch (err) {
+    console.error("[users/[id]] DB error:", err)
+    return NextResponse.json({ error: "Database temporarily unavailable", code: "DB_ERROR" }, { status: 503, headers: { "Retry-After": "2" } })
+  }
   if (!existing) {
     return NextResponse.json({ error: "User not found" }, { status: 404 })
   }
 
-  await db.tenantUser.delete({ where: { id } })
-  return NextResponse.json({ ok: true })
+  try {
+    await db.tenantUser.delete({ where: { id } })
+    return NextResponse.json({ ok: true })
+  } catch (err) {
+    console.error("[users/[id]] DB error:", err)
+    return NextResponse.json({ error: "Database temporarily unavailable", code: "DB_ERROR" }, { status: 503, headers: { "Retry-After": "2" } })
+  }
 }

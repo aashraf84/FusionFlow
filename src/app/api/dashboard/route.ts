@@ -1,15 +1,12 @@
 import { NextResponse } from "next/server"
-import { getTenantDbFromRequest } from "@/lib/db-manager"
+import { resolveTenant, isTenantError } from "@/lib/api-helpers"
 
 // GET /api/dashboard?branchId=&range=24h
 // Aggregates everything the frontend dashboards need in one call.
 export async function GET(req: Request) {
-  let tdb
-  try {
-    tdb = await getTenantDbFromRequest(req)
-  } catch {
-    return NextResponse.json({ error: "Tenant not configured" }, { status: 403 })
-  }
+  const tdb = await resolveTenant(req)
+  if (isTenantError(tdb)) return tdb
+
   const { searchParams } = new URL(req.url)
   const branchId = searchParams.get("branchId") // optional single branch filter
   const rangeHours = Number(searchParams.get("range") ?? 24)

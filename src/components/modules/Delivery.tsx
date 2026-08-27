@@ -8,6 +8,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Skeleton } from "@/components/ui/skeleton"
+import { ErrorState } from "@/components/shared/ui"
 import { toast } from "sonner"
 import { formatPKR } from "@/lib/data"
 import { cn } from "@/lib/utils"
@@ -28,14 +29,14 @@ const RIDER_POS = [
 export function Delivery() {
   const activeBranchId = useAppStore((s) => s.activeBranchId)
   const branchParam = activeBranchId === "__ALL__" ? "" : `?branchId=${activeBranchId}`
-  const { data, loading, refresh } = useFetch<DeliveryData>(`/api/dashboard${branchParam}`, { intervalMs: 12000 })
+  const { data, loading, error, refresh } = useFetch<DeliveryData>(`/api/dashboard${branchParam}`, { intervalMs: 12000 })
 
   if (loading && !data) {
     return <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">{Array.from({ length: 3 }).map((_, i) => <Skeleton key={i} className="h-80 rounded-xl" />)}</div>
   }
 
   if (!data || !data.activeOrders) {
-    return <div className="grid place-items-center min-h-[40vh] text-sm text-muted-foreground">Unable to load delivery data</div>
+    return <ErrorState title="Unable to load delivery data" error={error} onRetry={refresh} />
   }
 
   const d = data

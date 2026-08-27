@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Skeleton } from "@/components/ui/skeleton"
+import { ErrorState } from "@/components/shared/ui"
 import { formatPKR } from "@/lib/data"
 import { cn } from "@/lib/utils"
 import { Boxes, AlertTriangle, Calendar, Package, Search, TrendingDown, Truck, CheckCircle2 } from "lucide-react"
@@ -29,7 +30,7 @@ const CAT_COLORS: Record<string, string> = {
 export function Inventory() {
   const activeBranchId = useAppStore((s) => s.activeBranchId)
   const branchParam = activeBranchId === "__ALL__" ? "" : `?branchId=${activeBranchId}`
-  const { data, loading } = useFetch<InvData>(`/api/dashboard${branchParam}`, { intervalMs: 30000 })
+  const { data, loading, error, refresh } = useFetch<InvData>(`/api/dashboard${branchParam}`, { intervalMs: 30000 })
   const [cat, setCat] = useState("all")
   const [search, setSearch] = useState("")
 
@@ -38,13 +39,7 @@ export function Inventory() {
   }
 
   if (!data || !data.inventory) {
-    return (
-      <div className="grid place-items-center min-h-[40vh] text-center">
-        <div className="space-y-2">
-          <div className="text-sm font-semibold text-muted-foreground">Unable to load inventory data</div>
-        </div>
-      </div>
-    )
+    return <ErrorState title="Unable to load inventory data" error={error} onRetry={refresh} />
   }
 
   const d = data

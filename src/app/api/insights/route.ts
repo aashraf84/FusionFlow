@@ -1,16 +1,13 @@
 import { NextResponse } from "next/server"
-import { getTenantDbFromRequest } from "@/lib/db-manager"
+import { resolveTenant, isTenantError } from "@/lib/api-helpers"
 import ZAI from "z-ai-web-dev-sdk"
 
 // GET /api/insights?branchId=
 // Generates AI-powered predictions for the restaurant using the LLM skill.
 export async function GET(req: Request) {
-  let tdb
-  try {
-    tdb = await getTenantDbFromRequest(req)
-  } catch {
-    return NextResponse.json({ error: "Tenant not configured" }, { status: 403 })
-  }
+  const tdb = await resolveTenant(req)
+  if (isTenantError(tdb)) return tdb
+
   const { searchParams } = new URL(req.url)
   const branchId = searchParams.get("branchId") || undefined
   const rangeHours = 48

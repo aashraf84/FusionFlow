@@ -5,6 +5,7 @@ import { Card } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
+import { ErrorState } from "@/components/shared/ui"
 import { formatPKR } from "@/lib/data"
 import { cn } from "@/lib/utils"
 import { Store, Crown, TrendingUp, MapPin, Award, Star, ShieldCheck, Network, Building2 } from "lucide-react"
@@ -19,14 +20,14 @@ const TYPE_ICON: Record<string, string> = {
 }
 
 export function Franchise() {
-  const { data, loading } = useFetch<FData>("/api/dashboard", { intervalMs: 30000 })
+  const { data, loading, error, refresh } = useFetch<FData>("/api/dashboard", { intervalMs: 30000 })
 
   if (loading && !data) {
     return <div className="space-y-4">{Array.from({ length: 3 }).map((_, i) => <Skeleton key={i} className="h-40 rounded-xl" />)}</div>
   }
 
   if (!data || !data.branchStats) {
-    return <div className="grid place-items-center min-h-[40vh] text-sm text-muted-foreground">Unable to load franchise data</div>
+    return <ErrorState title="Unable to load franchise data" error={error} onRetry={refresh} />
   }
 
   const branches = data.branchStats || []

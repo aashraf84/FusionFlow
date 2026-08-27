@@ -69,7 +69,7 @@ export function Dashboard() {
   const activeBranchId = useAppStore((s) => s.activeBranchId)
   const setActiveModule = useAppStore((s) => s.setActiveModule)
   const branchParam = activeBranchId === "__ALL__" ? "" : `?branchId=${activeBranchId}`
-  const { data, loading } = useFetch<DashboardData>(`/api/dashboard${branchParam}`, { intervalMs: 20000 })
+  const { data, loading, error, refresh } = useFetch<DashboardData>(`/api/dashboard${branchParam}`, { intervalMs: 20000 })
 
   if (loading && !data) {
     return (
@@ -85,9 +85,21 @@ export function Dashboard() {
   if (!data || !data.kpis) {
     return (
       <div className="grid place-items-center min-h-[40vh] text-center">
-        <div className="space-y-2">
-          <div className="text-sm font-semibold text-muted-foreground">Unable to load dashboard data</div>
-          <div className="text-xs text-muted-foreground">The tenant database may not be seeded yet.</div>
+        <div className="space-y-3 max-w-md">
+          <div className="grid place-items-center h-14 w-14 rounded-2xl bg-muted mx-auto">
+            <ArrowRight className="h-6 w-6 text-muted-foreground" />
+          </div>
+          <div className="space-y-1">
+            <div className="text-sm font-semibold">{error ? "Connection issue" : "No data yet"}</div>
+            <div className="text-xs text-muted-foreground">
+              {error
+                ? `We couldn't reach the dashboard API. ${error}. This is usually a temporary database connection issue.`
+                : "The tenant database may not be seeded yet. Try refreshing in a moment."}
+            </div>
+          </div>
+          <Button size="sm" variant="outline" onClick={refresh}>
+            <Sparkles className="h-3.5 w-3.5 mr-1.5" /> Retry loading
+          </Button>
         </div>
       </div>
     )

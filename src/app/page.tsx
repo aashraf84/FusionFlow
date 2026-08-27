@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useRef, useState } from "react"
+import { useCallback, useEffect, useRef, useState } from "react"
 import { Sidebar } from "@/components/layout/Sidebar"
 import { TopBar } from "@/components/layout/TopBar"
 import { Footer } from "@/components/layout/Footer"
@@ -34,7 +34,6 @@ import { AccessDenied } from "@/components/shared/AccessDenied"
 import { useAppStore } from "@/lib/store"
 import { useAuthStore } from "@/lib/auth-store"
 import { canAccess } from "@/lib/auth"
-import { useFetch } from "@/hooks/use-fetch"
 import { Loader2 } from "lucide-react"
 import type { ModuleId } from "@/lib/data"
 
@@ -42,13 +41,25 @@ export default function Home() {
   const activeModule = useAppStore((s) => s.activeModule)
   const setActiveModule = useAppStore((s) => s.setActiveModule)
   const [seeded, setSeeded] = useState(false)
+  const [seedCounts, setSeedCounts] = useState<{ tenants: number; tenantUsers: number } | null>(null)
   const user = useAuthStore((s) => s.user)
 
-  // Check DB count; auto-seed if empty (first run)
-  const { data: counts, refresh } = useFetch<{ tenants: number; tenantUsers: number; multiTenant: boolean }>("/api/seed", {})
+  // Check DB count; auto-seed if empty (first run).
+  // Uses a direct fetch (not useFetch) because /api/seed doesn't need a
+  // tenant header and must run BEFORE the user logs in.
   const startedRef = useRef(false)
-  const needsSeed = !!counts && counts.tenantUsers === 0 && !seeded
+  const checkSeed = useCallback(() => {
+    fetch("/api/seed", { cache: "no-store" })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => { if (d) setSeedCounts(d) })
+      .catch(() => { /* retry on next render */ })
+  }, [])
+  const needsSeed = !!seedCounts && seedCounts.tenantUsers === 0 && !seeded
   const seeding = needsSeed
+
+  useEffect(() => {
+    checkSeed()
+  }, [checkSeed])
 
   useEffect(() => {
     if (!needsSeed || startedRef.current) return
@@ -57,13 +68,13 @@ export default function Home() {
       .then((r) => r.json())
       .then(() => {
         setSeeded(true)
-        refresh()
+        checkSeed()
       })
       .catch(() => {
         startedRef.current = false
-        setTimeout(() => refresh(), 1500)
+        setTimeout(() => checkSeed(), 1500)
       })
-  }, [needsSeed, refresh])
+  }, [needsSeed, checkSeed])
 
   // If user's active module is not permitted (e.g. after role switch), bounce to dashboard
   useEffect(() => {

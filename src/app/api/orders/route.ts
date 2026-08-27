@@ -1,14 +1,11 @@
 import { NextResponse } from "next/server"
-import { getTenantDbFromRequest } from "@/lib/db-manager"
+import { resolveTenant, isTenantError } from "@/lib/api-helpers"
 
 // GET /api/orders?status=&branchId=&active=true
 export async function GET(req: Request) {
-  let tdb
-  try {
-    tdb = await getTenantDbFromRequest(req)
-  } catch {
-    return NextResponse.json({ error: "Tenant not configured" }, { status: 403 })
-  }
+  const tdb = await resolveTenant(req)
+  if (isTenantError(tdb)) return tdb
+
   const { searchParams } = new URL(req.url)
   const status = searchParams.get("status")
   const branchId = searchParams.get("branchId")
@@ -31,12 +28,9 @@ export async function GET(req: Request) {
 
 // POST /api/orders — create a new order
 export async function POST(req: Request) {
-  let tdb
-  try {
-    tdb = await getTenantDbFromRequest(req)
-  } catch {
-    return NextResponse.json({ error: "Tenant not configured" }, { status: 403 })
-  }
+  const tdb = await resolveTenant(req)
+  if (isTenantError(tdb)) return tdb
+
   const body = await req.json()
   const { branchId, type, table, customerName, customerPhone, customerAddress, items, paymentMethod, notes } = body as {
     branchId: string

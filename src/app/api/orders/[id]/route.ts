@@ -1,14 +1,11 @@
 import { NextResponse } from "next/server"
-import { getTenantDbFromRequest } from "@/lib/db-manager"
+import { resolveTenant, isTenantError } from "@/lib/api-helpers"
 
 // PATCH /api/orders/[id] — advance / change order status
 export async function PATCH(req: Request, { params }: { params: Promise<{ id: string }> }) {
-  let tdb
-  try {
-    tdb = await getTenantDbFromRequest(req)
-  } catch {
-    return NextResponse.json({ error: "Tenant not configured" }, { status: 403 })
-  }
+  const tdb = await resolveTenant(req)
+  if (isTenantError(tdb)) return tdb
+
   const { id } = await params
   const body = await req.json()
   const data: Record<string, unknown> = {}
@@ -21,12 +18,9 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
 }
 
 export async function GET(req: Request, { params }: { params: Promise<{ id: string }> }) {
-  let tdb
-  try {
-    tdb = await getTenantDbFromRequest(req)
-  } catch {
-    return NextResponse.json({ error: "Tenant not configured" }, { status: 403 })
-  }
+  const tdb = await resolveTenant(req)
+  if (isTenantError(tdb)) return tdb
+
   const { id } = await params
   const order = await tdb.order.findUnique({ where: { id }, include: { items: true, branch: true } })
   if (!order) return NextResponse.json({ error: "not found" }, { status: 404 })

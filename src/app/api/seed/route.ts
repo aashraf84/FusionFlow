@@ -172,13 +172,13 @@ export async function POST() {
 
   // ── Users in tenant DB (for User Management module) ──
   const demoUsers = [
-    { id: "U-OWNER", name: "Daniyal Khan", email: "owner@fusionflow.dev", role: "owner", color: "var(--chart-5)", phone: "+923001111111" },
-    { id: "U-ADMIN", name: "Ahsan Khan", email: "admin@fusionflow.dev", role: "admin", color: "var(--chart-1)", phone: "+923002222222" },
-    { id: "U-MGR", name: "Sara Malik", email: "manager@fusionflow.dev", role: "manager", color: "var(--chart-3)", phone: "+923003333333" },
-    { id: "U-CASH", name: "Bilal Raza", email: "cashier@fusionflow.dev", role: "cashier", color: "var(--chart-2)", phone: "+923004444444" },
-    { id: "U-CHEF", name: "Imran Sheikh", email: "chef@fusionflow.dev", role: "chef", color: "var(--chart-4)", phone: "+923005555555" },
-    { id: "U-RIDER", name: "Usman Ali", email: "rider@fusionflow.dev", role: "rider", color: "var(--chart-3)", phone: "+923006666666" },
-    { id: "U-VIEW", name: "Nida Yusuf", email: "viewer@fusionflow.dev", role: "viewer", color: "var(--muted-foreground)", phone: "+923007777777" },
+    { id: "U-OWNER", name: "Daniyal Khan", email: "demo.owner@fusionflow.dev", role: "owner", color: "var(--chart-5)", phone: "+923001111111" },
+    { id: "U-ADMIN", name: "Ahsan Khan", email: "demo.admin@fusionflow.dev", role: "admin", color: "var(--chart-1)", phone: "+923002222222" },
+    { id: "U-MGR", name: "Sara Malik", email: "demo.manager@fusionflow.dev", role: "manager", color: "var(--chart-3)", phone: "+923003333333" },
+    { id: "U-CASH", name: "Bilal Raza", email: "demo.cashier@fusionflow.dev", role: "cashier", color: "var(--chart-2)", phone: "+923004444444" },
+    { id: "U-CHEF", name: "Imran Sheikh", email: "demo.chef@fusionflow.dev", role: "chef", color: "var(--chart-4)", phone: "+923005555555" },
+    { id: "U-RIDER", name: "Usman Ali", email: "demo.rider@fusionflow.dev", role: "rider", color: "var(--chart-3)", phone: "+923006666666" },
+    { id: "U-VIEW", name: "Nida Yusuf", email: "demo.viewer@fusionflow.dev", role: "viewer", color: "var(--muted-foreground)", phone: "+923007777777" },
   ]
   await tdb.user.createMany({
     data: demoUsers.map((u) => ({

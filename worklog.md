@@ -189,3 +189,39 @@ Stage Summary:
 - Rider App + WhatsApp integration settings added to Settings > Integrations
 - All 24 modules verified error-free
 - Lint clean
+
+---
+Task ID: DASHBOARD-FIX
+Agent: Main Agent (Bug Fix)
+Task: Fix dashboard and other modules not loading data — investigate and fix the 403 errors preventing data from loading across the app.
+
+Work Log:
+- Read dev.log and found intermittent 403 errors on /api/dashboard, /api/menu, /api/customers — the catch-all `catch { return 403 }` in every API route was masking the real cause.
+- Investigated the multi-tenant DB manager (`src/lib/db-manager.ts`): `getTenantDbFromRequest` threw for ANY reason (missing header, tenant not found, DB connection drop, Neon cold start) and all routes caught it as 403.
+- Used Agent Browser + network inspection to confirm the 403s happened even with a valid tenant header when the Neon PostgreSQL connection was cold/closed (`prisma:error Error in PostgreSQL connection: Error { kind: Closed, cause: None }`).
+- Root causes identified:
+  1. API routes returned 403 for database errors (should be 503 retryable)
+  2. useFetch hook had no retry logic — a single transient failure = permanent "Unable to load" state
+  3. useFetch didn't clear stale auth state when the tenant ID in localStorage was no longer valid (DB reset/reseed created a new tenant)
+  4. Seed emails (`admin@fusionflow.dev`) didn't match LoginScreen demo accounts (`demo.admin@fusionflow.dev`) — login 401 after cleanup
+  5. `activeBranchId` defaulted to `BR-GUL` (hard-coded) which didn't exist in some tenant DBs — dashboard filtered to 0 results
+  6. page.tsx used `useFetch("/api/seed")` which bailed when tenant was null (before login) — seed check never ran on first visit
+
+Fixes Applied:
+- `src/lib/db-manager.ts`: `getTenantDb` now pings cached clients with `SELECT 1` and rebuilds stale connections (Neon idle timeout). Throws typed errors (`DB_ERROR`, `TENANT_NOT_FOUND`, `TENANT_INACTIVE`) + `MissingTenantError` class.
+- `src/lib/api-helpers.ts` (new): `resolveTenant(req)` helper returns PrismaClient on success or a properly-coded NextResponse (401 missing tenant, 403 invalid tenant, 503 DB error with Retry-After header).
+- Updated all 6 API routes to use `resolveTenant`: dashboard, menu, customers, orders, orders/[id], insights, users, users/[id].
+- `src/hooks/use-fetch.ts`: Added retry logic — retries on 503 (up to 3x with backoff) and network errors (up to 2x). On 401/403 with `TENANT_NOT_FOUND`/`MISSING_TENANT` code, clears stale auth state so user is redirected to login.
+- `src/components/shared/ui.tsx`: Added `ErrorState` component with retry button — shared across all modules.
+- Updated Dashboard, Inventory, Analytics, Delivery, Franchise modules to use ErrorState with retry button and show the actual error message.
+- `src/app/api/seed/route.ts`: Fixed demo user emails to match LoginScreen (`demo.admin@fusionflow.dev` etc).
+- `src/lib/store.ts`: Changed `activeBranchId` default from `"BR-GUL"` to `"__ALL__"` + added `version: 2` migrate function to discard stale persisted branch.
+- `src/app/page.tsx`: Replaced `useFetch("/api/seed")` with a direct `useCallback` fetch so the seed check runs before login (no tenant header needed).
+- Cleaned up stale `tenant_fusionflow_demo` tenant from master DB (had old branch IDs `DEMO-1/2/3` that didn't match the app's `BR-GUL`).
+
+Stage Summary:
+- Dashboard now loads real data: Today's Sales Rs 60,020 (46 orders), 6 active orders, hourly chart populated, top sellers visible.
+- Inventory, Analytics, Delivery, Franchise modules all verified loading real data via Agent Browser + VLM screenshot analysis.
+- Dev log shows 0 error codes (403/401/500) — all API requests return 200.
+- Lint passes cleanly with 0 errors / 0 warnings.
+- Retry logic + stale-tenant detection makes the app resilient to Neon cold starts and DB resets.

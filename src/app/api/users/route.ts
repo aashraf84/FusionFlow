@@ -6,13 +6,19 @@ import { ROLES, type Role } from "@/lib/auth"
 export async function GET(req: Request) {
   const tenantId = req.headers.get("x-tenant-id")
   if (!tenantId) {
-    return NextResponse.json({ error: "Missing tenant ID" }, { status: 400 })
+    return NextResponse.json({ error: "Authentication required", code: "MISSING_TENANT" }, { status: 401 })
   }
 
-  const users = await db.tenantUser.findMany({
-    where: { tenantId },
-    orderBy: [{ role: "asc" }, { name: "asc" }],
-  })
+  let users
+  try {
+    users = await db.tenantUser.findMany({
+      where: { tenantId },
+      orderBy: [{ role: "asc" }, { name: "asc" }],
+    })
+  } catch (err) {
+    console.error("[users] DB error:", err)
+    return NextResponse.json({ error: "Database temporarily unavailable", code: "DB_ERROR" }, { status: 503, headers: { "Retry-After": "2" } })
+  }
 
   const safe = users.map((u) => ({
     id: u.id,
@@ -33,7 +39,7 @@ export async function GET(req: Request) {
 export async function POST(req: Request) {
   const tenantId = req.headers.get("x-tenant-id")
   if (!tenantId) {
-    return NextResponse.json({ error: "Missing tenant ID" }, { status: 400 })
+    return NextResponse.json({ error: "Authentication required", code: "MISSING_TENANT" }, { status: 401 })
   }
 
   const body = (await req.json()) as {
@@ -52,37 +58,42 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Invalid role" }, { status: 400 })
   }
 
-  const existing = await db.tenantUser.findUnique({ where: { email: body.email.toLowerCase().trim() } })
-  if (existing) {
-    return NextResponse.json({ error: "Email already in use" }, { status: 409 })
-  }
-
   const colors: Record<Role, string> = {
     owner: "var(--chart-5)", admin: "var(--chart-1)", manager: "var(--chart-3)",
     cashier: "var(--chart-2)", chef: "var(--chart-4)", rider: "var(--chart-3)", viewer: "var(--muted-foreground)",
   }
 
-  const user = await db.tenantUser.create({
-    data: {
-      email: body.email.toLowerCase().trim(),
-      password: body.password,
-      name: body.name,
-      role: body.role,
-      tenantId,
-      phone: body.phone ?? null,
-      active: true,
-      avatarColor: colors[body.role],
-    },
-  })
+  try {
+    const existing = await db.tenantUser.findUnique({ where: { email: body.email.toLowerCase().trim() } })
+    if (existing) {
+      return NextResponse.json({ error: "Email already in use" }, { status: 409 })
+    }
 
-  return NextResponse.json({
-    ok: true,
-    user: {
-      id: user.id,
-      name: user.name,
-      email: user.email,
-      role: user.role,
-      active: user.active,
-    },
-  })
+    const user = await db.tenantUser.create({
+      data: {
+        email: body.email.toLowerCase().trim(),
+        password: body.password,
+        name: body.name,
+        role: body.role,
+        tenantId,
+        phone: body.phone ?? null,
+        active: true,
+        avatarColor: colors[body.role],
+      },
+    })
+
+    return NextResponse.json({
+      ok: true,
+      user: {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        active: user.active,
+      },
+    })
+  } catch (err) {
+    console.error("[users] DB error:", err)
+    return NextResponse.json({ error: "Database temporarily unavailable", code: "DB_ERROR" }, { status: 503, headers: { "Retry-After": "2" } })
+  }
 }

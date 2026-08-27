@@ -3,7 +3,8 @@
 import { Card, CardContent } from "@/components/ui/card"
 import { cn } from "@/lib/utils"
 import { Skeleton } from "@/components/ui/skeleton"
-import { TrendingUp, TrendingDown } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { TrendingUp, TrendingDown, RefreshCw } from "lucide-react"
 import type { LucideIcon } from "lucide-react"
 
 export function KpiCard({
@@ -120,4 +121,41 @@ export function StatusBadge({ status }: { status: string }) {
   }
   const s = map[status] ?? map.pending
   return <span className={cn("inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide", s.cls)}><StatusDot status={status} />{s.label}</span>
+}
+
+// Shared empty/error state with optional retry button. Used by every module
+// when data fails to load (DB connection drop, tenant mismatch, etc.).
+export function ErrorState({
+  title = "Unable to load data",
+  message,
+  error,
+  onRetry,
+}: {
+  title?: string
+  message?: string
+  error?: string | null
+  onRetry?: () => void
+}) {
+  return (
+    <div className="grid place-items-center min-h-[40vh] text-center">
+      <div className="space-y-3 max-w-md">
+        <div className="grid place-items-center h-14 w-14 rounded-2xl bg-muted mx-auto">
+          <RefreshCw className="h-6 w-6 text-muted-foreground" />
+        </div>
+        <div className="space-y-1">
+          <div className="text-sm font-semibold">{title}</div>
+          <div className="text-xs text-muted-foreground">
+            {message ?? (error
+              ? `Connection issue: ${error}. This is usually temporary — try again in a moment.`
+              : "The data may still be loading. Try refreshing in a moment.")}
+          </div>
+        </div>
+        {onRetry && (
+          <Button size="sm" variant="outline" onClick={onRetry}>
+            <RefreshCw className="h-3.5 w-3.5 mr-1.5" /> Retry
+          </Button>
+        )}
+      </div>
+    </div>
+  )
 }

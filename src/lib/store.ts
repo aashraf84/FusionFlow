@@ -38,7 +38,7 @@ export const useAppStore = create<AppState>()(
       activeModule: "dashboard",
       setActiveModule: (m) => set({ activeModule: m }),
 
-      activeBranchId: "BR-GUL",
+      activeBranchId: "__ALL__",
       setActiveBranch: (id) => set({ activeBranchId: id }),
 
       cart: [],
@@ -87,11 +87,13 @@ export const useAppStore = create<AppState>()(
     }),
     {
       name: "pizzaflow-store",
+      version: 2,
       partialize: (s) => ({
         activeBranchId: s.activeBranchId,
         orderType: s.orderType,
         tableNo: s.tableNo,
       }),
+      migrate: () => ({ activeBranchId: "__ALL__", orderType: "dine_in" as const, tableNo: "T-5" }),
     }
   )
 )

@@ -18,21 +18,45 @@ export function buildTenantDbUrl(dbName: string): string {
 // Get or create a PrismaClient for a specific tenant database
 export async function getTenantDb(tenantId: string): Promise<PrismaClient> {
   // Check cache first
-  if (tenantClients.has(tenantId)) {
-    return tenantClients.get(tenantId)!
+  const cached = tenantClients.get(tenantId)
+  if (cached) {
+    // Verify the cached client can actually query — Neon closes idle
+    // connections after ~5 min, so a stale client will throw on first use.
+    try {
+      await cached.$queryRaw`SELECT 1`
+      return cached
+    } catch {
+      // Stale connection — drop it and rebuild below
+      tenantClients.delete(tenantId)
+      try { await cached.$disconnect() } catch { /* ignore */ }
+    }
   }
 
   // Look up tenant info from master DB
-  const tenant = await db.tenant.findUnique({
-    where: { id: tenantId },
-  })
+  let tenant
+  try {
+    tenant = await db.tenant.findUnique({
+      where: { id: tenantId },
+    })
+  } catch (err) {
+    // Master DB error (connection drop, cold start, etc.) — propagate as
+    // a typed error so callers can return 500 instead of 403.
+    const e = new Error("Database error looking up tenant")
+    ;(e as any).cause = err
+    ;(e as any).code = "DB_ERROR"
+    throw e
+  }
 
   if (!tenant) {
-    throw new Error(`Tenant not found: ${tenantId}`)
+    const e = new Error(`Tenant not found: ${tenantId}`)
+    ;(e as any).code = "TENANT_NOT_FOUND"
+    throw e
   }
 
   if (tenant.status !== "active") {
-    throw new Error(`Tenant suspended or inactive: ${tenant.name}`)
+    const e = new Error(`Tenant suspended or inactive: ${tenant.name}`)
+    ;(e as any).code = "TENANT_INACTIVE"
+    throw e
   }
 
   // Create PrismaClient for the tenant database
@@ -48,12 +72,20 @@ export async function getTenantDb(tenantId: string): Promise<PrismaClient> {
   return client
 }
 
+// Custom error class for missing tenant header
+export class MissingTenantError extends Error {
+  code = "MISSING_TENANT" as const
+  constructor() {
+    super("Missing x-tenant-id header")
+  }
+}
+
 // Get tenant DB from request (reads x-tenant-id header)
 export async function getTenantDbFromRequest(req: Request): Promise<PrismaClient> {
   const tenantId = req.headers.get("x-tenant-id")
 
   if (!tenantId) {
-    throw new Error("Missing x-tenant-id header")
+    throw new MissingTenantError()
   }
 
   return getTenantDb(tenantId)
