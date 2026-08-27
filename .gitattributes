@@ -1,0 +1,26 @@
+# ─────────────────────────────────────────────────────────────
+# GitHub Linguist — language statistics configuration
+# ─────────────────────────────────────────────────────────────
+# The `skills/` folder contains large HTML design templates and
+# reference files (some 10–20 MB each) that are NOT part of the
+# FusionFlow ERP application. Without this file, GitHub shows the
+# repo as "HTML" instead of "TypeScript" because Linguist weighs
+# languages by total byte size.
+#
+# Mark these files as vendored so they are excluded from the
+# repository's language bar on github.com.
+# https://github.com/github-linguist/linguist#overrides
+
+# Exclude the entire skills/ folder from language stats
+skills/**/* linguist-vendored
+
+# Exclude other non-application assets
+*.csv linguist-vendored
+public/**/* linguist-vendored
+download/**/* linguist-vendored
+tests/**/* linguist-vendored
+examples/**/* linguist-vendored
+
+# Mark generated Prisma client as generated (already in .gitignore,
+# but this is a safety net if it ever gets committed)
+prisma/migrations/** linguist-generated
