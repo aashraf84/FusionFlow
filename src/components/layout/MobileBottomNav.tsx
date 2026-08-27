@@ -18,7 +18,49 @@ import {
   ShoppingCart as Purchasing, ShieldCheck as Compliance, UserCog as Users, Crown as Owner,
 } from "lucide-react"
 
-const PRIMARY_TABS: { id: ModuleId; label: string; icon: typeof Dash }[] = [
+// Role-specific primary tabs for bottom nav
+const ROLE_TABS: Record<string, { id: ModuleId; label: string; icon: typeof Dash }[]> = {
+  owner: [
+    { id: "dashboard", label: "Home", icon: Dash },
+    { id: "pos", label: "POS", icon: POS },
+    { id: "finance", label: "Finance", icon: Finance },
+    { id: "owner", label: "Portal", icon: Owner },
+  ],
+  admin: [
+    { id: "dashboard", label: "Home", icon: Dash },
+    { id: "pos", label: "POS", icon: POS },
+    { id: "kds", label: "Kitchen", icon: KDS },
+    { id: "delivery", label: "Delivery", icon: Delivery },
+  ],
+  manager: [
+    { id: "dashboard", label: "Home", icon: Dash },
+    { id: "pos", label: "POS", icon: POS },
+    { id: "kds", label: "Kitchen", icon: KDS },
+    { id: "delivery", label: "Delivery", icon: Delivery },
+  ],
+  cashier: [
+    { id: "dashboard", label: "Home", icon: Dash },
+    { id: "pos", label: "POS", icon: POS },
+    { id: "tables", label: "Tables", icon: Tables },
+    { id: "crm", label: "CRM", icon: CRM },
+  ],
+  chef: [
+    { id: "dashboard", label: "Home", icon: Dash },
+    { id: "kds", label: "Kitchen", icon: KDS },
+    { id: "production", label: "Prep", icon: Production },
+    { id: "inventory", label: "Stock", icon: Inventory },
+  ],
+  rider: [
+    { id: "dashboard", label: "Home", icon: Dash },
+    { id: "delivery", label: "Deliveries", icon: Delivery },
+  ],
+  viewer: [
+    { id: "dashboard", label: "Home", icon: Dash },
+    { id: "analytics", label: "Stats", icon: Analytics },
+  ],
+}
+
+const DEFAULT_TABS: { id: ModuleId; label: string; icon: typeof Dash }[] = [
   { id: "dashboard", label: "Home", icon: Dash },
   { id: "pos", label: "POS", icon: POS },
   { id: "kds", label: "Kitchen", icon: KDS },
@@ -58,7 +100,8 @@ export function MobileBottomNav() {
   const user = useAuthStore((s) => s.user)
   const [moreOpen, setMoreOpen] = useState(false)
 
-  const visiblePrimary = PRIMARY_TABS.filter(t => user ? canAccess(user.role as any, t.id) : false)
+  const roleTabs = user ? (ROLE_TABS[user.role] || DEFAULT_TABS) : DEFAULT_TABS
+  const visiblePrimary = roleTabs.filter(t => user ? canAccess(user.role as any, t.id) : false)
   const visibleAll = ALL_MODULES.filter(m => user ? canAccess(user.role as any, m.id) : false)
   const groups = Array.from(new Set(visibleAll.map(m => m.group)))
 

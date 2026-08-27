@@ -98,23 +98,23 @@ export function Sidebar() {
       )}
       <aside
         className={cn(
-          "fixed lg:sticky top-0 z-50 lg:z-auto h-screen w-[264px] shrink-0 flex flex-col transition-transform duration-300 border-r bg-sidebar text-sidebar-foreground",
+          "fixed lg:sticky top-0 z-50 lg:z-auto h-screen w-[260px] shrink-0 flex flex-col transition-transform duration-300 border-r bg-sidebar text-sidebar-foreground glass-sidebar",
           sidebarOpen ? "translate-x-0 shadow-2xl" : "-translate-x-full lg:translate-x-0",
         )}
       >
         {/* Brand header */}
         <div className="relative h-16 border-b border-sidebar-border shrink-0 flex items-center px-4 overflow-hidden">
-          <div className="absolute inset-0 opacity-60 pointer-events-none bg-gradient-to-r from-primary/8 via-transparent to-transparent" />
-          <Logo size={38} variant="icon" className="relative" />
+          <div className="absolute inset-0 opacity-40 pointer-events-none" style={{ background: "linear-gradient(90deg, color-mix(in oklch, var(--primary) 12%, transparent), transparent 60%)" }} />
+          <Logo size={36} variant="icon" className="relative" />
           <div className="relative leading-tight ml-2.5">
-            <div className="font-extrabold tracking-tight text-[15px] text-sidebar-foreground flex items-center gap-1.5">
+            <div className="font-extrabold tracking-tight text-[14px] text-sidebar-foreground flex items-center gap-1.5">
               FusionFlow
-              <span className="text-[8px] font-bold px-1 py-0.5 rounded bg-primary text-primary-foreground">ERP</span>
+              <span className="text-[8px] font-bold px-1.5 py-0.5 rounded-md text-white" style={{ background: "var(--primary)" }}>ERP</span>
             </div>
             <div className="text-[10px] font-medium text-muted-foreground">Fast Food Operating System</div>
           </div>
           <button
-            className="relative ml-auto lg:hidden p-1.5 rounded-md hover:bg-sidebar-accent text-sidebar-foreground/70"
+            className="relative ml-auto lg:hidden p-1.5 rounded-lg hover:bg-sidebar-accent text-sidebar-foreground/70"
             onClick={() => setSidebarOpen(false)}
             aria-label="Close sidebar"
           >
@@ -158,8 +158,8 @@ export function Sidebar() {
                           key={item.id}
                           onClick={() => { setActiveModule(item.id); setSidebarOpen(false) }}
                           className={cn(
-                            "group relative w-full flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-[13px] font-medium transition-all",
-                            active ? "shadow-sm" : "text-sidebar-foreground/75 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+                            "group relative w-full flex items-center gap-2.5 rounded-xl px-2.5 py-2 text-[13px] font-medium transition-all",
+                            active ? "shadow-sm" : "text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
                           )}
                           style={active ? {
                             background: theme.colorLight,
@@ -169,12 +169,12 @@ export function Sidebar() {
                         >
                           {active && (
                             <span
-                              className="absolute left-0 top-1/2 -translate-y-1/2 h-7 w-1 rounded-r-full"
+                              className="absolute left-0 top-1/2 -translate-y-1/2 h-8 w-1 rounded-r-full"
                               style={{ background: theme.color }}
                             />
                           )}
                           <div
-                            className={cn("grid place-items-center h-6 w-6 rounded-md shrink-0 transition-colors")}
+                            className={cn("grid place-items-center h-7 w-7 rounded-lg shrink-0 transition-all")}
                             style={active ? { background: theme.color, color: "white" } : undefined}
                           >
                             <Icon className={cn("h-[15px] w-[15px]", !active && "text-muted-foreground group-hover:text-sidebar-accent-foreground")} />

@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { Bell, Menu, Moon, Search, Sun, ChevronDown, Store, Wifi, Command, Plus, Zap, Users, LogOut, CheckCircle2 } from "lucide-react"
+import { Bell, Menu, Moon, Search, Sun, ChevronDown, Store, Wifi, Command, Plus, Zap, Users, LogOut, CheckCircle2, ShoppingBag, Bike, ChefHat } from "lucide-react"
 import { useTheme } from "next-themes"
 import { useAppStore } from "@/lib/store"
 import { useAuthStore } from "@/lib/auth-store"
@@ -109,6 +109,10 @@ export function TopBar() {
   const canSwitchBranch = user ? ["admin", "owner", "manager"].includes(user.role) : false
   const canUseCommand = user ? ["admin", "owner", "manager"].includes(user.role) : false
   const canSeeLiveClock = user ? ["admin", "owner", "manager"].includes(user.role) : false
+  const canSeeNotifications = user ? ["admin", "owner", "manager"].includes(user.role) : false
+  const canSeeTheme = true // all users can toggle theme
+  const userRole = user?.role as Role | undefined
+  const roleThemeColor = roleDef?.color ?? "var(--primary)"
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect -- mount flag + clock init for client-only rendering
@@ -221,18 +225,30 @@ export function TopBar() {
       </div>
       )}
 
-      {/* Quick new — only for roles with POS access */}
+      {/* Quick action — role-specific */}
       {canUsePOS && (
-      <Button size="sm" className="h-9 hidden sm:flex shrink-0" onClick={() => { setActiveModule("pos"); toast.success("New POS session") }}>
-        <Plus className="h-4 w-4 mr-1" /> <span className="hidden lg:inline">New Order</span>
-      </Button>
+        <Button size="sm" className="h-9 hidden sm:flex shrink-0" onClick={() => { setActiveModule("pos"); toast.success("New POS session") }}>
+          <Plus className="h-4 w-4 mr-1" /> <span className="hidden lg:inline">New Order</span>
+        </Button>
+      )}
+      {userRole === "chef" && (
+        <Button size="sm" variant="outline" className="h-9 hidden sm:flex shrink-0" onClick={() => setActiveModule("kds")}>
+          <ChefHat className="h-4 w-4 mr-1" /> <span className="hidden lg:inline">Kitchen</span>
+        </Button>
+      )}
+      {userRole === "rider" && (
+        <Button size="sm" variant="outline" className="h-9 hidden sm:flex shrink-0" onClick={() => setActiveModule("delivery")}>
+          <Bike className="h-4 w-4 mr-1" /> <span className="hidden lg:inline">Deliveries</span>
+        </Button>
       )}
 
-      {/* Notifications */}
-      <Button variant="ghost" size="icon" className="h-9 w-9 relative shrink-0" aria-label="Notifications">
-        <Bell className="h-[18px] w-[18px]" />
-        <span className="absolute top-2 right-2 h-2 w-2 rounded-full bg-destructive ring-2 ring-background" />
-      </Button>
+      {/* Notifications — only for admin/owner/manager */}
+      {canSeeNotifications && (
+        <Button variant="ghost" size="icon" className="h-9 w-9 relative shrink-0" aria-label="Notifications">
+          <Bell className="h-[18px] w-[18px]" />
+          <span className="absolute top-2 right-2 h-2 w-2 rounded-full bg-destructive ring-2 ring-background" />
+        </Button>
+      )}
 
       {/* Theme */}
       <Button
@@ -248,8 +264,8 @@ export function TopBar() {
       {/* User chip with role switcher */}
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <button className="hidden sm:flex items-center gap-2 pl-2 ml-1 border-l shrink-0 h-10 px-1 rounded-lg hover:bg-accent">
-            <div className="grid place-items-center h-8 w-8 rounded-full text-white text-[11px] font-bold shrink-0" style={{ background: userAvatarColor }}>
+          <button className="flex items-center gap-2 pl-2 ml-1 border-l shrink-0 h-10 px-1 rounded-xl hover:bg-accent transition-all">
+            <div className="grid place-items-center h-8 w-8 rounded-xl text-white text-[11px] font-bold shrink-0 shadow-sm" style={{ background: userAvatarColor }}>
               {userInitials}
             </div>
             <div className="hidden md:block leading-tight text-left">
