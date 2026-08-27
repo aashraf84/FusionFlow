@@ -31,7 +31,10 @@ export function Analytics() {
   if (loading && !data) {
     return <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">{Array.from({ length: 6 }).map((_, i) => <Skeleton key={i} className="h-72 rounded-xl" />)}</div>
   }
-  const d = data!
+  if (!data || !data.kpis) {
+    return <div className="grid place-items-center min-h-[40vh] text-sm text-muted-foreground">Unable to load analytics data</div>
+  }
+  const d = data
 
   // synthesize 7-day trend from hourly
   const weekly = DAYS.map((day, i) => ({

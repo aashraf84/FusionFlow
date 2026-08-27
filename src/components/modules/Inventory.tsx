@@ -37,8 +37,18 @@ export function Inventory() {
     return <div className="space-y-4">{Array.from({ length: 4 }).map((_, i) => <Skeleton key={i} className="h-24 rounded-xl" />)}</div>
   }
 
-  const d = data!
-  const items = d.inventory.filter((i) => {
+  if (!data || !data.inventory) {
+    return (
+      <div className="grid place-items-center min-h-[40vh] text-center">
+        <div className="space-y-2">
+          <div className="text-sm font-semibold text-muted-foreground">Unable to load inventory data</div>
+        </div>
+      </div>
+    )
+  }
+
+  const d = data
+  const items = (d.inventory || []).filter((i) => {
     if (cat !== "all" && i.category !== cat) return false
     if (search && !i.name.toLowerCase().includes(search.toLowerCase())) return false
     return true

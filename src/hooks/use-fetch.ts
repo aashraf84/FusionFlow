@@ -31,14 +31,20 @@ export function useFetch<T>(url: string | null, opts?: { intervalMs?: number; de
       setLoading(false)
       return
     }
+
+    // Wait for tenant to be available before fetching
+    if (!tenant?.id) {
+      setLoading(true)
+      return
+    }
+
     setLoading(true)
     abortRef.current?.abort()
     const ac = new AbortController()
     abortRef.current = ac
 
-    const headers: Record<string, string> = {}
-    if (tenant?.id) {
-      headers["x-tenant-id"] = tenant.id
+    const headers: Record<string, string> = {
+      "x-tenant-id": tenant.id,
     }
 
     fetch(url, { signal: ac.signal, cache: "no-store", headers })

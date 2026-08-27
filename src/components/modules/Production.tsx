@@ -150,7 +150,7 @@ export function Production() {
           </div>
           <div className="p-3">
             {loading && <Skeleton className="h-40 rounded-lg" />}
-            {!loading && data && (
+            {!loading && data && data.inventory && (
               <div className="space-y-2">
                 {data.inventory.slice(0, 8).map((i) => {
                   const consumed = Math.round(i.minStock * 1.4)

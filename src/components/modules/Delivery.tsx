@@ -34,8 +34,12 @@ export function Delivery() {
     return <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">{Array.from({ length: 3 }).map((_, i) => <Skeleton key={i} className="h-80 rounded-xl" />)}</div>
   }
 
-  const d = data!
-  const activeDeliveries = d.activeOrders.filter((o: any) => o.type === "delivery" && (o.status === "dispatched" || o.status === "ready"))
+  if (!data || !data.activeOrders) {
+    return <div className="grid place-items-center min-h-[40vh] text-sm text-muted-foreground">Unable to load delivery data</div>
+  }
+
+  const d = data
+  const activeDeliveries = (d.activeOrders || []).filter((o: any) => o.type === "delivery" && (o.status === "dispatched" || o.status === "ready"))
   const availableRiders = d.riders.filter((r: any) => r.status === "available")
   const onDelivery = d.riders.filter((r: any) => r.status === "on_delivery")
   const offline = d.riders.filter((r: any) => r.status === "offline")

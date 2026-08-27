@@ -25,7 +25,11 @@ export function Franchise() {
     return <div className="space-y-4">{Array.from({ length: 3 }).map((_, i) => <Skeleton key={i} className="h-40 rounded-xl" />)}</div>
   }
 
-  const branches = data!.branchStats
+  if (!data || !data.branchStats) {
+    return <div className="grid place-items-center min-h-[40vh] text-sm text-muted-foreground">Unable to load franchise data</div>
+  }
+
+  const branches = data.branchStats || []
   const totalSales = branches.reduce((s, b) => s + b.sales, 0)
   const totalOrders = branches.reduce((s, b) => s + b.orders, 0)
   const openCount = branches.filter((b) => b.isOpen).length
