@@ -52,7 +52,8 @@ export function LoginScreen() {
   // Serial key registration — validates against API
   const registerDevice = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (serialKey.trim().length < 12) {
+    const cleanKey = serialKey.trim().toUpperCase().replace(/\s/g, "")
+    if (cleanKey.length < 12) {
       toast.error("Invalid serial key", { description: "Serial key must be at least 12 characters" })
       return
     }
@@ -62,38 +63,34 @@ export function LoginScreen() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          serialKey: serialKey.trim(),
+          serialKey: cleanKey,
           deviceName: deviceInfo.name,
           deviceId: deviceInfo.id,
         }),
       })
-      // Handle non-OK responses with proper error display
+
+      // Always try to parse JSON response (even for errors)
+      const json = await res.json().catch(() => ({ error: "Server returned an invalid response" }))
+
       if (!res.ok) {
-        let errorMsg = "Registration failed"
-        try {
-          const errorJson = await res.json()
-          errorMsg = errorJson.error || errorMsg
-        } catch {
-          // response body not JSON
-        }
-        toast.error(errorMsg, { duration: 5000 })
+        const errorMsg = json.error || `Registration failed (${res.status})`
+        toast.error(errorMsg, { duration: 6000 })
         setRegistering(false)
         return
       }
-      const json = await res.json()
+
       // Success — show animation
       setRegistering(false)
       setMode("success")
       toast.success("Device registered successfully!", {
-        description: `Plan: ${json.plan} · Device: ${deviceInfo.name}`,
+        description: `Plan: ${json.plan || "enterprise"} · Device: ${deviceInfo.name}`,
         duration: 4000,
       })
       setTimeout(() => setMode("login"), 3000)
     } catch (err) {
-      // Only show "network error" if it's actually a network failure (not an API error)
       const msg = err instanceof Error ? err.message : "Unknown error"
       toast.error("Connection failed", {
-        description: msg.includes("fetch") || msg.includes("network") ? "Cannot connect to server. Check your internet." : msg,
+        description: msg,
         duration: 6000,
       })
       setRegistering(false)
