@@ -105,12 +105,12 @@ export function TopBar() {
   const ROLE_SWITCH = ROLES.filter(r => r.id !== "owner")
 
   // Role-based permissions for topbar elements
-  const canUsePOS = user ? canAccess(user.role as Role, "pos") : false
   const canSwitchBranch = user ? ["admin", "owner", "manager"].includes(user.role) : false
   const canUseCommand = user ? ["admin", "owner", "manager"].includes(user.role) : false
   const canSeeLiveClock = user ? ["admin", "owner", "manager"].includes(user.role) : false
   const canSeeNotifications = user ? ["admin", "owner", "manager"].includes(user.role) : false
-  const canSeeTheme = true // all users can toggle theme
+  const canSeeTheme = true
+  const canNewOrder = user ? user.role === "cashier" : false
   const userRole = user?.role as Role | undefined
   const roleThemeColor = roleDef?.color ?? "var(--primary)"
 
@@ -226,7 +226,7 @@ export function TopBar() {
       )}
 
       {/* Quick action — role-specific */}
-      {canUsePOS && (
+      {canNewOrder && (
         <Button size="sm" className="h-9 hidden sm:flex shrink-0" onClick={() => { setActiveModule("pos"); toast.success("New POS session") }}>
           <Plus className="h-4 w-4 mr-1" /> <span className="hidden lg:inline">New Order</span>
         </Button>
