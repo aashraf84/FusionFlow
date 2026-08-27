@@ -87,12 +87,13 @@ export function PizzaBuilder() {
     const isExtraCheese = cheese.id === "extra" || cheese.id === "double"
     const hasManyToppings = selectedToppings.length >= 3
 
-    if (hasPepperoni && hasManyToppings) return "/pizza/pepperoni-real2.jpg"
-    if (hasChicken || hasBeef) return "/pizza/bbq-chicken-real.jpg"
-    if (hasVeggie && !hasPepperoni && !hasChicken) return "/pizza/veggie-real.jpg"
-    if (hasPepperoni) return "/pizza/pepperoni-real.jpg"
-    if (selectedToppings.length === 0 && cheese.id === "regular") return "/pizza/margherita-real.jpg"
-    return "/pizza/margherita-real.jpg"
+    if (hasPepperoni && hasManyToppings) return "/pizza/pepperoni-supreme.jpg"
+    if (hasManyToppings && !hasChicken && !hasBeef) return "/pizza/supreme.jpg"
+    if (hasChicken || hasBeef) return "/pizza/bbq-chicken.jpg"
+    if (hasVeggie && !hasPepperoni && !hasChicken) return "/pizza/veggie.jpg"
+    if (isExtraCheese && !hasPepperoni && !hasChicken) return "/pizza/extra-cheese.jpg"
+    if (hasPepperoni) return "/pizza/pepperoni.jpg"
+    return "/pizza/margherita.jpg"
   }, [toppings, cheese])
 
   const addPizza = () => {
@@ -124,129 +125,78 @@ export function PizzaBuilder() {
     <div className="grid grid-cols-1 xl:grid-cols-[1fr_360px] gap-4">
       {/* LEFT — configurator */}
       <div className="space-y-4">
-        {/* Visual pizza — 3D animated with real photography */}
+        {/* Visual pizza — professional photography with steam */}
         <Card className="overflow-hidden">
           <div
-            className="relative grid place-items-center py-12 overflow-hidden"
+            className="relative grid place-items-center py-8"
             style={{
-              background: "radial-gradient(ellipse at center 60%, oklch(0.93 0.03 50), oklch(0.85 0.04 45))",
-              perspective: "1200px",
-              perspectiveOrigin: "center 40%",
+              background: "linear-gradient(180deg, oklch(0.15 0.02 40) 0%, oklch(0.12 0.02 35) 100%)",
             }}
           >
-            {/* Smoke effect */}
+            {/* Steam effect */}
             <SmokeEffect />
 
-            {/* Dynamic shadow under pizza */}
-            <motion.div
-              animate={{
-                scale: [1, 1.05, 1],
-                opacity: [0.3, 0.25, 0.3],
-              }}
-              transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-              className="absolute"
-              style={{
-                width: size.id === "xlarge" ? 220 : size.id === "large" ? 190 : size.id === "medium" ? 160 : 130,
-                height: 30,
-                bottom: "15%",
-                borderRadius: "50%",
-                background: "radial-gradient(ellipse, rgba(0,0,0,0.4), transparent 70%)",
-                filter: "blur(8px)",
-              }}
-            />
-
-            {/* 3D Pizza container */}
+            {/* Pizza photo with gentle float */}
             <motion.div
               key={pizzaImage}
-              initial={{ scale: 0.5, opacity: 0, rotateY: -45 }}
-              animate={{ scale: 1, opacity: 1, rotateY: 0 }}
-              transition={{ type: "spring", stiffness: 80, damping: 12 }}
+              initial={{ scale: 0.7, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ type: "spring", stiffness: 100, damping: 15 }}
               className="relative"
-              style={{
-                transformStyle: "preserve-3d",
-                width: size.id === "xlarge" ? 260 : size.id === "large" ? 220 : size.id === "medium" ? 180 : 150,
-                height: size.id === "xlarge" ? 260 : size.id === "large" ? 220 : size.id === "medium" ? 180 : 150,
-              }}
             >
-              {/* Floating + rotating animation wrapper */}
               <motion.div
-                animate={{
-                  y: [0, -8, 0],
-                  rotateZ: [-2, 2, -2],
+                animate={{ y: [0, -6, 0] }}
+                transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
+                className="relative rounded-2xl overflow-hidden"
+                style={{
+                  width: size.id === "xlarge" ? 300 : size.id === "large" ? 260 : size.id === "medium" ? 220 : 180,
+                  height: size.id === "xlarge" ? 300 : size.id === "large" ? 260 : size.id === "medium" ? 220 : 180,
+                  boxShadow: "0 20px 60px rgba(0,0,0,0.5), 0 8px 20px rgba(0,0,0,0.3)",
                 }}
-                transition={{
-                  duration: 6,
-                  repeat: Infinity,
-                  ease: "easeInOut",
-                }}
-                className="w-full h-full"
-                style={{ transformStyle: "preserve-3d" }}
               >
-                {/* 3D tilt */}
+                <img
+                  src={pizzaImage}
+                  alt="Your custom pizza"
+                  className="w-full h-full object-cover"
+                  style={{ filter: "saturate(1.1) contrast(1.05)" }}
+                />
+                {/* Subtle vignette */}
                 <div
-                  className="w-full h-full relative"
-                  style={{
-                    transform: "rotateX(18deg)",
-                    transformStyle: "preserve-3d",
-                  }}
-                >
-                  {/* Real pizza photo */}
-                  <div
-                    className="absolute inset-0 rounded-full overflow-hidden"
-                    style={{
-                      boxShadow: "0 20px 50px rgba(0,0,0,0.3), inset 0 -6px 20px rgba(0,0,0,0.2), inset 0 4px 8px rgba(255,255,255,0.15)",
-                    }}
-                  >
-                    <img
-                      src={pizzaImage}
-                      alt="Your custom pizza"
-                      className="w-full h-full object-cover rounded-full"
-                      style={{ filter: "saturate(1.15) contrast(1.08) brightness(1.02)" }}
-                    />
-                    {/* Glossy overlay */}
-                    <div
-                      className="absolute inset-0 rounded-full pointer-events-none"
-                      style={{
-                        background: "linear-gradient(135deg, rgba(255,255,255,0.18) 0%, transparent 35%, transparent 65%, rgba(0,0,0,0.1) 100%)",
-                      }}
-                    />
-                  </div>
-
-                  {/* Falling toppings animation overlay */}
-                  <FallingToppings toppings={toppings} />
-                </div>
+                  className="absolute inset-0 pointer-events-none"
+                  style={{ background: "radial-gradient(ellipse at center, transparent 50%, rgba(0,0,0,0.2) 100%)" }}
+                />
               </motion.div>
             </motion.div>
 
             {/* Info badges */}
             <div className="absolute top-3 left-3 flex flex-col gap-1.5">
               <motion.div initial={{ x: -20, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ delay: 0.3 }}>
-                <Badge className="bg-chart-1 text-white shadow-md"><Flame className="h-3 w-3 mr-1" />{calories} cal</Badge>
+                <Badge className="bg-white/90 text-black shadow-lg"><Flame className="h-3 w-3 mr-1" />{calories} cal</Badge>
               </motion.div>
               <motion.div initial={{ x: -20, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ delay: 0.4 }}>
-                <Badge variant="secondary" className="shadow-md"><Leaf className="h-3 w-3 mr-1" />{size.slices} slices</Badge>
+                <Badge className="bg-white/90 text-black shadow-lg"><Leaf className="h-3 w-3 mr-1" />{size.slices} slices</Badge>
               </motion.div>
             </div>
             <div className="absolute top-3 right-3">
               <motion.div initial={{ x: 20, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ delay: 0.5 }}>
-                <Badge variant="outline" className="bg-background shadow-md"><Wheat className="h-3 w-3 mr-1" />{crust.label.split(" ")[0]}</Badge>
+                <Badge className="bg-white/90 text-black shadow-lg"><Wheat className="h-3 w-3 mr-1" />{crust.label.split(" ")[0]}</Badge>
               </motion.div>
             </div>
 
-            {/* Baking indicator */}
+            {/* Bottom indicator */}
             <motion.div
               initial={{ y: 10, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               transition={{ delay: 0.6 }}
               className="absolute bottom-3 left-1/2 -translate-x-1/2"
             >
-              <div className="flex items-center gap-1.5 rounded-full bg-background/80 backdrop-blur px-3 py-1 text-[10px] font-semibold text-muted-foreground shadow-md">
+              <div className="flex items-center gap-1.5 rounded-full bg-white/10 backdrop-blur px-3 py-1 text-[10px] font-semibold text-white shadow-lg">
                 <motion.span
                   animate={{ scale: [1, 1.3, 1], opacity: [1, 0.5, 1] }}
                   transition={{ duration: 1.5, repeat: Infinity }}
                   className="h-2 w-2 rounded-full bg-chart-4"
                 />
-                🔥 Baking in 3D · Live Preview
+                Fresh from the oven
               </div>
             </motion.div>
           </div>
