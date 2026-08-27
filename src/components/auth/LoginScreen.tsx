@@ -27,7 +27,14 @@ const DEMO_ACCOUNTS: { role: Role; email: string; label: string; desc: string }[
 export function LoginScreen() {
   const login = useAuthStore((s) => s.login)
   const switchRole = useAuthStore((s) => s.switchRole)
-  const [mode, setMode] = useState<LoginMode>("register")
+
+  // Check if device was already registered (stored in localStorage)
+  const [mode, setMode] = useState<LoginMode>(() => {
+    if (typeof window !== "undefined" && localStorage.getItem("ff_device_registered") === "true") {
+      return "login"
+    }
+    return "register"
+  })
   const [serialKey, setSerialKey] = useState("")
   const [registering, setRegistering] = useState(false)
   const [deviceInfo, setDeviceInfo] = useState({ id: "", name: "" })
@@ -82,6 +89,7 @@ export function LoginScreen() {
       // Success — show animation
       setRegistering(false)
       setMode("success")
+      localStorage.setItem("ff_device_registered", "true")
       toast.success("Device registered successfully!", {
         description: `Plan: ${json.plan || "enterprise"} · Device: ${deviceInfo.name}`,
         duration: 4000,
@@ -420,7 +428,7 @@ export function LoginScreen() {
 
                 {/* Back to registration */}
                 <button
-                  onClick={() => setMode("register")}
+                  onClick={() => { localStorage.removeItem("ff_device_registered"); setMode("register") }}
                   className="w-full text-center text-[11px] text-muted-foreground hover:text-foreground mt-4"
                 >
                   ← Register a different device
